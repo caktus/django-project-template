@@ -1,6 +1,14 @@
 {{ project_name|title }}
 ========================
 
+Installation
+------------
+
+To start a new project with this template::
+
+    django-admin.py startproject --template=<TBD> --extension=py,rst
+
+
 Getting Started
 ------------------------
 

@@ -139,7 +139,11 @@ def setup_server(*roles):
         # Create project directories and install Python requirements
         project_run('mkdir -p %(root)s' % env)
         project_run('mkdir -p %(log_dir)s' % env)
-        update_source()
+        with settings(user=env.project_user):
+            # TODO: Add known hosts prior to clone.
+            # i.e. ssh -o StrictHostKeyChecking=no git@github.com
+            sshagent_run('git clone %(repo)s %(code_root)s' % env)
+        project_run('git checkout %(branch)s' % env)
         # Install and create virtualenv
         with settings(hide('everything'), warn_only=True):
             test_for_pip = run('which pip')
@@ -168,22 +172,6 @@ def setup_server(*roles):
 def project_run(cmd):
     """ Uses sudo to allow developer to run commands as project user."""
     sudo(cmd, user=env.project_user)
-
-
-@task
-def update_source(branch=None):
-    """Checkout the latest code from repo."""
-    require('environment')
-    if files.exists(env.code_root):
-        with cd(env.code_root):
-            with settings(user=env.project_user):
-                sshagent_run('git pull')
-                project_run('git checkout %(branch)s' % env)
-    else:
-        with settings(user=env.project_user):
-            # TODO: Add known hosts prior to clone.
-            # i.e. ssh -o StrictHostKeyChecking=no git@github.com
-            sshagent_run('git clone %(repo)s %(code_root)s' % env)
 
 
 @task
@@ -225,16 +213,34 @@ def collectstatic():
     manage_run('collectstatic --noinput')
 
 
+def grep_changes(branch, match):
+    changes = run("git diff {0} origin/{0} --stat | grep {1} | cat".format(branch, match))
+    return any(changes)
+
+
 @task
-def deploy(requirements=False, migrations=False):
+def deploy(branch=None):
     """Deploy to a given environment."""
     require('environment')
-    if requirements or migrations:
-        supervisor_command('stop %(environment)s:*' % env)
-    update_source()
+    if branch is not None:
+        env.branch = branch
+    requirements = False
+    migrations = False
+    # Fetch latest changes
+    with cd(env.code_root):
+        with settings(user=env.project_user):
+            sshagent_run('git fetch origin')
+        # Look for new requirements or migrations
+        requirements = grep_changes(env.branch, "'requirements\/'")
+        migrations = grep_changes(env.branch, "'\/migration\/'")
+        if requirements or migrations:
+            supervisor_command('stop %(environment)s:*' % env)
+        run("git reset --hard origin/%(branch)s" % env)
     if requirements:
         update_requirements()
-    if migrations:
+        # New requirements might need new tables/migrations
+        syncdb()
+    elif migrations:
         syncdb()
     collectstatic()
     if requirements or migrations:
