@@ -5,6 +5,10 @@ TEMPLATE_DEBUG = DEBUG
 
 DATABASES['default']['NAME'] = '{{ project_name }}_staging'
 
+INSTALLED_APPS += (
+    'gunicorn',
+)
+
 CACHES = {
     'default': {
         'BACKEND': 'django.core.cache.backends.memcached.MemcachedCache',
