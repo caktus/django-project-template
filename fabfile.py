@@ -30,7 +30,7 @@ env.ARGYLE_TEMPLATE_DIRS = (
 
 @task
 def vagrant():
-    env.environment = 'dev'
+    env.environment = 'staging'
     env.hosts = ['33.33.33.10', ]
     env.branch = 'master'
     env.server_name = 'dev.example.com'
