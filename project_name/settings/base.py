@@ -171,3 +171,7 @@ LOGGING = {
 
 # Application settings
 SKIP_SOUTH_TESTS = True
+
+COMPRESS_PRECOMPILERS = (
+   ('text/less', 'lessc {infile} {outfile}'),
+)
