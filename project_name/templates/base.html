@@ -1,3 +1,4 @@
+{% load compress %}
 <!DOCTYPE html>
 <html lang="en" class="no-js">
 <head>
@@ -16,7 +17,7 @@
     <link rel="stylesheet" type="text/less" media="all" href="{{ STATIC_URL }}less/site.less">
     {% endcompress %}
     {% endif %}
-    <script src="{{ STATIC_URL }}js/libs/modernizr-1.5.min.js"></script>
+    <script src="{{ STATIC_URL }}js/libs/modernizr-2.5.3.js"></script>
 </head>
 <body>
     <div class="container">
