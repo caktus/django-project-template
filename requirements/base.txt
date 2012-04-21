@@ -1,0 +1,7 @@
+psycopg2==2.4.5
+PIL==1.1.7
+django==1.4
+South==0.7.4
+django_compressor==1.1.1
+django-appconf==0.4.1
+BeautifulSoup==3.2.1
