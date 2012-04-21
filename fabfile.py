@@ -29,6 +29,15 @@ env.ARGYLE_TEMPLATE_DIRS = (
 
 
 @task
+def vagrant():
+    env.environment = 'dev'
+    env.hosts = ['33.33.33.10', ]
+    env.branch = 'master'
+    env.server_name = 'dev.example.com'
+    setup_path()
+
+
+@task
 def staging():
     env.environment = 'staging'
     env.hosts = [] # FIXME: Add staging server hosts
@@ -213,7 +222,7 @@ def collectstatic():
     manage_run('collectstatic --noinput')
 
 
-def grep_changes(branch, match):
+def match_changes(branch, match):
     changes = run("git diff {0} origin/{0} --stat | grep {1} | cat".format(branch, match))
     return any(changes)
 
@@ -231,8 +240,8 @@ def deploy(branch=None):
         with settings(user=env.project_user):
             sshagent_run('git fetch origin')
         # Look for new requirements or migrations
-        requirements = grep_changes(env.branch, "'requirements\/'")
-        migrations = grep_changes(env.branch, "'\/migration\/'")
+        requirements = match_changes(env.branch, "'requirements\/'")
+        migrations = match_changes(env.branch, "'\/migration\/'")
         if requirements or migrations:
             supervisor_command('stop %(environment)s:*' % env)
         run("git reset --hard origin/%(branch)s" % env)
@@ -243,10 +252,7 @@ def deploy(branch=None):
     elif migrations:
         syncdb()
     collectstatic()
-    if requirements or migrations:
-        supervisor_command('start %(environment)s:*' % env)
-    else:
-        supervisor_command('restart %(environment)s:*' % env)
+    supervisor_command('restart %(environment)s:*' % env)
 
 
 @task
