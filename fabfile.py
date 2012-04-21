@@ -1,7 +1,5 @@
 import ConfigParser
 import os
-import random
-import string
 
 from argyle import rabbitmq, postgres, nginx, system
 from argyle.base import sshagent_run, upload_template

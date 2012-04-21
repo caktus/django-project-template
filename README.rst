@@ -26,7 +26,7 @@ Then create a local settings file and set your ``DJANGO_SETTINGS_MODULE`` to use
 
 Create the Postgres database and run the initial syncdb/migrate::
 
-    createdb {{ project_name }}
+    createdb -E UTF-8 {{ project_name }}
     python manage.py syncdb
     python manage.py migrate
 
@@ -73,6 +73,7 @@ The location of the key file may vary on your system.::
 
     fab -H 33.33.33.10 -u vagrant -i /usr/lib/ruby/gems/1.8/gems/vagrant-1.0.2/keys/vagrant create_users
     fab vagrant setup_server:all
+    fab vagrant deploy
 
 It is not necessary to reconfigure the SSH settings on the vagrant box. This forwards 
 port 80 in the VM to port 8080 on the host box. You can view the site
