@@ -1,0 +1,9 @@
+*.py[co]
+.project
+.pydevproject
+*~
+*.db
+*.orig
+.coverage
+public/static/
+public/media/
