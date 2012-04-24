@@ -17,6 +17,7 @@
     <link rel="stylesheet" type="text/less" media="all" href="{{ STATIC_URL }}less/site.less">
     {% endcompress %}
     {% endif %}
+    {% block extra-css %}{% endblock %}
     <script src="{{ STATIC_URL }}js/libs/modernizr-2.5.3.js"></script>
 </head>
 <body>
