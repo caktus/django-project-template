@@ -1,12 +1,15 @@
-{{ project_name|title }}
-========================
-
+{% if False %}
 Installation
 ------------
 
 To start a new project with this template::
 
-    django-admin.py startproject --template=<TBD> --extension=py,rst
+    django-admin.py startproject --template=https://github.com/caktus/django-project-template/zipball/master --extension=py,rst
+
+{% endif %}
+
+{{ project_name|title }}
+========================
 
 
 Getting Started
