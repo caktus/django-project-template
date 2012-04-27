@@ -15,7 +15,7 @@ To start a new project with this template::
 Getting Started
 ------------------------
 
-To setup you local environment you should create a virtualenv and install the
+To setup your local environment you should create a virtualenv and install the
 necessary requirements::
 
     mkvirtualenv {{ project_name }} --distribute
@@ -85,7 +85,7 @@ by visiting localhost:8080 in your browser. You may also want to add::
     33.33.33.10 dev.example.com
 
 to your hosts (/etc/hosts) file. You can stop the VM with ``vagrant halt`` and
-destory the box completely to retest the provisioning with ``vagrant destroy``.
+destroy the box completely to retest the provisioning with ``vagrant destroy``.
 For more information please review the Vagrant documentation.
 
 
@@ -94,7 +94,7 @@ Deployment
 
 For future deployments you can deploy changes to a particular environment with
 the ``deploy`` command. This takes an optional branch name to deploy. If the branch
-is not given it will use the default branch defined for this environment in
+is not given, it will use the default branch defined for this environment in
 ``env.branch``::
 
     fab staging deploy
