@@ -55,7 +55,7 @@ the default port from 22 to ``env.ssh_port``::
 
     fab -H <fresh-server-ip> configure_ssh
 
-Now the base server is configured, you should add the IP to the appropriate environment
+Now that the base server is configured, you should add the IP to the appropriate environment
 function and provision it for its role. You can provision a new server with the
 ``setup_server`` fab command. It takes a list of roles for this server
 ('app', 'db', 'lb') or you can say 'all'::
