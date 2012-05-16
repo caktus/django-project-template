@@ -13,6 +13,7 @@ from fabric.contrib import files, console
 # Directory structure
 PROJECT_ROOT = os.path.dirname(__file__)
 CONF_ROOT = os.path.join(PROJECT_ROOT, 'conf')
+SERVER_ROLES = ['app', 'lb', 'db']
 env.project = '{{ project_name }}'
 env.project_user = '{{ project_name }}'
 env.repo = u'' # FIXME: Add repo URL
@@ -103,11 +104,6 @@ def configure_ssh():
 @task
 def install_packages(*roles):
     """Install packages for the given roles."""
-    roles = list(roles)
-    if roles == ['all', ]:
-        roles = SERVER_ROLES
-    if 'base' not in roles:
-        roles.insert(0, 'base')
     config_file = os.path.join(CONF_ROOT, u'packages.conf')
     config = ConfigParser.SafeConfigParser()
     config.read(config_file)
@@ -134,6 +130,11 @@ def setup_server(*roles):
     require('environment')
     # Set server locale    
     sudo('/usr/sbin/update-locale LANG=en_US.UTF-8')
+    roles = list(roles)
+    if roles == ['all', ]:
+        roles = SERVER_ROLES
+    if 'base' not in roles:
+        roles.insert(0, 'base')
     install_packages(*roles)
     if 'db' in roles:
         if console.confirm(u"Do you want to reset the Postgres cluster?.", default=False):
