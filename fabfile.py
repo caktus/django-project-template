@@ -2,7 +2,7 @@ import ConfigParser
 import os
 
 from argyle import rabbitmq, postgres, nginx, system
-from argyle.base import sshagent_run, upload_template
+from argyle.base import upload_template
 from argyle.postgres import create_db_user, create_db
 from argyle.supervisor import supervisor_command, upload_supervisor_app_conf
 from argyle.system import service_command, start_service, stop_service, restart_service
@@ -13,12 +13,14 @@ from fabric.contrib import files, console
 # Directory structure
 PROJECT_ROOT = os.path.dirname(__file__)
 CONF_ROOT = os.path.join(PROJECT_ROOT, 'conf')
+SERVER_ROLES = ['app', 'lb', 'db']
 env.project = '{{ project_name }}'
 env.project_user = '{{ project_name }}'
 env.repo = u'' # FIXME: Add repo URL
 env.shell = '/bin/bash -c'
 env.disable_known_hosts = True
 env.ssh_port = 2222
+env.forward_agent = True
 
 # Additional settings for argyle
 env.ARGYLE_TEMPLATE_DIRS = (
@@ -103,11 +105,6 @@ def configure_ssh():
 @task
 def install_packages(*roles):
     """Install packages for the given roles."""
-    roles = list(roles)
-    if roles == ['all', ]:
-        roles = SERVER_ROLES
-    if 'base' not in roles:
-        roles.insert(0, 'base')
     config_file = os.path.join(CONF_ROOT, u'packages.conf')
     config = ConfigParser.SafeConfigParser()
     config.read(config_file)
@@ -134,23 +131,35 @@ def setup_server(*roles):
     require('environment')
     # Set server locale    
     sudo('/usr/sbin/update-locale LANG=en_US.UTF-8')
+    roles = list(roles)
+    if roles == ['all', ]:
+        roles = SERVER_ROLES
+    if 'base' not in roles:
+        roles.insert(0, 'base')
     install_packages(*roles)
     if 'db' in roles:
         if console.confirm(u"Do you want to reset the Postgres cluster?.", default=False):
             # Ensure the cluster is using UTF-8
-            sudo('pg_dropcluster --stop 9.1 main', user='postgres')
-            sudo('pg_createcluster --start -e UTF-8 9.1 main', user='postgres') 
+            pg_version = postgres.detect_version()
+            sudo('pg_dropcluster --stop %s main' % pg_version, user='postgres')
+            sudo('pg_createcluster --start -e UTF-8 %s main' % pg_version,
+                 user='postgres')
         postgres.create_db_user(username=env.project_user)
         postgres.create_db(name=env.db, owner=env.project_user)
     if 'app' in roles:
         # Create project directories and install Python requirements
         project_run('mkdir -p %(root)s' % env)
         project_run('mkdir -p %(log_dir)s' % env)
+        # FIXME: update to SSH as normal user and use sudo
+        # we ssh as the project_user here to maintain ssh agent
+        # forwarding, because it doesn't work with sudo. read:
+        # http://serverfault.com/questions/107187/sudo-su-username-while-keeping-ssh-key-forwarding
         with settings(user=env.project_user):
             # TODO: Add known hosts prior to clone.
             # i.e. ssh -o StrictHostKeyChecking=no git@github.com
-            sshagent_run('git clone %(repo)s %(code_root)s' % env)
-        project_run('git checkout %(branch)s' % env)
+            run('git clone %(repo)s %(code_root)s' % env)
+            with cd(env.code_root):
+                run('git checkout %(branch)s' % env)
         # Install and create virtualenv
         with settings(hide('everything'), warn_only=True):
             test_for_pip = run('which pip')
@@ -185,9 +194,10 @@ def project_run(cmd):
 def update_requirements():
     """Update required Python libraries."""
     require('environment')
-    project_run(u'%(virtualenv)s/bin/pip install --use-mirrors -q -r %(requirements)s' % {
+    project_run(u'HOME=%(home)s %(virtualenv)s/bin/pip install --use-mirrors -r %(requirements)s' % {
         'virtualenv': env.virtualenv_root,
-        'requirements': os.path.join(env.code_root, 'requirements', 'production.txt')
+        'requirements': os.path.join(env.code_root, 'requirements', 'production.txt'),
+        'home': env.home,
     })
 
 
@@ -236,13 +246,14 @@ def deploy(branch=None):
     # Fetch latest changes
     with cd(env.code_root):
         with settings(user=env.project_user):
-            sshagent_run('git fetch origin')
+            run('git fetch origin')
         # Look for new requirements or migrations
         requirements = match_changes(env.branch, "'requirements\/'")
         migrations = match_changes(env.branch, "'\/migration\/'")
         if requirements or migrations:
             supervisor_command('stop %(environment)s:*' % env)
-        run("git reset --hard origin/%(branch)s" % env)
+        with settings(user=env.project_user):
+            run("git reset --hard origin/%(branch)s" % env)
     if requirements:
         update_requirements()
         # New requirements might need new tables/migrations
