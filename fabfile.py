@@ -2,7 +2,7 @@ import ConfigParser
 import os
 
 from argyle import rabbitmq, postgres, nginx, system
-from argyle.base import sshagent_run, upload_template
+from argyle.base import upload_template
 from argyle.postgres import create_db_user, create_db
 from argyle.supervisor import supervisor_command, upload_supervisor_app_conf
 from argyle.system import service_command, start_service, stop_service, restart_service
@@ -20,6 +20,7 @@ env.repo = u'' # FIXME: Add repo URL
 env.shell = '/bin/bash -c'
 env.disable_known_hosts = True
 env.ssh_port = 2222
+env.forward_agent = True
 
 # Additional settings for argyle
 env.ARGYLE_TEMPLATE_DIRS = (
@@ -149,11 +150,16 @@ def setup_server(*roles):
         # Create project directories and install Python requirements
         project_run('mkdir -p %(root)s' % env)
         project_run('mkdir -p %(log_dir)s' % env)
+        # FIXME: update to SSH as normal user and use sudo
+        # we ssh as the project_user here to maintain ssh agent
+        # forwarding, because it doesn't work with sudo. read:
+        # http://serverfault.com/questions/107187/sudo-su-username-while-keeping-ssh-key-forwarding
         with settings(user=env.project_user):
             # TODO: Add known hosts prior to clone.
             # i.e. ssh -o StrictHostKeyChecking=no git@github.com
-            sshagent_run('git clone %(repo)s %(code_root)s' % env)
-        project_run('git checkout %(branch)s' % env)
+            run('git clone %(repo)s %(code_root)s' % env)
+            with cd(env.code_root):
+                run('git checkout %(branch)s' % env)
         # Install and create virtualenv
         with settings(hide('everything'), warn_only=True):
             test_for_pip = run('which pip')
@@ -240,7 +246,7 @@ def deploy(branch=None):
     # Fetch latest changes
     with cd(env.code_root):
         with settings(user=env.project_user):
-            sshagent_run('git fetch origin')
+            run('git fetch origin')
         # Look for new requirements or migrations
         requirements = match_changes(env.branch, "'requirements\/'")
         migrations = match_changes(env.branch, "'\/migration\/'")
