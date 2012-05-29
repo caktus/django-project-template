@@ -252,7 +252,8 @@ def deploy(branch=None):
         migrations = match_changes(env.branch, "'\/migration\/'")
         if requirements or migrations:
             supervisor_command('stop %(environment)s:*' % env)
-        run("git reset --hard origin/%(branch)s" % env)
+        with settings(user=env.project_user):
+            run("git reset --hard origin/%(branch)s" % env)
     if requirements:
         update_requirements()
         # New requirements might need new tables/migrations
