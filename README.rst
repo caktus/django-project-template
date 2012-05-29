@@ -4,7 +4,7 @@ Installation
 
 To start a new project with this template::
 
-    django-admin.py startproject --template=https://github.com/caktus/django-project-template/zipball/master --extension=py,rst
+    django-admin.py startproject --template=https://github.com/caktus/django-project-template/zipball/master --extension=py,rst <project_name>
 
 {% endif %}
 
@@ -43,21 +43,21 @@ Server Provisioning
 
 The first step in creating a new server is to create users on the remote server. You
 will need root user access with passwordless sudo. How you specify this user will vary
-based on the hosting provider. EC2 and Vagran use a private key file. Rackspace and
+based on the hosting provider. EC2 and Vagrant use a private key file. Rackspace and
 Linode use a user/password combination. Before running this command you should
 add the ssh keys of the developers into the ``conf/users`` directory::
 
     fab -H <fresh-server-ip> -u <root-user> create_users
 
 This will create a project user and users for all the developers. At this time it's
-typically a good idea to lock down SSH connections disable password login and move
+typically a good idea to lock down SSH connections: disable password login and move
 the default port from 22 to ``env.ssh_port``::
 
     fab -H <fresh-server-ip> configure_ssh
 
-Now the the base server is configured you should add the IP to appropriate environment
-function and provision it for its role. You can provision a new server with the 
-``setup_server`` fab command. It takes a list of roles for this server 
+Now that the base server is configured, you should add the IP to the appropriate environment
+function and provision it for its role. You can provision a new server with the
+``setup_server`` fab command. It takes a list of roles for this server
 ('app', 'db', 'lb') or you can say 'all'::
 
     fab staging setup_server:all
@@ -78,7 +78,7 @@ The location of the key file may vary on your system.::
     fab vagrant setup_server:all
     fab vagrant deploy
 
-It is not necessary to reconfigure the SSH settings on the vagrant box. This forwards 
+It is not necessary to reconfigure the SSH settings on the vagrant box. This forwards
 port 80 in the VM to port 8080 on the host box. You can view the site
 by visiting localhost:8080 in your browser. You may also want to add::
 

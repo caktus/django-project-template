@@ -221,7 +221,7 @@ def collectstatic():
 
 
 def match_changes(branch, match):
-    changes = run("git diff {0} origin/{0} --stat | grep {1} | cat".format(branch, match))
+    changes = run("git diff {0} origin/{0} --stat | grep {1}".format(branch, match))
     return any(changes)
 
 
