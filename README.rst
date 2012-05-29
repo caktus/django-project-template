@@ -18,7 +18,7 @@ Getting Started
 To setup your local environment you should create a virtualenv and install the
 necessary requirements::
 
-    mkvirtualenv {{ project_name }} --distribute
+    mkvirtualenv --distribute {{ project_name }}
     $VIRTUAL_ENV/bin/pip install -r $PWD/requirements/dev.txt
 
 Then create a local settings file and set your ``DJANGO_SETTINGS_MODULE`` to use it::
