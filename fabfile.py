@@ -249,7 +249,7 @@ def deploy(branch=None):
             run('git fetch origin')
         # Look for new requirements or migrations
         requirements = match_changes(env.branch, "'requirements\/'")
-        migrations = match_changes(env.branch, "'\/migration\/'")
+        migrations = match_changes(env.branch, "'\/migrations\/'")
         if requirements or migrations:
             supervisor_command('stop %(environment)s:*' % env)
         with settings(user=env.project_user):
