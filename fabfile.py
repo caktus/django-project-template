@@ -232,9 +232,9 @@ def collectstatic():
 
 
 def match_changes(branch, match):
-    changes = run("git diff {0} origin/{0} --stat-name-width=256".format(branch))
+    changes = run("git diff {0} origin/{0} --stat-name-width=9999".format(branch))
     pattern = re.compile(match)
-    return pattern.search(changes)
+    return pattern.search(changes) is not None
 
 
 @task
