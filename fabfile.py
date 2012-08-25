@@ -1,5 +1,6 @@
 import ConfigParser
 import os
+import re
 
 from argyle import rabbitmq, postgres, nginx, system
 from argyle.base import upload_template
@@ -231,8 +232,9 @@ def collectstatic():
 
 
 def match_changes(branch, match):
-    changes = run("git diff {0} origin/{0} --stat | grep {1}".format(branch, match))
-    return any(changes)
+    changes = run("git diff {0} origin/{0} --stat-name-width=256".format(branch))
+    pattern = re.compile(match)
+    return pattern.search(changes)
 
 
 @task
@@ -248,8 +250,8 @@ def deploy(branch=None):
         with settings(user=env.project_user):
             run('git fetch origin')
         # Look for new requirements or migrations
-        requirements = match_changes(env.branch, "'requirements\/'")
-        migrations = match_changes(env.branch, "'\/migrations\/'")
+        requirements = match_changes(env.branch, r"requirements/")
+        migrations = match_changes(env.branch, r"/migrations/")
         if requirements or migrations:
             supervisor_command('stop %(environment)s:*' % env)
         with settings(user=env.project_user):
