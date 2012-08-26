@@ -142,7 +142,7 @@ def setup_server(*roles):
             # Ensure the cluster is using UTF-8
             pg_version = postgres.detect_version()
             sudo('pg_dropcluster --stop %s main' % pg_version, user='postgres')
-            sudo('pg_createcluster --start -e UTF-8 %s main' % pg_version,
+            sudo('pg_createcluster --start -e UTF-8 --locale en_US.UTF-8 %s main' % pg_version,
                  user='postgres')
         postgres.create_db_user(username=env.project_user)
         postgres.create_db(name=env.db, owner=env.project_user)
