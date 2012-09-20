@@ -14,12 +14,12 @@ To start a new project with this template::
 Below you will find basic setup and deployment instructions for the {{ project_name }}
 project. To begin you should have the following applications installed
 
- - Python >= 2.6 (2.7 recommended)
- - `pip >= 1.1 <http://www.pip-installer.org/>`_
- - `virtualenv >= 1.7 <http://www.virtualenv.org/>`_
- - `virtualenvwrapper >= 3.0 <http://pypi.python.org/pypi/virtualenvwrapper>`_
- - Postgres >= 8.4 (9.1 recommended)
- - git >= 1.7
+- Python >= 2.6 (2.7 recommended)
+- `pip >= 1.1 <http://www.pip-installer.org/>`_
+- `virtualenv >= 1.7 <http://www.virtualenv.org/>`_
+- `virtualenvwrapper >= 3.0 <http://pypi.python.org/pypi/virtualenvwrapper>`_
+- Postgres >= 8.4 (9.1 recommended)
+- git >= 1.7
 
 The deployment uses SSH with agent forwarding so you'll need to enable agent
 forwarding if it is not already by adding ``ForwardAgent yes`` to your SSH config.
@@ -65,27 +65,27 @@ based on the hosting provider. EC2 and Vagrant use a private key file. Rackspace
 Linode use a user/password combination. 
 
 1. For each developer, put a file in the ``conf/users`` directory
-containing their public ssh key, and named exactly the same as the
-user to create on the server. (E.g. for user "dickens", the filename
-must be "dickens", not "dickens.pub" or "user_dickens".)
+    containing their public ssh key, and named exactly the same as the
+    user to create on the server. (E.g. for user "dickens", the filename
+    must be "dickens", not "dickens.pub" or "user_dickens".)
 
-1. Run this command to create users on the server::
+2. Run this command to create users on the server::
 
-    fab -H <fresh-server-ip> -u <root-user> create_users
+        fab -H <fresh-server-ip> -u <root-user> create_users
 
-This will create a project user and users for all the developers. 
+    This will create a project user and users for all the developers. 
 
-1. Lock down SSH connections: disable password login and move
-the default port from 22 to ``env.ssh_port``::
+3. Lock down SSH connections: disable password login and move
+    the default port from 22 to ``env.ssh_port``::
 
-    fab -H <fresh-server-ip> configure_ssh
+        fab -H <fresh-server-ip> configure_ssh
 
-1. Add the IP to the appropriate environment
-function and provision it for its role. You can provision a new server with the
-``setup_server`` fab command. It takes a list of roles for this server
-('app', 'db', 'lb') or you can say 'all'::
+4. Add the IP to the appropriate environment
+    function and provision it for its role. You can provision a new server with the
+    ``setup_server`` fab command. It takes a list of roles for this server
+    ('app', 'db', 'lb') or you can say 'all'::
 
-    fab staging setup_server:all
+        fab staging setup_server:all
 
 
 Vagrant Testing
