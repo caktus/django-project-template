@@ -8,5 +8,7 @@
 .coverage
 .vagrant
 */settings/local.py
+secrets.conf
+!conf/templates/secrets.conf
 public/static/
 public/media/
