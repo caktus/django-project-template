@@ -64,7 +64,6 @@ will need root user access with passwordless sudo. How you specify this user wil
 based on the hosting provider. EC2 and Vagrant use a private key file. Rackspace and
 Linode use a user/password combination. 
 
-
 1. For each developer, put a file in the ``conf/users`` directory
     containing their public ssh key, and named exactly the same as the
     user to create on the server. (E.g. for user "dickens", the filename
