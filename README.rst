@@ -64,6 +64,7 @@ will need root user access with passwordless sudo. How you specify this user wil
 based on the hosting provider. EC2 and Vagrant use a private key file. Rackspace and
 Linode use a user/password combination. 
 
+
 1. For each developer, put a file in the ``conf/users`` directory
     containing their public ssh key, and named exactly the same as the
     user to create on the server. (E.g. for user "dickens", the filename
@@ -80,7 +81,20 @@ Linode use a user/password combination.
 
         fab -H <fresh-server-ip> configure_ssh
 
-4. Add the IP to the appropriate environment
+4. Configure environment secrets by creating a ``secrets.conf`` next to the
+    ``fabfile.py``. This should be a .ini style configuration file with the section
+    names matching the environment names. i.e::
+
+        [staging]
+        db_password = 'this-is-super-secret'
+
+        [production]
+        db_password = 'also-very-secret'
+
+    This is for example purposes only. ``db_password`` is not required but will
+    be used if given.
+
+5. Add the IP to the appropriate environment
     function and provision it for its role. You can provision a new server with the
     ``setup_server`` fab command. It takes a list of roles for this server
     ('app', 'db', 'lb') or you can say 'all'::
