@@ -11,6 +11,19 @@ To start a new project with this template::
 {{ project_name|title }}
 ========================
 
+Below you will find basic setup and deployment instructions for the {{ project_name }}
+project. To begin you should have the following applications installed
+
+ - Python >= 2.6 (2.7 recommended)
+ - `pip >= 1.1 <http://www.pip-installer.org/>`_
+ - `virtualenv >= 1.7 <http://www.virtualenv.org/>`_
+ - `virtualenvwrapper >= 3.0 <http://pypi.python.org/pypi/virtualenvwrapper>`_
+ - Postgres >= 8.4 (9.1 recommended)
+ - git >= 1.7
+
+The deployment uses SSH with agent forwarding so you'll need to enable agent
+forwarding if it is not already by adding ``ForwardAgent yes`` to your SSH config.
+
 
 Getting Started
 ------------------------
