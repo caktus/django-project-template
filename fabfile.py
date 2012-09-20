@@ -231,8 +231,7 @@ def collectstatic():
     manage_run('collectstatic --noinput')
 
 
-def match_changes(branch, match):
-    changes = run("git diff {0} origin/{0} --stat-name-width=9999".format(branch))
+def match_changes(changes, match):
     pattern = re.compile(match)
     return pattern.search(changes) is not None
 
@@ -250,8 +249,9 @@ def deploy(branch=None):
         with settings(user=env.project_user):
             run('git fetch origin')
         # Look for new requirements or migrations
-        requirements = match_changes(env.branch, r"requirements/")
-        migrations = match_changes(env.branch, r"/migrations/")
+        changes = run("git diff origin/%(branch)s --stat-name-width=9999" % env)
+        requirements = match_changes(changes, r"requirements/")
+        migrations = match_changes(changes, r"/migrations/")
         if requirements or migrations:
             supervisor_command('stop %(environment)s:*' % env)
         with settings(user=env.project_user):
