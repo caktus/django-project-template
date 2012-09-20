@@ -57,6 +57,24 @@ You should now be able to run the development server::
     python manage.py runserver
 
 
+Setup repository
+------------------------
+
+Before your project can be deployed to a server, the code needs to be
+accessible in a git repository.
+
+1. Add your project code to a git repo, hosted somewhere your server can clone it from.
+
+2. Edit ``fabfile.py`` near the top and insert your repo's URL.  E.g., change this::
+
+    env.repo = u'' # FIXME: Add repo URL
+
+   to this::
+
+    env.repo = u'git@github.com:account/reponame.git'
+
+
+
 Server Provisioning
 ------------------------
 
