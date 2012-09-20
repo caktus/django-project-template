@@ -3,7 +3,10 @@ from {{ project_name }}.settings.base import *
 DEBUG = False
 TEMPLATE_DEBUG = DEBUG
 
+STAGING_SECRETS = SECRETS.get('STAGING', {})
+
 DATABASES['default']['NAME'] = '{{ project_name }}_staging'
+DATABASES['default']['PASSWORD'] = STAGING_SECRETS.get('DB_PASSWORD', '')
 
 INSTALLED_APPS += (
     'gunicorn',
