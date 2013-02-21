@@ -1,3 +1,5 @@
+import sys
+
 from {{ project_name }}.settings.base import *
 
 DEBUG = True
@@ -22,5 +24,18 @@ DEBUG_TOOLBAR_CONFIG = {
 SOUTH_TESTS_MIGRATE = True
 
 CELERY_ALWAYS_EAGER = True
-    
+
 COMPRESS_ENABLED = False
+
+# Special test settings
+if 'test' in sys.argv:
+    CELERY_ALWAYS_EAGER = True
+
+    COMPRESS_ENABLED = False
+
+    COMPRESS_PRECOMPILERS = ()
+
+    PASSWORD_HASHERS = (
+        'django.contrib.auth.hashers.SHA1PasswordHasher',
+        'django.contrib.auth.hashers.MD5PasswordHasher',
+    )
