@@ -1,4 +1,6 @@
 # Django settings for {{ project_name }} project.
+import ConfigParser
+import logging
 import os
 
 PROJECT_PATH = os.path.abspath(os.path.join(os.path.dirname(__file__), os.pardir))
@@ -168,6 +170,29 @@ LOGGING = {
         },
     }
 }
+
+# Load secret settings
+def read_secrets():
+    "Read secrets from secrets.conf"
+    results = {}
+    if not hasattr(read_secrets, '_results'):
+        config_file = os.path.join(PROJECT_ROOT, u'secrets.conf')
+        if os.path.exists(config_file):
+            config = ConfigParser.SafeConfigParser()
+            config.read(config_file)
+            for section in config.sections():
+                section_data = {}
+                for name, value in config.items(section):
+                    section_data[name.upper()] = value
+                results[section.upper()] = section_data
+        else:
+            logging.warning('Secrets file could not be found.')
+    setattr(read_secrets, '_results', results)
+    return read_secrets._results
+
+# This names containing the word SECRET will hidden by the traceback email
+# See django.views.debug.HIDDEN_SETTINGS
+SECRETS = read_secrets()
 
 # Application settings
 SKIP_SOUTH_TESTS = True

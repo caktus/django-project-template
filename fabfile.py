@@ -10,6 +10,7 @@ from argyle.system import service_command, start_service, stop_service, restart_
 
 from fabric.api import cd, env, get, hide, local, put, require, run, settings, sudo, task
 from fabric.contrib import files, console
+from fabric.utils import warn
 
 # Directory structure
 PROJECT_ROOT = os.path.dirname(__file__)
@@ -66,6 +67,17 @@ def setup_path():
     env.db = '%s_%s' % (env.project, env.environment)
     env.vhost = '%s_%s' % (env.project, env.environment)
     env.settings = '%(project)s.settings.%(environment)s' % env
+    if os.path.exists('secrets.conf'):
+        config = ConfigParser.SafeConfigParser()
+        config.read('secrets.conf')
+        if config.has_section(env.environment):
+            env.secrets = dict(config.items(env.environment))
+        else:
+            warn('secrets.conf does not contain a %(environment)s section.' % env)
+            env.secrets = {}
+    else:
+        warn('secrets.conf was not found. env.secrets will be empty.')
+        env.secrets = {}
 
 
 @task
@@ -145,7 +157,9 @@ def setup_server(*roles):
             sudo('pg_dropcluster --stop %s main' % pg_version, user='postgres')
             sudo('pg_createcluster --start -e UTF-8 --locale en_US.UTF-8 %s main' % pg_version,
                  user='postgres')
-        postgres.create_db_user(username=env.project_user)
+        # If DB password is not in the secrets it assumes we will use ident auth
+        password = env.secrets.get('db_password') or None
+        postgres.create_db_user(username=env.project_user, password=password)
         postgres.create_db(name=env.db, owner=env.project_user)
     if 'app' in roles:
         # Create project directories and install Python requirements
@@ -161,6 +175,8 @@ def setup_server(*roles):
             run('git clone %(repo)s %(code_root)s' % env)
             with cd(env.code_root):
                 run('git checkout %(branch)s' % env)
+        # Include initial secrets
+        update_secrets()
         # Install and create virtualenv
         with settings(hide('everything'), warn_only=True):
             test_for_pip = run('which pip')
@@ -189,6 +205,15 @@ def setup_server(*roles):
 def project_run(cmd):
     """ Uses sudo to allow developer to run commands as project user."""
     sudo(cmd, user=env.project_user)
+
+
+@task
+def update_secrets():
+    "Update all secrets for a given environment."
+    require('environment')
+    destination = os.path.join(env.code_root, 'secrets.conf')
+    upload_template('secrets.conf', destination, use_sudo=True)
+    sudo('chown %s:%s %s' % (env.project_user, env.project_user, destination))
 
 
 @task
