@@ -130,7 +130,7 @@ def install_packages(*roles):
 def setup_server(*roles):
     """Install packages and add configurations for server given roles."""
     require('environment')
-    # Set server locale    
+    # Set server locale
     sudo('/usr/sbin/update-locale LANG=en_US.UTF-8')
     roles = list(roles)
     if roles == ['all', ]:
@@ -170,8 +170,14 @@ def setup_server(*roles):
             test_for_virtualenv = run('which virtualenv')
         if not test_for_virtualenv:
             sudo("pip install -U virtualenv")
-        project_run('virtualenv -p python2.6 --clear --distribute %s' % env.virtualenv_root)
-        path_file = os.path.join(env.virtualenv_root, 'lib', 'python2.6', 'site-packages', 'project.pth')
+        # PIL build dependancies
+        # http://www.sandersnewmedia.com/why/2012/04/16/installing-pil-virtualenv-ubuntu-1204-precise-pangolin/
+        # http://darrenma.wordpress.com/2012/07/13/installing-pil-into-a-virtualenv-properly-in-ubuntu/
+        sudo('ln -s /usr/lib/`uname -i`-linux-gnu/libfreetype.so /usr/lib/')
+        sudo('ln -s /usr/lib/`uname -i`-linux-gnu/libjpeg.so /usr/lib/')
+        sudo('ln -s /usr/lib/`uname -i`-linux-gnu/libz.so /usr/lib/')
+        project_run('virtualenv -p python2.7 --clear --distribute %s' % env.virtualenv_root)
+        path_file = os.path.join(env.virtualenv_root, 'lib', 'python2.7', 'site-packages', 'project.pth')
         files.append(path_file, env.code_root, use_sudo=True)
         sudo('chown %s:%s %s' % (env.project_user, env.project_user, path_file))
         sudo('npm install less -g')
