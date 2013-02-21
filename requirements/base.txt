@@ -1,6 +1,6 @@
 psycopg2==2.4.5
 PIL==1.1.7
-django==1.4.3
+django==1.4.5
 South==0.7.6
 django_compressor==1.2
 django-appconf==0.5
