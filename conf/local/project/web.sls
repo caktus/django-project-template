@@ -45,3 +45,31 @@ nginx_log:
         log_dir: "/var/www/log"
     - require:
       - file: nginx_log
+
+/etc/supervisor/conf.d/group.conf:
+  file.managed:
+    - source: salt://project/supervisor/group.conf
+    - user: root
+    - group: root
+    - mode: 644
+    - template: jinja
+    - context:
+        code_root: "/var/www/{{ pillar['project_name']}}"
+        log_dir: "/var/www/log"
+    - require:
+      - file: nginx_log
+
+/etc/supervisor/conf.d/gunicorn.conf:
+  file.managed:
+    - source: salt://project/supervisor/gunicorn.conf
+    - user: root
+    - group: root
+    - mode: 644
+    - template: jinja
+    - context:
+        code_root: "/var/www/{{ pillar['project_name']}}"
+        log_dir: "/var/www/log"
+        virtualenv_root: "/var/www/env"
+        settings: "{{ pillar['project_name']}}.settings.{{ pillar['environment'] }}"
+    - require:
+      - file: nginx_log
