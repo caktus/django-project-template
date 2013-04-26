@@ -81,38 +81,32 @@ Server Provisioning
 The first step in creating a new server is to create users on the remote server. You
 will need root user access with passwordless sudo. How you specify this user will vary
 based on the hosting provider. EC2 and Vagrant use a private key file. Rackspace and
-Linode use a user/password combination. 
+Linode use a user/password combination.
 
-1. For each developer, put a file in the ``conf/users`` directory
-    containing their public ssh key, and named exactly the same as the
-    user to create on the server, which should be the same as the userid
-    on the local development system. (E.g. for user "dickens", the filename
-    must be "dickens", not "dickens.pub" or "user_dickens".)
+1. For each developer, add a user record along with their SSH key into the ``conf/pillar/devs.sls``.
 
-2. Run this command to create users on the server::
+2. Set the project name in ``conf/pillar/project.sls`` and the environment's domain in
+    ``conf/pillar/<environment>/env.sls`` if it has not already been set.
 
-        fab -H <fresh-server-ip> -u <root-user> create_users
+3. Add any environment secrets to the ``conf/pillar/<environment>/secrets.sls``. This file is not in the source
+    control by default but there are example ``secrets.ex`` files to use as a starting point.
 
-    This will create a project user and users for all the developers. 
+4. Provision the box using the Salt bootstrap::
 
-3. Lock down SSH connections: disable password login and move
-    the default port from 22 to ``env.ssh_port``::
+        fab -H <fresh-server-ip> -u <root-user> <environment> provision
 
-        fab -H <fresh-server-ip> configure_ssh
+    This will provision the box for the initial deploy (create users and install/configure necessary pacakges).
 
-4. Add the IP to the appropriate environment
-    function and provision it for its role. You can provision a new server with the
-    ``setup_server`` fab command. It takes a list of roles for this server
-    ('app', 'db', 'lb') or you can say 'all'::
+5. Add the IP to the appropriate environment function. You can now run the initial deploy::
 
-        fab staging setup_server:all
+        fab <environment> deploy
 
 
 Vagrant Testing
 ------------------------
 
 You can test the provisioning/deployment using `Vagrant <http://vagrantup.com/>`_.
-Using the Vagrantfile you can start up the VM. This requires the ``lucid32`` box::
+Using the Vagrantfile you can start up the VM. This requires the ``precise32`` box::
 
     vagrant up
 
@@ -123,8 +117,7 @@ use these commands to create the users. The location of the key file
 may vary on your system.  Running ``locate keys/vagrant`` might
 help find it::
 
-    fab -H 33.33.33.10 -u vagrant -i /usr/lib/ruby/gems/1.8/gems/vagrant-1.0.2/keys/vagrant create_users
-    fab vagrant setup_server:all
+    fab -H 33.33.33.10 -u vagrant -i /usr/lib/ruby/gems/1.8/gems/vagrant-1.0.2/keys/vagrant vagrant provision
     fab vagrant deploy
 
 It is not necessary to reconfigure the SSH settings on the vagrant box.
