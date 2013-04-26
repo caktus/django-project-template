@@ -139,18 +139,26 @@ def deploy(branch=None):
         env.branch = branch
     requirements = False
     migrations = False
-    # Fetch latest changes
-    with cd(env.code_root):
-        with settings(user=env.project_user):
+    if files.exists(env.code_root):
+        # Fetch latest changes
+        with cd(env.code_root):
             run('git fetch origin')
-        # Look for new requirements or migrations
-        changes = run("git diff origin/%(branch)s --stat-name-width=9999" % env)
-        requirements = match_changes(changes, r"requirements/")
-        migrations = match_changes(changes, r"/migrations/")
-        if requirements or migrations:
-            supervisor_command('stop %(environment)s:*' % env)
-        with settings(user=env.project_user):
-            run("git reset --hard origin/%(branch)s" % env)
+            # Look for new requirements or migrations
+            changes = run("git diff origin/%(branch)s --stat-name-width=9999" % env)
+            requirements = match_changes(changes, r"requirements/")
+            migrations = match_changes(changes, r"/migrations/")
+            if requirements or migrations:
+                supervisor_command('stop %(environment)s:*' % env)
+            with settings(user=env.project_user):
+                run("git reset --hard origin/%(branch)s" % env)
+    else:
+        # Initial clone
+        run('git clone %(repo)s %(code_root)s' % env)
+        with cd(env.code_root):
+            run('git checkout %(branch)s' % env)
+        requirements = True
+        migrations = True
+    sudo('chown %(project_user)s:%(project_user)s -R %(code_root)s' % env)
     if requirements:
         update_requirements()
         # New requirements might need new tables/migrations
