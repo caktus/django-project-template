@@ -46,7 +46,7 @@ def production():
 
 def setup_path():
     env.home = '/home/%(project_user)s/' % env
-    env.root = os.path.join(env.home, 'www', env.environment)
+    env.root = '/var/www/'
     env.code_root = os.path.join(env.root, env.project)
     env.virtualenv_root = os.path.join(env.root, 'env')
     env.db = '%s_%s' % (env.project, env.environment)
