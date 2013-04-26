@@ -54,8 +54,9 @@ def setup_path():
 
 
 @task
-def provision():
+def provision(common='master'):
     """Provision server with masterless Salt minion."""
+    require('environment')
     # Install salt minion
     with hide('running', 'stdout', 'stderr'):
         installed = run('which salt-call')
@@ -65,15 +66,19 @@ def provision():
         sudo('sh /tmp/bootstrap-salt.sh')
     # Rsync local states and pillars
     minion_file = os.path.join(CONF_ROOT, 'minion.conf')
-    put(minion_file, '/etc/salt/minion', use_sudo=True)
+    files.upload_template(minion_file, '/etc/salt/minion', use_sudo=True, context=env)
     salt_root = os.path.join(CONF_ROOT, 'salt')
-    project.rsync_project(local_dir=salt_root, remote_dir='/tmp/salt', delete=True)
+    environments = ['staging', 'production']
+    # Only include current environment's pillar tree
+    exclude = [os.path.join(salt_root, 'pillar', e) for e in environments if e != env.environment]
+    project.rsync_project(local_dir=salt_root, remote_dir='/tmp/salt', delete=True, exclude=exclude)
     sudo('rm -rf /srv/*')
     sudo('mv /tmp/salt/* /srv/')
     # Pull common states
-    # TOOD: Need a way to pin these states to a particular branch/tag
     sudo('rm -rf /tmp/common/')
     run('git clone git://github.com/caktus/margarita.git /tmp/common/')
+    with cd('/tmp/common/'):
+        run('git checkout %s' % common)
     sudo('mv /tmp/common/ /srv/common/')
     sudo('chown root:root -R /srv/')
     # Update to highstate
