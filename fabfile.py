@@ -1,15 +1,8 @@
-import ConfigParser
 import os
 import re
 
-from argyle import rabbitmq, postgres, nginx, system
-from argyle.base import upload_template
-from argyle.postgres import create_db_user, create_db
-from argyle.supervisor import supervisor_command, upload_supervisor_app_conf
-from argyle.system import service_command, start_service, stop_service, restart_service
-
 from fabric.api import cd, env, get, hide, local, put, require, run, settings, sudo, task
-from fabric.contrib import files, console
+from fabric.contrib import files
 
 # Directory structure
 PROJECT_ROOT = os.path.dirname(__file__)
@@ -20,13 +13,8 @@ env.project_user = '{{ project_name }}'
 env.repo = u'' # FIXME: Add repo URL
 env.shell = '/bin/bash -c'
 env.disable_known_hosts = True
-env.ssh_port = 2222
+env.port = 2222
 env.forward_agent = True
-
-# Additional settings for argyle
-env.ARGYLE_TEMPLATE_DIRS = (
-    os.path.join(CONF_ROOT, 'templates')
-)
 
 
 @task
@@ -60,130 +48,15 @@ def setup_path():
     env.home = '/home/%(project_user)s/' % env
     env.root = os.path.join(env.home, 'www', env.environment)
     env.code_root = os.path.join(env.root, env.project)
-    env.project_root = os.path.join(env.code_root, env.project)
     env.virtualenv_root = os.path.join(env.root, 'env')
-    env.log_dir = os.path.join(env.root, 'log')
     env.db = '%s_%s' % (env.project, env.environment)
-    env.vhost = '%s_%s' % (env.project, env.environment)
     env.settings = '%(project)s.settings.%(environment)s' % env
 
 
 @task
-def create_users():
-    """Create project user and developer users."""
-    ssh_dir = u"/home/%s/.ssh" % env.project_user
-    system.create_user(env.project_user, groups=['www-data', 'login', ])
-    sudo('mkdir -p %s' % ssh_dir)
-    user_dir = os.path.join(CONF_ROOT, "users")
-    for username in os.listdir(user_dir):
-        key_file = os.path.normpath(os.path.join(user_dir, username))
-        system.create_user(username, groups=['dev', 'login', ], key_file=key_file)
-        with open(key_file, 'rt') as f:
-            ssh_key = f.read()
-        # Add ssh key for project user
-        files.append('%s/authorized_keys' % ssh_dir, ssh_key, use_sudo=True)
-    files.append(u'/etc/sudoers', r'%dev ALL=(ALL) NOPASSWD:ALL', use_sudo=True)
-    sudo('chown -R %s:%s %s' % (env.project_user, env.project_user, ssh_dir))
-
-
-@task
-def configure_ssh():
-    """
-    Change sshd_config defaults:
-    Change default port
-    Disable root login
-    Disable password login
-    Restrict to only login group
-    """
-    ssh_config = u'/etc/ssh/sshd_config'
-    files.sed(ssh_config, u"Port 22$", u"Port %s" % env.ssh_port, use_sudo=True)
-    files.sed(ssh_config, u"PermitRootLogin yes", u"PermitRootLogin no", use_sudo=True)
-    files.append(ssh_config, u"AllowGroups login", use_sudo=True)
-    files.append(ssh_config, u"PasswordAuthentication no", use_sudo=True)
-    service_command(u'ssh', u'reload')
-
-
-@task
-def install_packages(*roles):
-    """Install packages for the given roles."""
-    config_file = os.path.join(CONF_ROOT, u'packages.conf')
-    config = ConfigParser.SafeConfigParser()
-    config.read(config_file)
-    for role in roles:
-        if config.has_section(role):
-            # Get ppas
-            if config.has_option(role, 'ppas'):
-                for ppa in config.get(role, 'ppas').split(' '):
-                    system.add_ppa(ppa, update=False)
-            # Get sources
-            if config.has_option(role, 'sources'):
-                for section in config.get(role, 'sources').split(' '):
-                    source = config.get(section, 'source')
-                    key = config.get(section, 'key')
-                    system.add_apt_source(source=source, key=key, update=False)
-            sudo(u"apt-get update")
-            sudo(u"apt-get install -y %s" % config.get(role, 'packages'))
-            sudo(u"apt-get upgrade -y")
-
-
-@task
-def setup_server(*roles):
-    """Install packages and add configurations for server given roles."""
-    require('environment')
-    # Set server locale    
-    sudo('/usr/sbin/update-locale LANG=en_US.UTF-8')
-    roles = list(roles)
-    if roles == ['all', ]:
-        roles = SERVER_ROLES
-    if 'base' not in roles:
-        roles.insert(0, 'base')
-    install_packages(*roles)
-    if 'db' in roles:
-        if console.confirm(u"Do you want to reset the Postgres cluster?.", default=False):
-            # Ensure the cluster is using UTF-8
-            pg_version = postgres.detect_version()
-            sudo('pg_dropcluster --stop %s main' % pg_version, user='postgres')
-            sudo('pg_createcluster --start -e UTF-8 --locale en_US.UTF-8 %s main' % pg_version,
-                 user='postgres')
-        postgres.create_db_user(username=env.project_user)
-        postgres.create_db(name=env.db, owner=env.project_user)
-    if 'app' in roles:
-        # Create project directories and install Python requirements
-        project_run('mkdir -p %(root)s' % env)
-        project_run('mkdir -p %(log_dir)s' % env)
-        # FIXME: update to SSH as normal user and use sudo
-        # we ssh as the project_user here to maintain ssh agent
-        # forwarding, because it doesn't work with sudo. read:
-        # http://serverfault.com/questions/107187/sudo-su-username-while-keeping-ssh-key-forwarding
-        with settings(user=env.project_user):
-            # TODO: Add known hosts prior to clone.
-            # i.e. ssh -o StrictHostKeyChecking=no git@github.com
-            run('git clone %(repo)s %(code_root)s' % env)
-            with cd(env.code_root):
-                run('git checkout %(branch)s' % env)
-        # Install and create virtualenv
-        with settings(hide('everything'), warn_only=True):
-            test_for_pip = run('which pip')
-        if not test_for_pip:
-            sudo("easy_install -U pip")
-        with settings(hide('everything'), warn_only=True):
-            test_for_virtualenv = run('which virtualenv')
-        if not test_for_virtualenv:
-            sudo("pip install -U virtualenv")
-        project_run('virtualenv -p python2.6 --clear --distribute %s' % env.virtualenv_root)
-        path_file = os.path.join(env.virtualenv_root, 'lib', 'python2.6', 'site-packages', 'project.pth')
-        files.append(path_file, env.code_root, use_sudo=True)
-        sudo('chown %s:%s %s' % (env.project_user, env.project_user, path_file))
-        sudo('npm install less -g')
-        update_requirements()
-        upload_supervisor_app_conf(app_name=u'gunicorn')
-        upload_supervisor_app_conf(app_name=u'group')
-        # Restart services to pickup changes
-        supervisor_command('reload')
-        supervisor_command('restart %(environment)s:*' % env)
-    if 'lb' in roles:
-        nginx.remove_default_site()
-        nginx.upload_nginx_site_conf(site_name=u'%(project)s-%(environment)s.conf' % env)
+def supervisor_command(command):
+    """Run a supervisorctl command."""
+    sudo(u'supervisorctl %s' % command)
 
 
 def project_run(cmd):
