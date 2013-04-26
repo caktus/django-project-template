@@ -70,6 +70,11 @@ def provision():
     project.rsync_project(local_dir=salt_root, remote_dir='/tmp/salt', delete=True)
     sudo('rm -rf /srv/*')
     sudo('mv /tmp/salt/* /srv/')
+    # Pull common states
+    # TOOD: Need a way to pin these states to a particular branch/tag
+    sudo('rm -rf /tmp/common/')
+    run('git clone git://github.com/caktus/margarita.git /tmp/common/')
+    sudo('mv /tmp/common/ /srv/common/')
     sudo('chown root:root -R /srv/')
     # Update to highstate
     sudo('salt-call --local state.highstate')
