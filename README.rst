@@ -114,7 +114,8 @@ With the VM up and running, you can create the necessary users.
 Put the developers' keys in ``conf/users`` as before, then
 use these commands to create the users. The location of the key file
 (/usr/lib/ruby/gems/1.8/gems/vagrant-1.0.2/keys/vagrant)
-may vary on your system.  Running ``locate keys/vagrant`` might
+may vary on your system. If installed via apt then this may be located in
+/usr/share/vagrant/keys/vagrant. Running ``locate keys/vagrant`` might
 help find it::
 
     fab -H 33.33.33.10 -u vagrant -i /usr/lib/ruby/gems/1.8/gems/vagrant-1.0.2/keys/vagrant vagrant provision
