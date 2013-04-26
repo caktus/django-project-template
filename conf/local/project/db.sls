@@ -1,2 +1,2 @@
 include:
-  - postgres
+  - postgresql.project
