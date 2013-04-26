@@ -2,7 +2,7 @@ import os
 import re
 
 from fabric.api import cd, env, get, hide, local, put, require, run, settings, sudo, task
-from fabric.contrib import files
+from fabric.contrib import files, project
 
 # Directory structure
 PROJECT_ROOT = os.path.dirname(__file__)
@@ -51,6 +51,28 @@ def setup_path():
     env.virtualenv_root = os.path.join(env.root, 'env')
     env.db = '%s_%s' % (env.project, env.environment)
     env.settings = '%(project)s.settings.%(environment)s' % env
+
+
+@task
+def provision():
+    """Provision server with masterless Salt minion."""
+    # Install salt minion
+    with hide('running', 'stdout', 'stderr'):
+        installed = run('which salt-call')
+    if not installed:
+        bootstrap_file = os.path.join(CONF_ROOT, 'bootstrap-salt.sh')
+        put(bootstrap_file, '/tmp/bootstrap-salt.sh')
+        sudo('sh /tmp/bootstrap-salt.sh')
+    # Rsync local states and pillars
+    minion_file = os.path.join(CONF_ROOT, 'minion.conf')
+    put(minion_file, '/etc/salt/minion', use_sudo=True)
+    salt_root = os.path.join(CONF_ROOT, 'salt')
+    project.rsync_project(local_dir=salt_root, remote_dir='/tmp/salt', delete=True)
+    sudo('rm -rf /srv/*')
+    sudo('mv /tmp/salt/* /srv/')
+    sudo('chown root:root -R /srv/')
+    # Update to highstate
+    sudo('salt-call --local state.highstate')
 
 
 @task
