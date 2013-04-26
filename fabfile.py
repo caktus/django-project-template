@@ -58,8 +58,9 @@ def provision(common='master'):
     """Provision server with masterless Salt minion."""
     require('environment')
     # Install salt minion
-    with hide('running', 'stdout', 'stderr'):
-        installed = run('which salt-call')
+    with settings(warn_only=True):
+        with hide('running', 'stdout', 'stderr'):
+            installed = run('which salt-call')
     if not installed:
         bootstrap_file = os.path.join(CONF_ROOT, 'bootstrap-salt.sh')
         put(bootstrap_file, '/tmp/bootstrap-salt.sh')
@@ -67,7 +68,7 @@ def provision(common='master'):
     # Rsync local states and pillars
     minion_file = os.path.join(CONF_ROOT, 'minion.conf')
     files.upload_template(minion_file, '/etc/salt/minion', use_sudo=True, context=env)
-    salt_root = os.path.join(CONF_ROOT, 'salt')
+    salt_root = CONF_ROOT if CONF_ROOT.endswith('/') else CONF_ROOT + '/'
     environments = ['staging', 'production']
     # Only include current environment's pillar tree
     exclude = [os.path.join(salt_root, 'pillar', e) for e in environments if e != env.environment]
@@ -76,6 +77,11 @@ def provision(common='master'):
     sudo('mv /tmp/salt/* /srv/')
     # Pull common states
     sudo('rm -rf /tmp/common/')
+    with settings(warn_only=True):
+        with hide('running', 'stdout', 'stderr'):
+            installed = run('which git')
+    if not installed:
+        sudo('apt-get install git-core -q -y')
     run('git clone git://github.com/caktus/margarita.git /tmp/common/')
     with cd('/tmp/common/'):
         run('git checkout %s' % common)
