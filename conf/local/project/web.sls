@@ -23,10 +23,16 @@ project_user:
     - group: www-data
     - makedirs: True
 
-/home/www/env/:
+/var/www/env/:
   virtualenv.managed:
     - no_site_packages: True
     - distribute: True
+
+/var/www/env/bin/activate:
+  file.append:
+    - text: source /var/www/env/bin/secrets
+    - require:
+        virtualenv: /var/www/env/
 
 nginx_log:
   file.managed:
