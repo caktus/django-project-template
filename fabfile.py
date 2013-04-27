@@ -88,7 +88,7 @@ def provision(common='master'):
     sudo('mv /tmp/common/ /srv/common/')
     sudo('chown root:root -R /srv/')
     # Update to highstate
-    sudo('salt-call --local state.highstate')
+    sudo('salt-call --local state.highstate -l info', pty=False)
 
 
 @task
