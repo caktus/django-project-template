@@ -9,6 +9,7 @@ include:
 project_user:
   user.present:
     - name: {{ pillar['project_name'] }}
+    - remove_groups: False
     - groups: [www-data]
 
 /var/www/:
@@ -27,12 +28,23 @@ project_user:
   virtualenv.managed:
     - no_site_packages: True
     - distribute: True
+    - require:
+      - pip: virtualenv
 
 /var/www/env/bin/activate:
   file.append:
     - text: source /var/www/env/bin/secrets
     - require:
         virtualenv: /var/www/env/
+
+/var/www/env/bin/secrets:
+  file.managed:
+    - source: salt://project/env_secrets.jinja2
+    - user: {{ pillar['project_name'] }}
+    - group: {{ pillar['project_name'] }}
+    - template: jinja
+    - require:
+      - file: /var/www/env/bin/activate
 
 nginx_log:
   file.managed:
