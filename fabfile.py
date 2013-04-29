@@ -13,7 +13,6 @@ env.project_user = '{{ project_name }}'
 env.repo = u'' # FIXME: Add repo URL
 env.shell = '/bin/bash -c'
 env.disable_known_hosts = True
-env.port = 2222
 env.forward_agent = True
 
 
@@ -75,6 +74,7 @@ def provision(common='master'):
     project.rsync_project(local_dir=salt_root, remote_dir='/tmp/salt', delete=True, exclude=exclude)
     sudo('rm -rf /srv/*')
     sudo('mv /tmp/salt/* /srv/')
+    sudo('rm -rf /tmp/salt/')
     # Pull common states
     sudo('rm -rf /tmp/common/')
     with settings(warn_only=True):
@@ -86,6 +86,7 @@ def provision(common='master'):
     with cd('/tmp/common/'):
         run('git checkout %s' % common)
     sudo('mv /tmp/common/ /srv/common/')
+    sudo('rm -rf /tmp/common/')
     sudo('chown root:root -R /srv/')
     # Update to highstate
     sudo('salt-call --local state.highstate -l info', pty=False)
