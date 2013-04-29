@@ -2,5 +2,9 @@ base:
   "*":
     - project
     - devs
-    - env
-    - secrets
+  "*-staging":
+    - staging.env
+    - staging.secrets
+  "*-production":
+    - production.env
+    - production.secrets
