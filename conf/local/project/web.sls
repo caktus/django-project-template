@@ -35,7 +35,7 @@ project_user:
   file.append:
     - text: source /var/www/env/bin/secrets
     - require:
-        virtualenv: /var/www/env/
+      - virtualenv: /var/www/env/
 
 /var/www/env/bin/secrets:
   file.managed:
