@@ -71,7 +71,7 @@ def provision(common='master'):
     salt_root = CONF_ROOT if CONF_ROOT.endswith('/') else CONF_ROOT + '/'
     environments = ['staging', 'production']
     # Only include current environment's pillar tree
-    exclude = [os.path.join(salt_root, 'pillar', e) for e in environments if e != env.environment]
+    exclude = [os.path.join('pillar', e) for e in environments if e != env.environment]
     project.rsync_project(local_dir=salt_root, remote_dir='/tmp/salt', delete=True, exclude=exclude)
     sudo('rm -rf /srv/*')
     sudo('mv /tmp/salt/* /srv/')
