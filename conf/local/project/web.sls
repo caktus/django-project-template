@@ -15,14 +15,29 @@ project_user:
 /var/www/:
   file.directory:
     - user: {{ pillar['project_name'] }}
-    - group: www-data
+    - group: admin
+    - mode: 775
     - makedirs: True
+    - require:
+      - user: project_user
 
 /var/www/log/:
   file.directory:
     - user: {{ pillar['project_name'] }}
     - group: www-data
+    - mode: 775
     - makedirs: True
+    - require:
+      - file: /var/www/
+
+/var/www/public/:
+  file.directory:
+    - user: {{ pillar['project_name'] }}
+    - group: www-data
+    - mode: 775
+    - makedirs: True
+    - require:
+      - file: /var/www/
 
 /var/www/env/:
   virtualenv.managed:
@@ -30,6 +45,13 @@ project_user:
     - distribute: True
     - require:
       - pip: virtualenv
+      - file: /var/www/
+  file.directory:
+    - user: {{ pillar['project_name'] }}
+    - group: {{ pillar['project_name'] }}
+    - recurse:
+      - user
+      - group
 
 /var/www/env/bin/activate:
   file.append:
@@ -50,6 +72,8 @@ nginx_log:
   file.managed:
     - name: /var/www/log/error.log
     - user: {{ pillar['project_name'] }}
+    - require:
+      - file: /var/www/log/
 
 /etc/nginx/sites-enabled/{{ pillar['project_name'] }}.conf:
   file.managed:

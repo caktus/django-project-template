@@ -166,8 +166,7 @@ def deploy(branch=None):
             migrations = match_changes(changes, r"/migrations/")
             if requirements or migrations:
                 supervisor_command('stop %(environment)s:*' % env)
-            with settings(user=env.project_user):
-                run("git reset --hard origin/%(branch)s" % env)
+            run("git reset --hard origin/%(branch)s" % env)
     else:
         # Initial clone
         run('git clone %(repo)s %(code_root)s' % env)
