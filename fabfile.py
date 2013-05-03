@@ -3,6 +3,7 @@ import re
 
 from fabric.api import cd, env, get, hide, local, put, require, run, settings, sudo, task
 from fabric.contrib import files, project
+from fabric.utils import abort
 
 # Directory structure
 PROJECT_ROOT = os.path.dirname(__file__)
@@ -148,6 +149,8 @@ def match_changes(changes, match):
 def deploy(branch=None):
     """Deploy to a given environment."""
     require('environment')
+    if not env.repo:
+        abort('env.repo is not set.')
     if branch is not None:
         env.branch = branch
     requirements = False
