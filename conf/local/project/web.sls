@@ -88,6 +88,13 @@ nginx_log:
     - require:
       - file: nginx_log
 
+extend:
+  nginx:
+    service:
+      - running
+      - watch:
+        - file: /etc/nginx/sites-enabled/{{ pillar['project_name'] }}.conf
+
 /etc/supervisor/conf.d/group.conf:
   file.managed:
     - source: salt://project/supervisor/group.conf
@@ -115,3 +122,11 @@ nginx_log:
         settings: "{{ pillar['project_name']}}.settings.{{ pillar['environment'] }}"
     - require:
       - file: nginx_log
+
+extend:
+  supervisor:
+    service:
+      - running
+      - watch:
+        - file: /etc/supervisor/conf.d/group.conf
+        - file: /etc/supervisor/conf.d/gunicorn.conf
