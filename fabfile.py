@@ -174,6 +174,10 @@ def deploy(branch=None):
             run('git checkout %(branch)s' % env)
         requirements = True
         migrations = True
+        # Add code root to the Python path
+        path_file = os.path.join(env.virtualenv_root, 'lib', 'python2.7', 'site-packages', 'project.pth')
+        files.append(path_file, env.code_root, use_sudo=True)
+        sudo('chown %s:%s %s' % (env.project_user, env.project_user, path_file))
     sudo('chown %(project_user)s:%(project_user)s -R %(code_root)s' % env)
     if requirements:
         update_requirements()
