@@ -83,7 +83,7 @@ nginx_log:
     - mode: 644
     - template: jinja
     - context:
-        code_root: "/var/www/{{ pillar['project_name']}}"
+        public_root: "/var/www/public"
         log_dir: "/var/www/log"
     - require:
       - file: nginx_log
