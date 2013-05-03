@@ -130,3 +130,18 @@ extend:
       - watch:
         - file: /etc/supervisor/conf.d/group.conf
         - file: /etc/supervisor/conf.d/gunicorn.conf
+
+npm:
+  pkg:
+    - installed
+
+less:
+  cmd.run:
+    - name: npm install less -g
+    - user: root
+    - unless: which lessc
+    - require:
+      - pkg: npm
+  file.symlink:
+    - name: /usr/bin/lessc
+    - target: /usr/local/bin/lessc
