@@ -9,7 +9,7 @@ Overview
 
 - OS: Ubuntu 12.04 LTS
 - Python: 2.7
-- Database: Postgres
+- Database: Postgres 9.1
 - Application Server: Gunicorn
 - Frontend Server: Nginx
 - Cache: Memcached
