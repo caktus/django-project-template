@@ -42,7 +42,7 @@ user record should match the format::
     example-user:
       groups: [admin, login]
       public_key:
-       - ssh-rsa <Full SSH Key would go here>
+       - ssh-rsa <Full SSH Public Key would go here>
 
 Additional developers can be added later but you will need to create at least on user for
 yourself.
