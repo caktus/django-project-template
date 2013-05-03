@@ -7,7 +7,6 @@ from fabric.contrib import files, project
 # Directory structure
 PROJECT_ROOT = os.path.dirname(__file__)
 CONF_ROOT = os.path.join(PROJECT_ROOT, 'conf')
-SERVER_ROLES = ['app', 'lb', 'db']
 env.project = '{{ project_name }}'
 env.project_user = '{{ project_name }}'
 env.repo = u'' # FIXME: Add repo URL
@@ -21,7 +20,6 @@ def vagrant():
     env.environment = 'staging'
     env.hosts = ['33.33.33.10', ]
     env.branch = 'master'
-    env.server_name = 'dev.example.com'
     setup_path()
 
 
@@ -30,7 +28,6 @@ def staging():
     env.environment = 'staging'
     env.hosts = [] # FIXME: Add staging server hosts
     env.branch = 'master'
-    env.server_name = '' # FIXME: Add staging server name
     setup_path()
 
 
@@ -39,7 +36,6 @@ def production():
     env.environment = 'production'
     env.hosts = [] # FIXME: Add production hosts
     env.branch = 'master'
-    env.server_name = '' # FIXME: Add production server name
     setup_path()
 
 
