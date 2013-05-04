@@ -42,8 +42,8 @@ def production():
 
 def setup_path():
     env.home = '/home/%(project_user)s/' % env
-    env.root = '/var/www/'
-    env.code_root = os.path.join(env.root, env.project)
+    env.root = os.path.join('/var/www/', env.project)
+    env.code_root = os.path.join(env.root, 'source')
     env.virtualenv_root = os.path.join(env.root, 'env')
     env.db = '%s_%s' % (env.project, env.environment)
     env.settings = '%(project)s.settings.%(environment)s' % env
@@ -164,7 +164,7 @@ def deploy(branch=None):
             requirements = match_changes(changes, r"requirements/")
             migrations = match_changes(changes, r"/migrations/")
             if requirements or migrations:
-                supervisor_command('stop %(environment)s:*' % env)
+                supervisor_command('stop %(project)s:*' % env)
             run("git reset --hard origin/%(branch)s" % env)
     else:
         # Initial clone
@@ -185,7 +185,7 @@ def deploy(branch=None):
     elif migrations:
         syncdb()
     collectstatic()
-    supervisor_command('restart %(environment)s:*' % env)
+    supervisor_command('restart %(project)s:*' % env)
 
 
 @task

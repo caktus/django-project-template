@@ -12,8 +12,9 @@ project_user:
     - remove_groups: False
     - groups: [www-data]
 
-/var/www/:
+root_dir:
   file.directory:
+    - name: /var/www/{{ pillar['project_name'] }}/
     - user: {{ pillar['project_name'] }}
     - group: admin
     - mode: 775
@@ -21,115 +22,120 @@ project_user:
     - require:
       - user: project_user
 
-/var/www/log/:
+log_dir:
   file.directory:
+    - name: /var/www/{{ pillar['project_name'] }}/log/
     - user: {{ pillar['project_name'] }}
     - group: www-data
     - mode: 775
     - makedirs: True
     - require:
-      - file: /var/www/
+      - file: root_dir
 
-/var/www/public/:
+public_dir:
   file.directory:
+    - name: /var/www/{{ pillar['project_name'] }}/public/
     - user: {{ pillar['project_name'] }}
     - group: www-data
     - mode: 775
     - makedirs: True
     - require:
-      - file: /var/www/
+      - file: root_dir
 
-/var/www/env/:
+venv:
   virtualenv.managed:
+    - name: /var/www/{{ pillar['project_name'] }}/env/
     - no_site_packages: True
     - distribute: True
     - require:
       - pip: virtualenv
-      - file: /var/www/
+      - file: root_dir
+
+venv_dir:
   file.directory:
+    - name: /var/www/{{ pillar['project_name'] }}/env/
     - user: {{ pillar['project_name'] }}
     - group: {{ pillar['project_name'] }}
     - recurse:
       - user
       - group
-
-/var/www/env/bin/activate:
-  file.append:
-    - text: source /var/www/env/bin/secrets
     - require:
-      - virtualenv: /var/www/env/
+      - virtualenv: venv
 
-/var/www/env/bin/secrets:
+activate:
+  file.append:
+    - name: /var/www/{{ pillar['project_name'] }}/env/bin/activate
+    - text: source /var/www/{{ pillar['project_name'] }}/env/bin/secrets
+    - require:
+      - virtualenv: venv
+
+secrets:
   file.managed:
+    - name: /var/www/{{ pillar['project_name'] }}/env/bin/secrets
     - source: salt://project/env_secrets.jinja2
     - user: {{ pillar['project_name'] }}
     - group: {{ pillar['project_name'] }}
     - template: jinja
     - require:
-      - file: /var/www/env/bin/activate
+      - file: activate
 
-nginx_log:
+nginx_conf:
   file.managed:
-    - name: /var/www/log/error.log
-    - user: {{ pillar['project_name'] }}
-    - require:
-      - file: /var/www/log/
-
-/etc/nginx/sites-enabled/{{ pillar['project_name'] }}.conf:
-  file.managed:
+    - name: /etc/nginx/sites-enabled/{{ pillar['project_name'] }}.conf
     - source: salt://project/nginx.conf
     - user: root
     - group: root
     - mode: 644
     - template: jinja
     - context:
-        public_root: "/var/www/public"
-        log_dir: "/var/www/log"
+        public_root: "/var/www/{{ pillar['project_name']}}/public"
+        log_dir: "/var/www/{{ pillar['project_name']}}/log"
     - require:
-      - file: nginx_log
+      - pkg: nginx
+      - file: log_dir
 
 extend:
   nginx:
     service:
       - running
       - watch:
-        - file: /etc/nginx/sites-enabled/{{ pillar['project_name'] }}.conf
+        - file: nginx_conf
 
-/etc/supervisor/conf.d/group.conf:
+group_conf:
   file.managed:
+    - name: /etc/supervisor/conf.d/{{ pillar['project_name'] }}-group.conf
     - source: salt://project/supervisor/group.conf
     - user: root
     - group: root
     - mode: 644
     - template: jinja
-    - context:
-        code_root: "/var/www/{{ pillar['project_name']}}"
-        log_dir: "/var/www/log"
     - require:
-      - file: nginx_log
+      - pkg: supervisor
+      - file: log_dir
 
-/etc/supervisor/conf.d/gunicorn.conf:
+gunicorn_conf:
   file.managed:
+    - name: /etc/supervisor/conf.d/{{ pillar['project_name'] }}-gunicorn.conf
     - source: salt://project/supervisor/gunicorn.conf
     - user: root
     - group: root
     - mode: 644
     - template: jinja
     - context:
-        code_root: "/var/www/{{ pillar['project_name']}}"
-        log_dir: "/var/www/log"
-        virtualenv_root: "/var/www/env"
+        log_dir: "/var/www/{{ pillar['project_name']}}/log"
+        virtualenv_root: "/var/www/{{ pillar['project_name']}}/env"
         settings: "{{ pillar['project_name']}}.settings.{{ pillar['environment'] }}"
     - require:
-      - file: nginx_log
+      - pkg: supervisor
+      - file: log_dir
 
 extend:
   supervisor:
     service:
       - running
       - watch:
-        - file: /etc/supervisor/conf.d/group.conf
-        - file: /etc/supervisor/conf.d/gunicorn.conf
+        - file: group_conf
+        - file: gunicorn_conf
 
 npm:
   pkg:

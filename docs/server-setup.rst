@@ -18,19 +18,19 @@ Layout
 
 Below is the server layout created by this provisioning process::
 
-    /var/www/
-        {{ project_name }}/
+    /var/www/{{ project_name }}/
+        source/
         env/
         log/
         public/
             static/
             media/
 
-``/var/www/{{ project_name }}/`` contains source code of the project. ``/var/www/env/``
-is the `virtualenv <http://www.virtualenv.org/>`_ for Python requirements. ``/var/www/log/``
-stores the Nginx, Gunicorn and other logs used by the project. ``/var/www/public/``
+``source`` contains source code of the project. ``env``
+is the `virtualenv <http://www.virtualenv.org/>`_ for Python requirements. ``log``
+stores the Nginx, Gunicorn and other logs used by the project. ``public``
 holds the static resources (css/js) for the project and the uploaded user media.
-``/var/www/public/static/`` and ``/var/www/public/media/`` map to the ``STATIC_ROOT`` and
+``public/static/`` and ``public/media/`` map to the ``STATIC_ROOT`` and
 ``MEDIA_ROOT`` settings.
 
 
