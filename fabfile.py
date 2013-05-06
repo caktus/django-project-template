@@ -2,8 +2,9 @@ import os
 import re
 
 from fabric.api import cd, env, get, hide, local, put, require, run, settings, sudo, task
+from fabric.color import red
 from fabric.contrib import files, project
-from fabric.utils import abort
+from fabric.utils import abort, error
 
 # Directory structure
 PROJECT_ROOT = os.path.dirname(__file__)
@@ -86,7 +87,18 @@ def provision(common='master'):
     sudo('rm -rf /tmp/common/')
     sudo('chown root:root -R /srv/')
     # Update to highstate
-    sudo('salt-call --local state.highstate -l info', pty=False)
+    with settings(warn_only=True):
+        sudo('salt-call --local state.highstate -l info --out json > /tmp/output.json')
+        get('/tmp/output.json', 'output.json')
+        with open('output.json', 'r') as f:
+            try:
+                results = json.load(f)
+            except (TypeError, ValueError) as e:
+                error(u'Non-JSON output from salt-call', exception=e)
+            else:
+                for state, result in results['local'].items():
+                    if not result["result"]:
+                        print red(u'Error with %(name)s state: %(comment)s' % result)
 
 
 @task
