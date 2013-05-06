@@ -11,7 +11,7 @@ the ``precise32`` box. The box will be installed if you don't have it already.::
 
     vagrant up
 
-The general provision workflow is the same as in the previous doc:`provisioning guide </provisioning>`
+The general provision workflow is the same as in the previous :doc:`provisioning guide </provisioning>`
 so here are notes of the Vagrant specifics.
 
 
@@ -20,10 +20,10 @@ Provisioning the VM
 
 The ``fabfile.py`` contains a ``vagrant`` environment with the VM's IP already added.
 The rest of the environment is made to match the ``staging`` environment. If you
-have already configured the ``conf/pillar/staing/env.sls`` and ``conf/pillar/staing/secrets.sls``
+have already configured the ``conf/pillar/staging/env.sls`` and ``conf/pillar/staging/secrets.sls``
 then you can continue provisioning the VM.
 
-To connect to the VM for the first time you need to use the private key which ships
+To connect to the VM for the first time, you need to use the private key which ships
 with the Vagrant install. The location of the file may vary on your platform depending
 on which version you installed and how it was installed. You can use ``locate`` to find it::
 
@@ -44,13 +44,13 @@ After that has finished you can run the initial deploy::
 Testing on the VM
 ------------------------
 
-With the VM fully provisioned and deployed you can access the VM on localhost port 8089. Since
-the Nginx configuration will only listen for the domain name in ``conf/pillar/staing/env.sls``
+With the VM fully provisioned and deployed, you can access the VM on localhost port 8089. Since
+the Nginx configuration will only listen for the domain name in ``conf/pillar/staging/env.sls``,
 you will need to modify your ``/etc/hosts`` configuration to view it. You will need to add::
 
     127.0.0.1 <domain>
 
-where ``<domain>`` matches the domain in ``conf/pillar/staing/env.sls``. For example lets use
+where ``<domain>`` matches the domain in ``conf/pillar/staging/env.sls``. For example, let's use
 staging.example.com::
 
     127.0.0.1 staging.example.com
@@ -59,4 +59,4 @@ In your browser you can now view staging.example.com:8089 and see the VM running
 web stack.
 
 Note that this ``/etc/hosts`` entry will prevent you from accessing the true staging.example.com.
-When your testing is complete you should remove or comment out this entry.
+When your testing is complete, you should remove or comment out this entry.

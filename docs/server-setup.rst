@@ -26,7 +26,7 @@ Below is the server layout created by this provisioning process::
             static/
             media/
 
-``source`` contains source code of the project. ``env``
+``source`` contains the source code of the project. ``env``
 is the `virtualenv <http://www.virtualenv.org/>`_ for Python requirements. ``log``
 stores the Nginx, Gunicorn and other logs used by the project. ``public``
 holds the static resources (css/js) for the project and the uploaded user media.
@@ -37,10 +37,10 @@ holds the static resources (css/js) for the project and the uploaded user media.
 Deployment
 ------------------------
 
-For deployment each developer connects to the server as their own user. Each developer
+For deployment, each developer connects to the server as their own user. Each developer
 has SSH access via their public key. These users are created/managed by the Salt
 provisioning. The deployment itself is automated with `Fabric <http://docs.fabfile.org/>`_.
-To deploy a developer simply runs::
+To deploy, a developer simply runs::
 
     # Deploy updates to staging
     fab staging deploy
@@ -58,7 +58,7 @@ Developers should coordinate to ensure that they do not deploy different branche
 top of one another.
 
 New python requirements add to the ``requirements/`` files and new South migrations
-are detected by grepping the Git diff on deploy. This works fairly well but if they
+are detected by grepping the Git diff on deploy. This works fairly well, but if they
 need to be manually updated that can be done via Fabric::
 
     # Installs new requirements from requirements/production.txt

@@ -44,7 +44,7 @@ user record should match the format::
       public_key:
        - ssh-rsa <Full SSH Public Key would go here>
 
-Additional developers can be added later but you will need to create at least on user for
+Additional developers can be added later, but you will need to create at least one user for
 yourself.
 
 
@@ -52,7 +52,7 @@ Managing Secrets
 ------------------------
 
 Secret information such as passwords and API keys should never be committed to the
-source repository. Instead aach environment manages is secrets in ``conf/pillar/<environment>/secrets.sls``.
+source repository. Instead, each environment manages its secrets in ``conf/pillar/<environment>/secrets.sls``.
 These ``secrets.sls`` files are excluded from the source control and need to be passed
 to the developers out of band. There are example files given in ``conf/pillar/<environment>/secrets.ex``.
 They have the format::
@@ -67,7 +67,7 @@ and can retrieved in the Python code via::
 
     password = os.environ['DB_PASSWORD']
 
-Secrets for other environments will not be available. That is the staging server
+Secrets for other environments will not be available. That is, the staging server
 will not have access to the production secrets. As such there is no need to namespace the
 secrets by their environment.
 
@@ -75,7 +75,7 @@ secrets by their environment.
 Setup Checklist
 ------------------------
 
-To summarize the steps above you can use the following checklist
+To summarize the steps above, you can use the following checklist
 
 - ``env.repo`` is set in ``fabfile.py``
 - Developer user names and SSH keys have been added to ``conf/pillar/devs.sls``
@@ -87,7 +87,7 @@ To summarize the steps above you can use the following checklist
 Provision
 ------------------------
 
-Once you have completed the above steps you are ready to provision a new server
+Once you have completed the above steps, you are ready to provision a new server
 for a given environment. You will need to be able to connect to the server
 as a root user. How this is done will depend on where the server is hosted.
 VPS providers such as Linode will give you a username/password combination. Amazon's
@@ -105,7 +105,7 @@ to ensure the states are up to date.
 
 Note that because of the use of rsync it is possible to execute configuration changes which
 have not yet been committed to the repo. This can be handy for testing configuration
-changes and allows for the secrets to be excluded from the repo but it's a double-edged sword.
+changes and allows for the secrets to be excluded from the repo, but it's a double-edged sword.
 You should be sure to commit any configuration changes to the repo when they are ready.
 
 Once a server has been created for its environment it should be added to the ``env.hosts``
@@ -120,15 +120,15 @@ At this point we can run the first deploy::
     fab staging deploy
 
 This will do the initial checkout of the repo source, install the Python requirements,
-run syncdb/migrate and collect the static resources.
+run syncdb/migrate, and collect the static resources.
 
 
 Updates
 ------------------------
 
 During the life of the project you will likely need to make updates to the server
-configuration. This might include new secrets add to the pillar, new developers
-added to the project or new services which need to be installed. Configuration updates
+configuration. This might include new secrets added to the pillar, new developers
+added to the project, or new services which need to be installed. Configuration updates
 can be made by calling the ``provision`` command again.::
 
     # Template of the command
