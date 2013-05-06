@@ -94,13 +94,6 @@ nginx_conf:
       - pkg: nginx
       - file: log_dir
 
-extend:
-  nginx:
-    service:
-      - running
-      - watch:
-        - file: nginx_conf
-
 group_conf:
   file.managed:
     - name: /etc/supervisor/conf.d/{{ pillar['project_name'] }}-group.conf
@@ -130,6 +123,12 @@ gunicorn_conf:
       - file: log_dir
 
 extend:
+  nginx:
+    service:
+      - running
+      - watch:
+        - file: nginx_conf
+
   supervisor:
     service:
       - running
