@@ -1,32 +1,20 @@
-import ConfigParser
 import os
 import re
 
-from argyle import rabbitmq, postgres, nginx, system
-from argyle.base import upload_template
-from argyle.postgres import create_db_user, create_db
-from argyle.supervisor import supervisor_command, upload_supervisor_app_conf
-from argyle.system import service_command, start_service, stop_service, restart_service
-
 from fabric.api import cd, env, get, hide, local, put, require, run, settings, sudo, task
-from fabric.contrib import files, console
+from fabric.color import red
+from fabric.contrib import files, project
+from fabric.utils import abort, error
 
 # Directory structure
 PROJECT_ROOT = os.path.dirname(__file__)
 CONF_ROOT = os.path.join(PROJECT_ROOT, 'conf')
-SERVER_ROLES = ['app', 'lb', 'db']
 env.project = '{{ project_name }}'
 env.project_user = '{{ project_name }}'
 env.repo = u'' # FIXME: Add repo URL
 env.shell = '/bin/bash -c'
 env.disable_known_hosts = True
-env.ssh_port = 2222
 env.forward_agent = True
-
-# Additional settings for argyle
-env.ARGYLE_TEMPLATE_DIRS = (
-    os.path.join(CONF_ROOT, 'templates')
-)
 
 
 @task
@@ -34,7 +22,6 @@ def vagrant():
     env.environment = 'staging'
     env.hosts = ['33.33.33.10', ]
     env.branch = 'master'
-    env.server_name = 'dev.example.com'
     setup_path()
 
 
@@ -43,7 +30,6 @@ def staging():
     env.environment = 'staging'
     env.hosts = [] # FIXME: Add staging server hosts
     env.branch = 'master'
-    env.server_name = '' # FIXME: Add staging server name
     setup_path()
 
 
@@ -52,138 +38,73 @@ def production():
     env.environment = 'production'
     env.hosts = [] # FIXME: Add production hosts
     env.branch = 'master'
-    env.server_name = '' # FIXME: Add production server name
     setup_path()
 
 
 def setup_path():
     env.home = '/home/%(project_user)s/' % env
-    env.root = os.path.join(env.home, 'www', env.environment)
-    env.code_root = os.path.join(env.root, env.project)
-    env.project_root = os.path.join(env.code_root, env.project)
+    env.root = os.path.join('/var/www/', env.project)
+    env.code_root = os.path.join(env.root, 'source')
     env.virtualenv_root = os.path.join(env.root, 'env')
-    env.log_dir = os.path.join(env.root, 'log')
     env.db = '%s_%s' % (env.project, env.environment)
-    env.vhost = '%s_%s' % (env.project, env.environment)
     env.settings = '%(project)s.settings.%(environment)s' % env
 
 
 @task
-def create_users():
-    """Create project user and developer users."""
-    ssh_dir = u"/home/%s/.ssh" % env.project_user
-    system.create_user(env.project_user, groups=['www-data', 'login', ])
-    sudo('mkdir -p %s' % ssh_dir)
-    user_dir = os.path.join(CONF_ROOT, "users")
-    for username in os.listdir(user_dir):
-        key_file = os.path.normpath(os.path.join(user_dir, username))
-        system.create_user(username, groups=['dev', 'login', ], key_file=key_file)
-        with open(key_file, 'rt') as f:
-            ssh_key = f.read()
-        # Add ssh key for project user
-        files.append('%s/authorized_keys' % ssh_dir, ssh_key, use_sudo=True)
-    files.append(u'/etc/sudoers', r'%dev ALL=(ALL) NOPASSWD:ALL', use_sudo=True)
-    sudo('chown -R %s:%s %s' % (env.project_user, env.project_user, ssh_dir))
-
-
-@task
-def configure_ssh():
-    """
-    Change sshd_config defaults:
-    Change default port
-    Disable root login
-    Disable password login
-    Restrict to only login group
-    """
-    ssh_config = u'/etc/ssh/sshd_config'
-    files.sed(ssh_config, u"Port 22$", u"Port %s" % env.ssh_port, use_sudo=True)
-    files.sed(ssh_config, u"PermitRootLogin yes", u"PermitRootLogin no", use_sudo=True)
-    files.append(ssh_config, u"AllowGroups login", use_sudo=True)
-    files.append(ssh_config, u"PasswordAuthentication no", use_sudo=True)
-    service_command(u'ssh', u'reload')
-
-
-@task
-def install_packages(*roles):
-    """Install packages for the given roles."""
-    config_file = os.path.join(CONF_ROOT, u'packages.conf')
-    config = ConfigParser.SafeConfigParser()
-    config.read(config_file)
-    for role in roles:
-        if config.has_section(role):
-            # Get ppas
-            if config.has_option(role, 'ppas'):
-                for ppa in config.get(role, 'ppas').split(' '):
-                    system.add_ppa(ppa, update=False)
-            # Get sources
-            if config.has_option(role, 'sources'):
-                for section in config.get(role, 'sources').split(' '):
-                    source = config.get(section, 'source')
-                    key = config.get(section, 'key')
-                    system.add_apt_source(source=source, key=key, update=False)
-            sudo(u"apt-get update")
-            sudo(u"apt-get install -y %s" % config.get(role, 'packages'))
-            sudo(u"apt-get upgrade -y")
-
-
-@task
-def setup_server(*roles):
-    """Install packages and add configurations for server given roles."""
+def provision(common='master'):
+    """Provision server with masterless Salt minion."""
     require('environment')
-    # Set server locale    
-    sudo('/usr/sbin/update-locale LANG=en_US.UTF-8')
-    roles = list(roles)
-    if roles == ['all', ]:
-        roles = SERVER_ROLES
-    if 'base' not in roles:
-        roles.insert(0, 'base')
-    install_packages(*roles)
-    if 'db' in roles:
-        if console.confirm(u"Do you want to reset the Postgres cluster?.", default=False):
-            # Ensure the cluster is using UTF-8
-            pg_version = postgres.detect_version()
-            sudo('pg_dropcluster --stop %s main' % pg_version, user='postgres')
-            sudo('pg_createcluster --start -e UTF-8 --locale en_US.UTF-8 %s main' % pg_version,
-                 user='postgres')
-        postgres.create_db_user(username=env.project_user)
-        postgres.create_db(name=env.db, owner=env.project_user)
-    if 'app' in roles:
-        # Create project directories and install Python requirements
-        project_run('mkdir -p %(root)s' % env)
-        project_run('mkdir -p %(log_dir)s' % env)
-        # FIXME: update to SSH as normal user and use sudo
-        # we ssh as the project_user here to maintain ssh agent
-        # forwarding, because it doesn't work with sudo. read:
-        # http://serverfault.com/questions/107187/sudo-su-username-while-keeping-ssh-key-forwarding
-        with settings(user=env.project_user):
-            # TODO: Add known hosts prior to clone.
-            # i.e. ssh -o StrictHostKeyChecking=no git@github.com
-            run('git clone %(repo)s %(code_root)s' % env)
-            with cd(env.code_root):
-                run('git checkout %(branch)s' % env)
-        # Install and create virtualenv
-        with settings(hide('everything'), warn_only=True):
-            test_for_pip = run('which pip')
-        if not test_for_pip:
-            sudo("easy_install -U pip")
-        with settings(hide('everything'), warn_only=True):
-            test_for_virtualenv = run('which virtualenv')
-        if not test_for_virtualenv:
-            sudo("pip install -U virtualenv")
-        project_run('virtualenv -p python2.6 --clear --distribute %s' % env.virtualenv_root)
-        path_file = os.path.join(env.virtualenv_root, 'lib', 'python2.6', 'site-packages', 'project.pth')
-        files.append(path_file, env.code_root, use_sudo=True)
-        sudo('chown %s:%s %s' % (env.project_user, env.project_user, path_file))
-        sudo('npm install less -g')
-        update_requirements()
-        upload_supervisor_app_conf(app_name=u'gunicorn')
-        upload_supervisor_app_conf(app_name=u'group')
-        # Restart services to pickup changes
-        supervisor_command('reload')
-        supervisor_command('restart %(environment)s:*' % env)
-    if 'lb' in roles:
-        nginx.remove_default_site()
-        nginx.upload_nginx_site_conf(site_name=u'%(project)s-%(environment)s.conf' % env)
+    # Install salt minion
+    with settings(warn_only=True):
+        with hide('running', 'stdout', 'stderr'):
+            installed = run('which salt-call')
+    if not installed:
+        bootstrap_file = os.path.join(CONF_ROOT, 'bootstrap-salt.sh')
+        put(bootstrap_file, '/tmp/bootstrap-salt.sh')
+        sudo('sh /tmp/bootstrap-salt.sh daily')
+    # Rsync local states and pillars
+    minion_file = os.path.join(CONF_ROOT, 'minion.conf')
+    files.upload_template(minion_file, '/etc/salt/minion', use_sudo=True, context=env)
+    salt_root = CONF_ROOT if CONF_ROOT.endswith('/') else CONF_ROOT + '/'
+    environments = ['staging', 'production']
+    # Only include current environment's pillar tree
+    exclude = [os.path.join('pillar', e) for e in environments if e != env.environment]
+    project.rsync_project(local_dir=salt_root, remote_dir='/tmp/salt', delete=True, exclude=exclude)
+    sudo('rm -rf /srv/*')
+    sudo('mv /tmp/salt/* /srv/')
+    sudo('rm -rf /tmp/salt/')
+    # Pull common states
+    sudo('rm -rf /tmp/common/')
+    with settings(warn_only=True):
+        with hide('running', 'stdout', 'stderr'):
+            installed = run('which git')
+    if not installed:
+        sudo('apt-get install git-core -q -y')
+    run('git clone git://github.com/caktus/margarita.git /tmp/common/')
+    with cd('/tmp/common/'):
+        run('git checkout %s' % common)
+    sudo('mv /tmp/common/ /srv/common/')
+    sudo('rm -rf /tmp/common/')
+    sudo('chown root:root -R /srv/')
+    # Update to highstate
+    with settings(warn_only=True):
+        sudo('salt-call --local state.highstate -l info --out json > /tmp/output.json')
+        get('/tmp/output.json', 'output.json')
+        with open('output.json', 'r') as f:
+            try:
+                results = json.load(f)
+            except (TypeError, ValueError) as e:
+                error(u'Non-JSON output from salt-call', exception=e)
+            else:
+                for state, result in results['local'].items():
+                    if not result["result"]:
+                        print red(u'Error with %(name)s state: %(comment)s' % result)
+
+
+@task
+def supervisor_command(command):
+    """Run a supervisorctl command."""
+    sudo(u'supervisorctl %s' % command)
 
 
 def project_run(cmd):
@@ -240,22 +161,35 @@ def match_changes(changes, match):
 def deploy(branch=None):
     """Deploy to a given environment."""
     require('environment')
+    if not env.repo:
+        abort('env.repo is not set.')
     if branch is not None:
         env.branch = branch
     requirements = False
     migrations = False
-    # Fetch latest changes
-    with cd(env.code_root):
-        with settings(user=env.project_user):
+    if files.exists(env.code_root):
+        # Fetch latest changes
+        with cd(env.code_root):
             run('git fetch origin')
-        # Look for new requirements or migrations
-        changes = run("git diff origin/%(branch)s --stat-name-width=9999" % env)
-        requirements = match_changes(changes, r"requirements/")
-        migrations = match_changes(changes, r"/migrations/")
-        if requirements or migrations:
-            supervisor_command('stop %(environment)s:*' % env)
-        with settings(user=env.project_user):
+            # Look for new requirements or migrations
+            changes = run("git diff origin/%(branch)s --stat-name-width=9999" % env)
+            requirements = match_changes(changes, r"requirements/")
+            migrations = match_changes(changes, r"/migrations/")
+            if requirements or migrations:
+                supervisor_command('stop %(project)s:*' % env)
             run("git reset --hard origin/%(branch)s" % env)
+    else:
+        # Initial clone
+        run('git clone %(repo)s %(code_root)s' % env)
+        with cd(env.code_root):
+            run('git checkout %(branch)s' % env)
+        requirements = True
+        migrations = True
+        # Add code root to the Python path
+        path_file = os.path.join(env.virtualenv_root, 'lib', 'python2.7', 'site-packages', 'project.pth')
+        files.append(path_file, env.code_root, use_sudo=True)
+        sudo('chown %s:%s %s' % (env.project_user, env.project_user, path_file))
+    sudo('chown %(project_user)s:%(project_user)s -R %(code_root)s' % env)
     if requirements:
         update_requirements()
         # New requirements might need new tables/migrations
@@ -263,7 +197,7 @@ def deploy(branch=None):
     elif migrations:
         syncdb()
     collectstatic()
-    supervisor_command('restart %(environment)s:*' % env)
+    supervisor_command('restart %(project)s:*' % env)
 
 
 @task
