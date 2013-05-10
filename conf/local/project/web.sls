@@ -5,6 +5,14 @@ include:
   - nginx
   - python
   - supervisor
+  - ufw
+
+http_firewall:
+  ufw.allow:
+    - names:
+      - '80'
+      - '443'
+    - enabled: true
 
 project_user:
   user.present:
