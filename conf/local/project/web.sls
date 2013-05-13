@@ -1,5 +1,6 @@
 include:
   - nginx
+  - nginx.cert
   - ufw
 
 http_firewall:
@@ -18,6 +19,16 @@ ssl_dir:
     - makedirs: True
     - require:
       - file: root_dir
+
+ssl_cert:
+  cmd.run:
+    - name: /var/lib/nginx/generate-cert.sh {{ pillar['domain'] }}
+    - cwd: /var/www/{{ pillar['project_name']}}/ssl
+    - user: root
+    - unless: test -e /var/www/{{ pillar['project_name']}}/ssl/{{ pillar['domain'] }}.crt
+    - require:
+      - file: ssl_dir
+      - file: generate_cert
 
 nginx_conf:
   file.managed:
