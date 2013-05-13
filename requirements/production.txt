@@ -2,4 +2,4 @@
 gunicorn==0.14.2
 greenlet==0.3.4
 gevent==0.13.6
-python-memcached==1.48
+pylibmc==1.2.3
