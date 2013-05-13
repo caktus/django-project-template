@@ -25,13 +25,14 @@ Below is the server layout created by this provisioning process::
         public/
             static/
             media/
+        ssl/
 
 ``source`` contains the source code of the project. ``env``
 is the `virtualenv <http://www.virtualenv.org/>`_ for Python requirements. ``log``
 stores the Nginx, Gunicorn and other logs used by the project. ``public``
 holds the static resources (css/js) for the project and the uploaded user media.
 ``public/static/`` and ``public/media/`` map to the ``STATIC_ROOT`` and
-``MEDIA_ROOT`` settings.
+``MEDIA_ROOT`` settings. ``ssl`` contains the SSL key and certificate pair.
 
 
 Deployment
