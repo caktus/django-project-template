@@ -26,3 +26,7 @@ CACHES = {
 EMAIL_SUBJECT_PREFIX = '[{{ project_name|title }} Staging] '
 
 COMPRESS_ENABLED = True
+
+SESSION_COOKIE_SECURE = True
+
+SESSION_COOKIE_HTTPONLY = True
