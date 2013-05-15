@@ -71,6 +71,18 @@ Secrets for other environments will not be available. That is, the staging serve
 will not have access to the production secrets. As such there is no need to namespace the
 secrets by their environment.
 
+The ``secrets.sls`` can also contain a section to enable HTTP basic authentication. This
+is useful for staging environments where you want to limit who can see the site before it
+is ready. This will also prevent bots from crawling and indexing the pages. To enable basic
+auth simply add a section called ``http_auth`` in the relevant ``conf/pillar/<environment>/secrets.sls``::
+
+    http_auth:
+      admin: 123456
+
+This should be a list of key/value pairs. The keys will serve as the usernames and
+the values will be the password. As with all password usage please pick a strong
+password.
+
 
 Setup Checklist
 ------------------------
