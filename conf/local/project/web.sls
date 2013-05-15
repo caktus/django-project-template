@@ -48,7 +48,7 @@ auth_file:
 /var/www/{{ pillar['project_name'] }}/.htpasswd:
   file.managed:
     - user: root
-    - group: nobody
+    - group: www-data
     - mode: 640
     - require:
       - file: root_dir
