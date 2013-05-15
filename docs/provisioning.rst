@@ -58,7 +58,7 @@ to the developers out of band. There are example files given in ``conf/pillar/<e
 They have the format::
 
     secrets:
-      DB_PASSWORD: 'XXXXXX'
+      DB_PASSWORD: XXXXXX
 
 Each key/value pair given in the ``secrets`` dictionary will be added to the OS environment
 and can retrieved in the Python code via::
