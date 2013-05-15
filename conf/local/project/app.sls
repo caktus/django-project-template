@@ -80,6 +80,8 @@ group_conf:
     - group: root
     - mode: 644
     - template: jinja
+    - context:
+        programs: "{{ pillar['project_name'] }}-server"
     - require:
       - pkg: supervisor
       - file: log_dir
@@ -100,13 +102,14 @@ gunicorn_conf:
       - pkg: supervisor
       - file: log_dir
 
-extend:
-  supervisor:
-    service:
-      - running
-      - watch:
-        - file: group_conf
-        - file: gunicorn_conf
+gunicorn_process:
+  supervisord:
+    - name: {{ pillar['project_name'] }}:{{ pillar['project_name'] }}-server
+    - running
+    - restart: True
+    - require:
+      - pkg: supervisor
+      - file: gunicorn_conf
 
 npm:
   pkg:
