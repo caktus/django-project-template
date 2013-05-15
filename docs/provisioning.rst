@@ -104,6 +104,13 @@ server as well as check out the base states from the `margarita <https://github.
 repo. It will then use the `masterless salt-minion <http://docs.saltstack.com/topics/tutorials/quickstart.html>`_
 to ensure the states are up to date.
 
+..note::
+
+    The initial provision may show errors that the supervisor controlled processes cannot
+    be started or are not running. Since at this point the project source has not been
+    checked out on the server, this is expected. These problems should disappear after the
+    first deploy.
+
 Note that because of the use of rsync it is possible to execute configuration changes which
 have not yet been committed to the repo. This can be handy for testing configuration
 changes and allows for the secrets to be excluded from the repo, but it's a double-edged sword.
