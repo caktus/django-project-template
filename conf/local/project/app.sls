@@ -7,7 +7,7 @@ include:
 
 root_dir:
   file.directory:
-    - name: /var/www/{{ pillar['project_name'] }}/
+    - name: /var/www/{{ pillar['project_name'] }}-{{ pillar['environment'] }}/
     - user: {{ pillar['project_name'] }}
     - group: admin
     - mode: 775
@@ -17,7 +17,7 @@ root_dir:
 
 log_dir:
   file.directory:
-    - name: /var/www/{{ pillar['project_name'] }}/log/
+    - name: /var/www/{{ pillar['project_name'] }}-{{ pillar['environment'] }}/log/
     - user: {{ pillar['project_name'] }}
     - group: www-data
     - mode: 775
@@ -27,7 +27,7 @@ log_dir:
 
 public_dir:
   file.directory:
-    - name: /var/www/{{ pillar['project_name'] }}/public/
+    - name: /var/www/{{ pillar['project_name'] }}-{{ pillar['environment'] }}/public/
     - user: {{ pillar['project_name'] }}
     - group: www-data
     - mode: 775
@@ -37,7 +37,7 @@ public_dir:
 
 venv:
   virtualenv.managed:
-    - name: /var/www/{{ pillar['project_name'] }}/env/
+    - name: /var/www/{{ pillar['project_name'] }}-{{ pillar['environment'] }}/env/
     - no_site_packages: True
     - distribute: True
     - require:
@@ -46,7 +46,7 @@ venv:
 
 venv_dir:
   file.directory:
-    - name: /var/www/{{ pillar['project_name'] }}/env/
+    - name: /var/www/{{ pillar['project_name'] }}-{{ pillar['environment'] }}/env/
     - user: {{ pillar['project_name'] }}
     - group: {{ pillar['project_name'] }}
     - recurse:
@@ -57,14 +57,14 @@ venv_dir:
 
 activate:
   file.append:
-    - name: /var/www/{{ pillar['project_name'] }}/env/bin/activate
-    - text: source /var/www/{{ pillar['project_name'] }}/env/bin/secrets
+    - name: /var/www/{{ pillar['project_name'] }}-{{ pillar['environment'] }}/env/bin/activate
+    - text: source /var/www/{{ pillar['project_name'] }}-{{ pillar['environment'] }}/env/bin/secrets
     - require:
       - virtualenv: venv
 
 secrets:
   file.managed:
-    - name: /var/www/{{ pillar['project_name'] }}/env/bin/secrets
+    - name: /var/www/{{ pillar['project_name'] }}-{{ pillar['environment'] }}/env/bin/secrets
     - source: salt://project/env_secrets.jinja2
     - user: {{ pillar['project_name'] }}
     - group: {{ pillar['project_name'] }}
@@ -74,29 +74,29 @@ secrets:
 
 group_conf:
   file.managed:
-    - name: /etc/supervisor/conf.d/{{ pillar['project_name'] }}-group.conf
+    - name: /etc/supervisor/conf.d/{{ pillar['project_name'] }}-{{ pillar['environment'] }}-group.conf
     - source: salt://project/supervisor/group.conf
     - user: root
     - group: root
     - mode: 644
     - template: jinja
     - context:
-        programs: "{{ pillar['project_name'] }}-server"
+        programs: "{{ pillar['project_name'] }}-{{ pillar['environment'] }}-server"
     - require:
       - pkg: supervisor
       - file: log_dir
 
 gunicorn_conf:
   file.managed:
-    - name: /etc/supervisor/conf.d/{{ pillar['project_name'] }}-gunicorn.conf
+    - name: /etc/supervisor/conf.d/{{ pillar['project_name'] }}-{{ pillar['environment'] }}-gunicorn.conf
     - source: salt://project/supervisor/gunicorn.conf
     - user: root
     - group: root
     - mode: 644
     - template: jinja
     - context:
-        log_dir: "/var/www/{{ pillar['project_name']}}/log"
-        virtualenv_root: "/var/www/{{ pillar['project_name']}}/env"
+        log_dir: "/var/www/{{ pillar['project_name']}}-{{ pillar['environment'] }}/log"
+        virtualenv_root: "/var/www/{{ pillar['project_name']}}-{{ pillar['environment'] }}/env"
         settings: "{{ pillar['project_name']}}.settings.{{ pillar['environment'] }}"
     - require:
       - pkg: supervisor
@@ -104,7 +104,7 @@ gunicorn_conf:
 
 gunicorn_process:
   supervisord:
-    - name: {{ pillar['project_name'] }}:{{ pillar['project_name'] }}-server
+    - name: {{ pillar['project_name'] }}-{{ pillar['environment'] }}:{{ pillar['project_name'] }}-{{ pillar['environment'] }}-server
     - running
     - restart: True
     - require:

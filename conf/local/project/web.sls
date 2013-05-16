@@ -12,7 +12,7 @@ http_firewall:
 
 ssl_dir:
   file.directory:
-    - name: /var/www/{{ pillar['project_name'] }}/ssl/
+    - name: /var/www/{{ pillar['project_name'] }}-{{ pillar['environment'] }}/ssl/
     - user: root
     - group: www-data
     - mode: 644
@@ -23,9 +23,9 @@ ssl_dir:
 ssl_cert:
   cmd.run:
     - name: /var/lib/nginx/generate-cert.sh {{ pillar['domain'] }}
-    - cwd: /var/www/{{ pillar['project_name']}}/ssl
+    - cwd: /var/www/{{ pillar['project_name']}}-{{ pillar['environment'] }}/ssl
     - user: root
-    - unless: test -e /var/www/{{ pillar['project_name']}}/ssl/{{ pillar['domain'] }}.crt
+    - unless: test -e /var/www/{{ pillar['project_name']}}-{{ pillar['environment'] }}/ssl/{{ pillar['domain'] }}.crt
     - require:
       - file: ssl_dir
       - file: generate_cert
@@ -39,13 +39,13 @@ auth_file:
   cmd.run:
     - names:
 {%- for key, value in pillar['http_auth'].items() %}
-      - htpasswd {% if loop.first -%}-c{%- endif %} -bd /var/www/{{ pillar['project_name'] }}/.htpasswd {{ key }} {{ value }}
+      - htpasswd {% if loop.first -%}-c{%- endif %} -bd /var/www/{{ pillar['project_name'] }}-{{ pillar['environment'] }}/.htpasswd {{ key }} {{ value }}
 {% endfor %}
     - require:
       - pkg: apache2-utils
       - file: root_dir
 
-/var/www/{{ pillar['project_name'] }}/.htpasswd:
+/var/www/{{ pillar['project_name'] }}-{{ pillar['environment'] }}/.htpasswd:
   file.managed:
     - user: root
     - group: www-data
@@ -57,18 +57,18 @@ auth_file:
 
 nginx_conf:
   file.managed:
-    - name: /etc/nginx/sites-enabled/{{ pillar['project_name'] }}.conf
+    - name: /etc/nginx/sites-enabled/{{ pillar['project_name'] }}-{{ pillar['environment'] }}.conf
     - source: salt://project/nginx.conf
     - user: root
     - group: root
     - mode: 644
     - template: jinja
     - context:
-        public_root: "/var/www/{{ pillar['project_name']}}/public"
-        log_dir: "/var/www/{{ pillar['project_name']}}/log"
-        ssl_dir: "/var/www/{{ pillar['project_name']}}/ssl"
+        public_root: "/var/www/{{ pillar['project_name']}}-{{ pillar['environment'] }}/public"
+        log_dir: "/var/www/{{ pillar['project_name']}}-{{ pillar['environment'] }}/log"
+        ssl_dir: "/var/www/{{ pillar['project_name']}}-{{ pillar['environment'] }}/ssl"
         {%- if 'http_auth' in pillar %}
-        auth_file: "/var/www/{{ pillar['project_name']}}/.htpasswd"
+        auth_file: "/var/www/{{ pillar['project_name']}}-{{ pillar['environment'] }}/.htpasswd"
         {% endif %}
     - require:
       - pkg: nginx
