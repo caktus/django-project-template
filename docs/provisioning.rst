@@ -14,7 +14,8 @@ Overview
 - Frontend Server: Nginx
 - Cache: Memcached
 
-These services are configured to run together on a single machine. Each environment
+These services are configured to run together on a single machine. While it is possible
+to run on a single server it is recommended that each environment
 (``staging`` or ``production``) should run on a separate machine. `Supervisord <http://supervisord.org/>`_
 manages the application server process.
 
