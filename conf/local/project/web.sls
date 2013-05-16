@@ -30,6 +30,31 @@ ssl_cert:
       - file: ssl_dir
       - file: generate_cert
 
+{% if 'http_auth' in pillar %}
+apache2-utils:
+  pkg:
+    - installed
+
+auth_file:
+  cmd.run:
+    - names:
+{%- for key, value in pillar['http_auth'].items() %}
+      - htpasswd {% if loop.first -%}-c{%- endif %} -bd /var/www/{{ pillar['project_name'] }}/.htpasswd {{ key }} {{ value }}
+{% endfor %}
+    - require:
+      - pkg: apache2-utils
+      - file: root_dir
+
+/var/www/{{ pillar['project_name'] }}/.htpasswd:
+  file.managed:
+    - user: root
+    - group: www-data
+    - mode: 640
+    - require:
+      - file: root_dir
+      - cmd: auth_file
+{% endif %}
+
 nginx_conf:
   file.managed:
     - name: /etc/nginx/sites-enabled/{{ pillar['project_name'] }}.conf
@@ -42,11 +67,16 @@ nginx_conf:
         public_root: "/var/www/{{ pillar['project_name']}}/public"
         log_dir: "/var/www/{{ pillar['project_name']}}/log"
         ssl_dir: "/var/www/{{ pillar['project_name']}}/ssl"
+        {%- if 'http_auth' in pillar %}
+        auth_file: "/var/www/{{ pillar['project_name']}}/.htpasswd"
+        {% endif %}
     - require:
       - pkg: nginx
       - file: log_dir
       - file: ssl_dir
-
+      {%- if 'http_auth' in pillar %}
+      - cmd: auth_file
+      {% endif %}
 extend:
   nginx:
     service:
