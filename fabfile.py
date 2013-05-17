@@ -1,8 +1,9 @@
+import json
 import os
 import re
 
 from fabric.api import cd, env, get, hide, local, put, require, run, settings, sudo, task
-from fabric.color import red
+from fabric.colors import red
 from fabric.contrib import files, project
 from fabric.utils import abort, error
 
