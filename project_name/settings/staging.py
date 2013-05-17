@@ -5,7 +5,7 @@ TEMPLATE_DEBUG = DEBUG
 
 DATABASES['default']['NAME'] = '{{ project_name }}_staging'
 
-PUBLIC_ROOT = '/var/www/{{ project_name }}/public/'
+PUBLIC_ROOT = '/var/www/{{ project_name }}-staging/public/'
 
 STATIC_ROOT = os.path.join(PUBLIC_ROOT, 'static')
 

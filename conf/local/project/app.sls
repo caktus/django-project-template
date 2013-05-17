@@ -1,3 +1,6 @@
+{% import 'project/_vars.sls' as vars with context %}
+{% set venv_dir = vars.path_from_root('env') %}
+
 include:
   - memcached
   - postfix
@@ -7,7 +10,7 @@ include:
 
 root_dir:
   file.directory:
-    - name: /var/www/{{ pillar['project_name'] }}-{{ pillar['environment'] }}/
+    - name: {{ vars.root_dir }}
     - user: {{ pillar['project_name'] }}
     - group: admin
     - mode: 775
@@ -15,19 +18,19 @@ root_dir:
     - require:
       - user: project_user
 
-log_dir:
+run_dir:
   file.directory:
-    - name: /var/www/{{ pillar['project_name'] }}-{{ pillar['environment'] }}/log/
+    - name: {{ vars.run_dir }}
     - user: {{ pillar['project_name'] }}
-    - group: www-data
+    - group: {{ pillar['project_name'] }}
     - mode: 775
     - makedirs: True
     - require:
-      - file: root_dir
+      - user: project_user
 
-public_dir:
+log_dir:
   file.directory:
-    - name: /var/www/{{ pillar['project_name'] }}-{{ pillar['environment'] }}/public/
+    - name: {{ vars.log_dir }}
     - user: {{ pillar['project_name'] }}
     - group: www-data
     - mode: 775
@@ -37,7 +40,7 @@ public_dir:
 
 venv:
   virtualenv.managed:
-    - name: /var/www/{{ pillar['project_name'] }}-{{ pillar['environment'] }}/env/
+    - name: {{ venv_dir }}
     - no_site_packages: True
     - distribute: True
     - require:
@@ -46,7 +49,7 @@ venv:
 
 venv_dir:
   file.directory:
-    - name: /var/www/{{ pillar['project_name'] }}-{{ pillar['environment'] }}/env/
+    - name: {{ venv_dir }}
     - user: {{ pillar['project_name'] }}
     - group: {{ pillar['project_name'] }}
     - recurse:
@@ -57,14 +60,14 @@ venv_dir:
 
 activate:
   file.append:
-    - name: /var/www/{{ pillar['project_name'] }}-{{ pillar['environment'] }}/env/bin/activate
-    - text: source /var/www/{{ pillar['project_name'] }}-{{ pillar['environment'] }}/env/bin/secrets
+    - name: {{ vars.build_path(venv_dir, "bin/activate") }}
+    - text: source {{ vars.build_path(venv_dir, "bin/secrets") }}
     - require:
       - virtualenv: venv
 
 secrets:
   file.managed:
-    - name: /var/www/{{ pillar['project_name'] }}-{{ pillar['environment'] }}/env/bin/secrets
+    - name: {{ vars.build_path(venv_dir, "bin/secrets") }}
     - source: salt://project/env_secrets.jinja2
     - user: {{ pillar['project_name'] }}
     - group: {{ pillar['project_name'] }}
@@ -74,37 +77,40 @@ secrets:
 
 group_conf:
   file.managed:
-    - name: /etc/supervisor/conf.d/{{ pillar['project_name'] }}-{{ pillar['environment'] }}-group.conf
+    - name: /etc/supervisor/conf.d/{{ vars.project }}-group.conf
     - source: salt://project/supervisor/group.conf
     - user: root
     - group: root
     - mode: 644
     - template: jinja
     - context:
-        programs: "{{ pillar['project_name'] }}-{{ pillar['environment'] }}-server"
+        programs: "{{ vars.project }}-server"
+        project: "{{ vars.project }}"
     - require:
       - pkg: supervisor
       - file: log_dir
 
 gunicorn_conf:
   file.managed:
-    - name: /etc/supervisor/conf.d/{{ pillar['project_name'] }}-{{ pillar['environment'] }}-gunicorn.conf
+    - name: /etc/supervisor/conf.d/{{ vars.project }}-gunicorn.conf
     - source: salt://project/supervisor/gunicorn.conf
     - user: root
     - group: root
     - mode: 644
     - template: jinja
     - context:
-        log_dir: "/var/www/{{ pillar['project_name']}}-{{ pillar['environment'] }}/log"
-        virtualenv_root: "/var/www/{{ pillar['project_name']}}-{{ pillar['environment'] }}/env"
+        log_dir: "{{ vars.log_dir }}"
+        virtualenv_root: "{{ venv_dir }}"
         settings: "{{ pillar['project_name']}}.settings.{{ pillar['environment'] }}"
+        project: "{{ vars.project }}"
+        socket: "{{ vars.server_socket }}"
     - require:
       - pkg: supervisor
       - file: log_dir
 
 gunicorn_process:
   supervisord:
-    - name: {{ pillar['project_name'] }}-{{ pillar['environment'] }}:{{ pillar['project_name'] }}-{{ pillar['environment'] }}-server
+    - name: {{ vars.project }}:{{ vars.project }}-server
     - running
     - restart: True
     - require:

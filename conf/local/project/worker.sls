@@ -1,3 +1,6 @@
+{% import 'project/_vars.sls' as vars with context %}
+{% set venv_dir = vars.path_from_root('env') %}
+
 include:
   - project.app
   - rabbitmq.project
@@ -5,24 +8,25 @@ include:
 
 celery_conf:
   file.managed:
-    - name: /etc/supervisor/conf.d/{{ pillar['project_name'] }}-{{ pillar['environment'] }}-celery.conf
+    - name: /etc/supervisor/conf.d/{{ vars.project }}-celery.conf
     - source: salt://project/supervisor/celery.conf
     - user: root
     - group: root
     - mode: 644
     - template: jinja
     - context:
-        log_dir: "/var/www/{{ pillar['project_name']}}-{{ pillar['environment'] }}/log"
-        virtualenv_root: "/var/www/{{ pillar['project_name']}}-{{ pillar['environment'] }}/env"
+        log_dir: "{{ vars.log_dir }}"
+        virtualenv_root: "{{ venv_dir }}"
         settings: "{{ pillar['project_name']}}.settings.{{ pillar['environment'] }}"
         flags: "-B --loglevel=INFO"
+        project: "{{ vars.project }}"
     - require:
       - pkg: supervisor
       - file: log_dir
 
 celery_process:
   supervisord:
-    - name: {{ pillar['project_name'] }}-{{ pillar['environment'] }}:{{ pillar['project_name'] }}-{{ pillar['environment'] }}-worker
+    - name: {{ vars.project }}:{{ vars.project }}-worker
     - running
     - restart: True
     - require:
@@ -33,4 +37,4 @@ extend:
   group_conf:
     file.managed:
       - context:
-          programs: "{{ pillar['project_name'] }}-{{ pillar['environment'] }}-server,{{ pillar['project_name'] }}-{{ pillar['environment'] }}-worker"
+          programs: "{{ vars.project }}-server,{{ vars.project }}-worker"
