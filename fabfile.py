@@ -44,7 +44,7 @@ def production():
 
 def setup_path():
     env.home = '/home/%(project_user)s/' % env
-    env.root = os.path.join('/var/www/', env.project)
+    env.root = os.path.join('/var/www/', '%(project)s-%(environment)s' % env)
     env.code_root = os.path.join(env.root, 'source')
     env.virtualenv_root = os.path.join(env.root, 'env')
     env.db = '%s_%s' % (env.project, env.environment)
@@ -180,7 +180,7 @@ def deploy(branch=None):
             requirements = match_changes(changes, r"requirements/")
             migrations = match_changes(changes, r"/migrations/")
             if requirements or migrations:
-                supervisor_command('stop %(project)s:*' % env)
+                supervisor_command('stop %(project)s-%(environment)s:*' % env)
             run("git reset --hard origin/%(branch)s" % env)
     else:
         # Initial clone
@@ -201,14 +201,14 @@ def deploy(branch=None):
     elif migrations:
         syncdb()
     collectstatic()
-    supervisor_command('restart %(project)s:*' % env)
+    supervisor_command('restart %(project)s-%(environment)s:*' % env)
 
 
 @task
 def get_db_dump(clean=True):
     """Get db dump of remote enviroment."""
     require('environment')
-    dump_file = '%(environment)s.sql' % env
+    dump_file = '%(project)s-%(environment)s.sql' % env
     temp_file = os.path.join(env.home, dump_file)
     flags = '-Ox'
     if clean:
@@ -221,6 +221,6 @@ def get_db_dump(clean=True):
 def load_db_dump(dump_file):
     """Load db dump on a remote environment."""
     require('environment')
-    temp_file = os.path.join(env.home, '%(environment)s.sql' % env)
+    temp_file = os.path.join(env.home, '%(project)s-%(environment)s.sql' % env)
     put(dump_file, temp_file, use_sudo=True)
     sudo('psql -d %s -f %s' % (env.db, temp_file), user=env.project_user)

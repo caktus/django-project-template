@@ -18,7 +18,7 @@ Layout
 
 Below is the server layout created by this provisioning process::
 
-    /var/www/{{ project_name }}/
+    /var/www/{{ project_name }}-<environment>/
         source/
         env/
         log/
