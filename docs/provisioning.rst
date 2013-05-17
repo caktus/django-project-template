@@ -58,7 +58,7 @@ to the developers out of band. There are example files given in ``conf/pillar/<e
 They have the format::
 
     secrets:
-      DB_PASSWORD: 'XXXXXX'
+      DB_PASSWORD: XXXXXX
 
 Each key/value pair given in the ``secrets`` dictionary will be added to the OS environment
 and can retrieved in the Python code via::
@@ -71,6 +71,18 @@ Secrets for other environments will not be available. That is, the staging serve
 will not have access to the production secrets. As such there is no need to namespace the
 secrets by their environment.
 
+The ``secrets.sls`` can also contain a section to enable HTTP basic authentication. This
+is useful for staging environments where you want to limit who can see the site before it
+is ready. This will also prevent bots from crawling and indexing the pages. To enable basic
+auth simply add a section called ``http_auth`` in the relevant ``conf/pillar/<environment>/secrets.sls``::
+
+    http_auth:
+      admin: 123456
+
+This should be a list of key/value pairs. The keys will serve as the usernames and
+the values will be the password. As with all password usage please pick a strong
+password.
+
 
 Setup Checklist
 ------------------------
@@ -82,6 +94,7 @@ To summarize the steps above, you can use the following checklist
 - Project name has been in ``conf/pillar/project.sls``
 - Environment domain name has been set in ``conf/pillar/<environment>/env.sls``
 - Environment secrets have been set in ``conf/pillar/<environment>/secrets.sls``
+- ``ALLOWED_HOSTS`` has been set in ``{{ project_name }}/settings/<environment>.py``
 
 
 Provision
