@@ -5,16 +5,11 @@ TEMPLATE_DEBUG = DEBUG
 
 DATABASES['default']['NAME'] = '{{ project_name }}_staging'
 
-
 PUBLIC_ROOT = '/var/www/{{ project_name }}/public/'
 
 STATIC_ROOT = os.path.join(PUBLIC_ROOT, 'static')
 
 MEDIA_ROOT = os.path.join(PUBLIC_ROOT, 'media')
-
-INSTALLED_APPS += (
-    'gunicorn',
-)
 
 CACHES = {
     'default': {
@@ -26,3 +21,9 @@ CACHES = {
 EMAIL_SUBJECT_PREFIX = '[{{ project_name|title }} Staging] '
 
 COMPRESS_ENABLED = True
+
+SESSION_COOKIE_SECURE = True
+
+SESSION_COOKIE_HTTPONLY = True
+
+ALLOWED_HOSTS = ()
