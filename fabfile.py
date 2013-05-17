@@ -99,7 +99,10 @@ def provision(common='master'):
             else:
                 for state, result in results['local'].items():
                     if not result["result"]:
-                        print red(u'Error with %(name)s state: %(comment)s' % result)
+                        if 'name' in result:
+                            print red(u'Error with %(name)s state: %(comment)s' % result)
+                        else:
+                            print red(u'Error with {0} state: {1}'.format(state, result['comment']))
 
 
 @task
