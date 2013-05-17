@@ -1,5 +1,5 @@
 users:
-  # This should be a list of developer users and thier public SSH keys
+  # This should be a list of developer users and their public SSH keys
   # example-user:
   #   groups: [admin, login]
   #   public_key:
