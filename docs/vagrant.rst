@@ -55,7 +55,7 @@ staging.example.com::
 
     127.0.0.1 staging.example.com
 
-In your browser you can now view staging.example.com:8089 and see the VM running the full
+In your browser you can now view https://staging.example.com:8089 and see the VM running the full
 web stack.
 
 Note that this ``/etc/hosts`` entry will prevent you from accessing the true staging.example.com.

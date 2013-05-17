@@ -1,10 +1,6 @@
 include:
-  - memcached
-  - postfix
-  - version-control
   - nginx
-  - python
-  - supervisor
+  - nginx.cert
   - ufw
 
 http_firewall:
@@ -14,78 +10,50 @@ http_firewall:
       - '443'
     - enabled: true
 
-project_user:
-  user.present:
-    - name: {{ pillar['project_name'] }}
-    - remove_groups: False
-    - groups: [www-data]
-
-root_dir:
+ssl_dir:
   file.directory:
-    - name: /var/www/{{ pillar['project_name'] }}/
-    - user: {{ pillar['project_name'] }}
-    - group: admin
-    - mode: 775
-    - makedirs: True
-    - require:
-      - user: project_user
-
-log_dir:
-  file.directory:
-    - name: /var/www/{{ pillar['project_name'] }}/log/
-    - user: {{ pillar['project_name'] }}
+    - name: /var/www/{{ pillar['project_name'] }}/ssl/
+    - user: root
     - group: www-data
-    - mode: 775
+    - mode: 644
     - makedirs: True
     - require:
       - file: root_dir
 
-public_dir:
-  file.directory:
-    - name: /var/www/{{ pillar['project_name'] }}/public/
-    - user: {{ pillar['project_name'] }}
-    - group: www-data
-    - mode: 775
-    - makedirs: True
+ssl_cert:
+  cmd.run:
+    - name: /var/lib/nginx/generate-cert.sh {{ pillar['domain'] }}
+    - cwd: /var/www/{{ pillar['project_name']}}/ssl
+    - user: root
+    - unless: test -e /var/www/{{ pillar['project_name']}}/ssl/{{ pillar['domain'] }}.crt
     - require:
+      - file: ssl_dir
+      - file: generate_cert
+
+{% if 'http_auth' in pillar %}
+apache2-utils:
+  pkg:
+    - installed
+
+auth_file:
+  cmd.run:
+    - names:
+{%- for key, value in pillar['http_auth'].items() %}
+      - htpasswd {% if loop.first -%}-c{%- endif %} -bd /var/www/{{ pillar['project_name'] }}/.htpasswd {{ key }} {{ value }}
+{% endfor %}
+    - require:
+      - pkg: apache2-utils
       - file: root_dir
 
-venv:
-  virtualenv.managed:
-    - name: /var/www/{{ pillar['project_name'] }}/env/
-    - no_site_packages: True
-    - distribute: True
-    - require:
-      - pip: virtualenv
-      - file: root_dir
-
-venv_dir:
-  file.directory:
-    - name: /var/www/{{ pillar['project_name'] }}/env/
-    - user: {{ pillar['project_name'] }}
-    - group: {{ pillar['project_name'] }}
-    - recurse:
-      - user
-      - group
-    - require:
-      - virtualenv: venv
-
-activate:
-  file.append:
-    - name: /var/www/{{ pillar['project_name'] }}/env/bin/activate
-    - text: source /var/www/{{ pillar['project_name'] }}/env/bin/secrets
-    - require:
-      - virtualenv: venv
-
-secrets:
+/var/www/{{ pillar['project_name'] }}/.htpasswd:
   file.managed:
-    - name: /var/www/{{ pillar['project_name'] }}/env/bin/secrets
-    - source: salt://project/env_secrets.jinja2
-    - user: {{ pillar['project_name'] }}
-    - group: {{ pillar['project_name'] }}
-    - template: jinja
+    - user: root
+    - group: www-data
+    - mode: 640
     - require:
-      - file: activate
+      - file: root_dir
+      - cmd: auth_file
+{% endif %}
 
 nginx_conf:
   file.managed:
@@ -98,63 +66,20 @@ nginx_conf:
     - context:
         public_root: "/var/www/{{ pillar['project_name']}}/public"
         log_dir: "/var/www/{{ pillar['project_name']}}/log"
+        ssl_dir: "/var/www/{{ pillar['project_name']}}/ssl"
+        {%- if 'http_auth' in pillar %}
+        auth_file: "/var/www/{{ pillar['project_name']}}/.htpasswd"
+        {% endif %}
     - require:
       - pkg: nginx
       - file: log_dir
-
-group_conf:
-  file.managed:
-    - name: /etc/supervisor/conf.d/{{ pillar['project_name'] }}-group.conf
-    - source: salt://project/supervisor/group.conf
-    - user: root
-    - group: root
-    - mode: 644
-    - template: jinja
-    - require:
-      - pkg: supervisor
-      - file: log_dir
-
-gunicorn_conf:
-  file.managed:
-    - name: /etc/supervisor/conf.d/{{ pillar['project_name'] }}-gunicorn.conf
-    - source: salt://project/supervisor/gunicorn.conf
-    - user: root
-    - group: root
-    - mode: 644
-    - template: jinja
-    - context:
-        log_dir: "/var/www/{{ pillar['project_name']}}/log"
-        virtualenv_root: "/var/www/{{ pillar['project_name']}}/env"
-        settings: "{{ pillar['project_name']}}.settings.{{ pillar['environment'] }}"
-    - require:
-      - pkg: supervisor
-      - file: log_dir
-
+      - file: ssl_dir
+      {%- if 'http_auth' in pillar %}
+      - cmd: auth_file
+      {% endif %}
 extend:
   nginx:
     service:
       - running
       - watch:
         - file: nginx_conf
-
-  supervisor:
-    service:
-      - running
-      - watch:
-        - file: group_conf
-        - file: gunicorn_conf
-
-npm:
-  pkg:
-    - installed
-
-less:
-  cmd.run:
-    - name: npm install less -g
-    - user: root
-    - unless: which lessc
-    - require:
-      - pkg: npm
-  file.symlink:
-    - name: /usr/bin/lessc
-    - target: /usr/local/bin/lessc
