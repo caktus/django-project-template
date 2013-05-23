@@ -90,6 +90,7 @@ nginx_conf:
       - pkg: nginx
       - file: log_dir
       - file: ssl_dir
+      - cmd: ssl_cert
       {%- if 'http_auth' in pillar %}
       - cmd: auth_file
       {% endif %}
