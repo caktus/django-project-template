@@ -3,7 +3,7 @@
 {% set run_dir = "/var/run/" + project + "/" %}
 
 {% macro build_path(root, name) -%}
-  {{ root }}{%- if not root.endswith('/') -%}'/'{%- endif -%}{{ name }}
+  {{ root }}{%- if not root.endswith('/') -%}/{%- endif -%}{{ name }}
 {%- endmacro %}
 
 {% macro path_from_root(name) -%}
