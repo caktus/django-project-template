@@ -71,18 +71,6 @@ Secrets for other environments will not be available. That is, the staging serve
 will not have access to the production secrets. As such there is no need to namespace the
 secrets by their environment.
 
-The ``secrets.sls`` can also contain a section to enable HTTP basic authentication. This
-is useful for staging environments where you want to limit who can see the site before it
-is ready. This will also prevent bots from crawling and indexing the pages. To enable basic
-auth simply add a section called ``http_auth`` in the relevant ``conf/pillar/<environment>/secrets.sls``::
-
-    http_auth:
-      admin: 123456
-
-This should be a list of key/value pairs. The keys will serve as the usernames and
-the values will be the password. As with all password usage please pick a strong
-password.
-
 
 Setup Checklist
 ------------------------
@@ -115,6 +103,13 @@ Behind the scenes this will rsync the states/pillars in ``conf`` over to the
 server as well as check out the base states from the `margarita <https://github.com/caktus/margarita>`_
 repo. It will then use the `masterless salt-minion <http://docs.saltstack.com/topics/tutorials/quickstart.html>`_
 to ensure the states are up to date.
+
+..note::
+
+    The initial provision may show errors that the supervisor controlled processes cannot
+    be started or are not running. Since at this point the project source has not been
+    checked out on the server, this is expected. These problems should disappear after the
+    first deploy.
 
 Note that because of the use of rsync it is possible to execute configuration changes which
 have not yet been committed to the repo. This can be handy for testing configuration
@@ -154,3 +149,70 @@ user. We also do not need to specify the host. It will use the ``env.hosts`` pre
 set for this environment.
 
 For more information testing the provisioning see the doc:`vagrant guide </vagrant>`.
+
+
+Optional Configuration
+------------------------
+
+The default template contains setup to help manage common configuration needs which
+are not enabled by default.
+
+
+HTTP Auth
+________________________
+
+The ``secrets.sls`` can also contain a section to enable HTTP basic authentication. This
+is useful for staging environments where you want to limit who can see the site before it
+is ready. This will also prevent bots from crawling and indexing the pages. To enable basic
+auth simply add a section called ``http_auth`` in the relevant ``conf/pillar/<environment>/secrets.sls``::
+
+    http_auth:
+      admin: 123456
+
+This should be a list of key/value pairs. The keys will serve as the usernames and
+the values will be the password. As with all password usage please pick a strong
+password.
+
+
+Celery
+________________________
+
+Many Django projects make use of `Celery <http://celery.readthedocs.org/en/latest/>`_
+for handling long running task outside of request/response cycle. Enabling a worker
+makes use of `django-celery <http://celery.readthedocs.org/en/latest/django/first-steps-with-django.html>`_.
+To add the states for the worker simply add::
+
+    - project.worker
+
+to the list of states in the ``top.sls``. This will use RabbitMQ as the broker by default. The
+RabbitMQ user will be named {{ project_name }} and the vhost will be named {{ project_name }}_<environment>
+for each environment. It requires that you add a password for the RabbitMQ user to each of
+the ``conf/pillar/<environment>/secrets.sls``::
+
+    secrets:
+      BROKER_PASSWORD: thisisapasswordforrabbitmq
+
+Additionally you will need to configure the project settings for django-celery::
+
+    # {{ project_name }}.settings.staging.py
+    import os
+    from {{ project_name }}.settings.base import *
+
+    # Other settings would be here
+
+    INSTALLED_APPS += (
+        'djcelery',
+    )
+
+    import djcelery
+    djcelery.setup_loader()
+
+    BROKER_URL = 'amqp://{{ project_name }}:%s@localhost:5672/{{ project_name }}_staging' % os.environ['BROKER_PASSWORD']
+
+You will also need to add the ``BROKER_URL`` to the ``{{ project_name }}.settings.production`` so
+that the vhost is set correctly. These are the minimal settings to make Celery work. Refer to the
+`Celery documentation <http://docs.celeryproject.org/en/latest/configuration.html>`_ for additional
+configuration options.
+
+The worker will run also run the ``beat`` process (via the ``-B`` option) which allows for running
+periodic tasks.
