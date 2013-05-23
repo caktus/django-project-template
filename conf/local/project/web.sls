@@ -37,7 +37,7 @@ ssl_dir:
 
 ssl_cert:
   cmd.run:
-    - name: /var/lib/nginx/generate-cert.sh {{ pillar['domain'] }}
+    - name: cd {{ ssl_dir }} && /var/lib/nginx/generate-cert.sh {{ pillar['domain'] }}
     - cwd: {{ ssl_dir }}
     - user: root
     - unless: test -e {{ vars.build_path(ssl_dir, pillar['domain'] + ".crt") }}
