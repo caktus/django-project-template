@@ -1,7 +1,7 @@
 {% import 'project/_vars.sls' as vars with context %}
 {% set ssl_dir = vars.path_from_root('ssl') %}
 {% set public_dir = vars.path_from_root('public') %}
-{% set auth_file = vars.build_path(ssl_dir, ".htpasswd") %}
+{% set auth_file = vars.path_from_root(".htpasswd") %}
 
 include:
   - nginx
