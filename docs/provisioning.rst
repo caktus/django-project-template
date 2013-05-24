@@ -80,7 +80,7 @@ To summarize the steps above, you can use the following checklist
 
 - ``env.repo`` is set in ``fabfile.py``
 - Developer user names and SSH keys have been added to ``conf/pillar/devs.sls``
-- Project name has been in ``conf/pillar/project.sls``
+- Project name has been set in ``conf/pillar/project.sls``
 - Environment domain name has been set in ``conf/pillar/<environment>/env.sls``
 - Environment secrets have been set in ``conf/pillar/<environment>/secrets.sls``
 - ``ALLOWED_HOSTS`` has been set in ``{{ project_name }}/settings/<environment>.py``
