@@ -1,7 +1,6 @@
 base:
   '*':
     - base
-    - sudo
     - vagrant.user
     - users.devs
     - sshd
