@@ -108,12 +108,12 @@ def provision(common='master'):
 @task
 def supervisor_command(command):
     """Run a supervisorctl command."""
-    sudo(u'supervisorctl %s' % command)
+    sudo(u'supervisorctl %s' % command, shell=False)
 
 
 def project_run(cmd):
     """ Uses sudo to allow developer to run commands as project user."""
-    sudo(cmd, user=env.project_user)
+    sudo(cmd, user=env.project_user, shell=False)
 
 
 @task
@@ -193,7 +193,7 @@ def deploy(branch=None):
         path_file = os.path.join(env.virtualenv_root, 'lib', 'python2.7', 'site-packages', 'project.pth')
         files.append(path_file, env.code_root, use_sudo=True)
         sudo('chown %s:%s %s' % (env.project_user, env.project_user, path_file))
-    sudo('chown %(project_user)s:admin -R %(code_root)s' % env)
+    sudo('chown %(project_user)s:admin -R %(code_root)s' % env, shell=False)
     if requirements:
         update_requirements()
         # New requirements might need new tables/migrations
