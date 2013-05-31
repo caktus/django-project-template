@@ -23,6 +23,7 @@ celery_conf:
     - require:
       - pkg: supervisor
       - file: log_dir
+      - file: project_path
 
 celery_process:
   supervisord:

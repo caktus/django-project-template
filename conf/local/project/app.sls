@@ -75,6 +75,21 @@ secrets:
     - require:
       - file: activate
 
+path_file:
+  file.managed:
+    - name: {{ vars.build_path(venv_dir, "lib/python2.7/site-packages/project.pth") }}
+    - user: {{ pillar['project_name'] }}
+    - group: {{ pillar['project_name'] }}
+    - require:
+      - virtualenv: venv
+
+project_path:
+  file.append:
+    - name: {{ vars.build_path(venv_dir, "lib/python2.7/site-packages/project.pth") }}
+    - text: {{ vars.path_from_root('source') }}
+    - require:
+      - file: path_file
+
 group_conf:
   file.managed:
     - name: /etc/supervisor/conf.d/{{ vars.project }}-group.conf
@@ -107,6 +122,7 @@ gunicorn_conf:
     - require:
       - pkg: supervisor
       - file: log_dir
+      - file: project_path
 
 gunicorn_process:
   supervisord:
