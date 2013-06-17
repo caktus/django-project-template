@@ -1,2 +1,2 @@
-%admin ALL= NOPASSWD:/usr/sbin/service,/usr/bin/supervisorctl,/bin/chown {{ pillar['project_name'] }}\:admin -R {{ source_dir }}
+%admin ALL= NOPASSWD:/usr/sbin/service,/usr/bin/supervisorctl,/bin/chown {{ pillar['project_name'] }}\:admin -R {{ source_dir }},/bin/chmod 775 {{ source_dir }}
 %admin ALL=({{ pillar['project_name'] }}) NOPASSWD:{{ bin_dir }}/
