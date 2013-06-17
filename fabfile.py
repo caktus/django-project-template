@@ -131,7 +131,7 @@ def update_requirements():
 def manage_run(command):
     """Run a Django management command on the remote server."""
     require('environment')
-    manage_base = u"%(virtualenv_root)s/bin/django-admin.py " % env
+    manage_base = u"source %(virtualenv_root)s/bin/activate && %(virtualenv_root)s/bin/django-admin.py " % env
     if '--settings' not in command:
         command = u"%s --settings=%s" % (command, env.settings)
     project_run(u'%s %s' % (manage_base, command))
@@ -189,6 +189,7 @@ def deploy(branch=None):
             run('git checkout %(branch)s' % env)
         requirements = True
         migrations = True
+        sudo('chmod 775 %(code_root)s' % env, shell=False)
     sudo('chown %(project_user)s:admin -R %(code_root)s' % env, shell=False)
     if requirements:
         update_requirements()

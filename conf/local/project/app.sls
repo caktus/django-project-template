@@ -139,7 +139,7 @@ npm:
 
 less:
   cmd.run:
-    - name: npm install less -g
+    - name: npm install less@1.3.3 -g
     - user: root
     - unless: which lessc
     - require:
