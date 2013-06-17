@@ -13,7 +13,7 @@ project_user:
 
 project_sudo:
   file.managed:
-    - name: /etc/sudoers.d/{{ pillar['project_name'] }}-{{ pillar['environment'] }}
+    - name: /etc/sudoers.d/{{ vars.project }}
     - source: salt://project/sudoers
     - user: root
     - mode: 440
