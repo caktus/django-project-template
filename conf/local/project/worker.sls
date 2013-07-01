@@ -23,6 +23,8 @@ celery_conf:
     - require:
       - pkg: supervisor
       - file: log_dir
+    - watch_in:
+      - cmd: supervisor_update
 
 celery_process:
   supervisord:
