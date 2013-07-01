@@ -89,6 +89,8 @@ group_conf:
     - require:
       - pkg: supervisor
       - file: log_dir
+    - watch_in:
+      - cmd: supervisor_update
 
 gunicorn_conf:
   file.managed:
@@ -107,6 +109,8 @@ gunicorn_conf:
     - require:
       - pkg: supervisor
       - file: log_dir
+    - watch_in:
+      - cmd: supervisor_update
 
 gunicorn_process:
   supervisord:
