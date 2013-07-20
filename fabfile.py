@@ -62,7 +62,7 @@ def provision(common='master'):
     if not installed:
         bootstrap_file = os.path.join(CONF_ROOT, 'bootstrap-salt.sh')
         put(bootstrap_file, '/tmp/bootstrap-salt.sh')
-        sudo('sh /tmp/bootstrap-salt.sh daily')
+        sudo('sh /tmp/bootstrap-salt.sh stable')
     # Rsync local states and pillars
     minion_file = os.path.join(CONF_ROOT, 'minion.conf')
     files.upload_template(minion_file, '/etc/salt/minion', use_sudo=True, context=env)
