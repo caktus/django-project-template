@@ -18,11 +18,13 @@ celery_conf:
         log_dir: "{{ vars.log_dir }}"
         virtualenv_root: "{{ venv_dir }}"
         settings: "{{ pillar['project_name']}}.settings.{{ pillar['environment'] }}"
-        flags: "-B --loglevel=INFO"
+        flags: "-B --loglevel=INFO --schedule={{ vars.root_dir }}celerybeat-schedule"
         project: "{{ vars.project }}"
     - require:
       - pkg: supervisor
       - file: log_dir
+    - watch_in:
+      - cmd: supervisor_update
 
 celery_process:
   supervisord:
