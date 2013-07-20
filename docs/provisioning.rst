@@ -280,7 +280,7 @@ update the Solr schema::
         manage_run('build_solr_schema --filename=%s' % schema_path)
         supervisor_command('restart %(project)s-%(environment)s:%(project)s-%(environment)s-solr' % env)
 
-This should provision Solr appropriatley.
+This should provision Solr appropriately.
 
 .. _django-haystack: http://haystacksearch.org/
 .. _solr: http://lucene.apache.org/solr/
