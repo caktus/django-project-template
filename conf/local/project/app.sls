@@ -18,16 +18,6 @@ root_dir:
     - require:
       - user: project_user
 
-run_dir:
-  file.directory:
-    - name: {{ vars.run_dir }}
-    - user: {{ pillar['project_name'] }}
-    - group: {{ pillar['project_name'] }}
-    - mode: 775
-    - makedirs: True
-    - require:
-      - user: project_user
-
 log_dir:
   file.directory:
     - name: {{ vars.log_dir }}
