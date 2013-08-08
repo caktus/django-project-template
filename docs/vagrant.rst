@@ -44,19 +44,21 @@ After that has finished you can run the initial deploy::
 Testing on the VM
 ------------------------
 
-With the VM fully provisioned and deployed, you can access the VM on localhost port 8089. Since
-the Nginx configuration will only listen for the domain name in ``conf/pillar/staging/env.sls``,
-you will need to modify your ``/etc/hosts`` configuration to view it. You will need to add::
+With the VM fully provisioned and deployed, you can access the VM at the IP address specified in the
+``Vagrantfile``, which is 33.33.33.10 by default. It will also be available on localhost port 8089 via
+port forwarding. Since the Nginx configuration will only listen for the domain name in
+``conf/pillar/staging/env.sls``, you will need to modify your ``/etc/hosts`` configuration to view it
+at one of those IP addresses. I recommend 33.33.33.10, otherwise the ports in the localhost URL cause
+the CSRF middleware to complain ``REASON_BAD_REFERER`` when testing over SSL. You will need to add::
 
-    127.0.0.1 <domain>
+    33.33.33.10 <domain>
 
 where ``<domain>`` matches the domain in ``conf/pillar/staging/env.sls``. For example, let's use
 staging.example.com::
 
-    127.0.0.1 staging.example.com
+    33.33.33.10 staging.example.com
 
-In your browser you can now view https://staging.example.com:8089 and see the VM running the full
-web stack.
+In your browser you can now view https://staging.example.com and see the VM running the full web stack.
 
 Note that this ``/etc/hosts`` entry will prevent you from accessing the true staging.example.com.
 When your testing is complete, you should remove or comment out this entry.
