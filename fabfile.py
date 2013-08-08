@@ -190,7 +190,7 @@ def deploy(branch=None):
         requirements = True
         migrations = True
         # Add code root to the Python path
-        path_file = os.path.join(env.virtualenv_root, 'lib', 'python2.7', 'site-packages', 'project.pth')
+        path_file = os.path.join(env.virtualenv_root, 'lib', 'python3.3', 'site-packages', 'project.pth')
         files.append(path_file, env.code_root, use_sudo=True)
         sudo('chown %s:%s %s' % (env.project_user, env.project_user, path_file))
         sudo('chmod 775 %(code_root)s' % env)
