@@ -1,4 +1,4 @@
-deadsnames-repo:
+deadsnakes-repo:
   pkgrepo.managed:
     - humanname: Deadsnakes PPA
     - ppa: fkrull/deadsnakes
