@@ -10,5 +10,6 @@ base:
     - project.app
     - project.web
     - project.db
+    - project.python3
     # Uncomment to enable celery worker configuration
     # - project.worker

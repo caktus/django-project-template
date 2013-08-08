@@ -7,6 +7,7 @@ include:
   - version-control
   - python
   - supervisor
+  - project.python3
 
 root_dir:
   file.directory:
@@ -31,11 +32,12 @@ log_dir:
 venv:
   virtualenv.managed:
     - name: {{ venv_dir }}
+    - python: python3.3
     - no_site_packages: True
-    - distribute: True
     - require:
       - pip: virtualenv
       - file: root_dir
+      - pkg: python3.3
 
 venv_dir:
   file.directory:
