@@ -8,7 +8,7 @@ Overview
 {{ project_name|title }} is deployed on the following stack.
 
 - OS: Ubuntu 12.04 LTS
-- Python: 2.7
+- Python: 3.3
 - Database: Postgres 9.1
 - Application Server: Gunicorn
 - Frontend Server: Nginx
