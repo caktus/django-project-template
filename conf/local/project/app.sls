@@ -111,17 +111,21 @@ gunicorn_process:
       - pkg: supervisor
       - file: gunicorn_conf
 
-npm:
-  pkg:
-    - installed
+node_ppa:
+  pkgrepo.managed:
+    - ppa: chris-lea/node.js
+
+nodejs:
+  pkg.installed:
+    - version: 0.10.13-1chl1~precise1
+    - require:
+      - pkgrepo: node_ppa
+    - refresh: True
 
 less:
   cmd.run:
-    - name: npm install less@1.3.3 -g
+    - name: npm install less@1.4.1 -g
     - user: root
     - unless: which lessc
     - require:
-      - pkg: npm
-  file.symlink:
-    - name: /usr/bin/lessc
-    - target: /usr/local/bin/lessc
+      - pkg: nodejs
