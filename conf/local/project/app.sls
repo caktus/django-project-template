@@ -37,7 +37,9 @@ venv:
     - require:
       - pip: virtualenv
       - file: root_dir
-      - pkg: python3.3
+      - pkg:
+        - python3.3
+        - python-headers
 
 venv_dir:
   file.directory:
