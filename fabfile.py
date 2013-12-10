@@ -2,9 +2,10 @@ import json
 import os
 import re
 
-from fabric.api import cd, env, get, hide, local, put, require, run, settings, sudo, task
+from fabric.api import cd, env, get, hide, lcd, local, put, require, run, settings, sudo, task
 from fabric.colors import red
 from fabric.contrib import files, project
+from fabric.contrib.console import confirm
 from fabric.utils import abort, error
 
 # Directory structure
@@ -29,7 +30,7 @@ def vagrant():
 @task
 def staging():
     env.environment = 'staging'
-    env.hosts = [] # FIXME: Add staging server hosts
+    env.hosts = []  # FIXME: Add staging server hosts
     env.branch = 'master'
     setup_path()
 
@@ -37,7 +38,7 @@ def staging():
 @task
 def production():
     env.environment = 'production'
-    env.hosts = [] # FIXME: Add production hosts
+    env.hosts = []  # FIXME: Add production hosts
     env.branch = 'master'
     setup_path()
 
@@ -49,6 +50,47 @@ def setup_path():
     env.virtualenv_root = os.path.join(env.root, 'env')
     env.db = '%s_%s' % (env.project, env.environment)
     env.settings = '%(project)s.settings.%(environment)s' % env
+
+
+@task
+def get_secrets(local_file=None):
+    """Get secrets.sls file from remote environment"""
+    require('environment')
+    if not local_file:
+        local_file = os.path.join(CONF_ROOT, 'pillar', env.environment, "%(basename)s")
+    secrets_file = os.path.join('/srv/pillar/%(environment)s/secrets.sls' % env)
+    get(secrets_file, local_file)
+
+
+def sync_secrets_file():
+    """
+    Reconcile any problems with the secrets.sls file.
+    """
+    local_secrets_dir = os.path.join(CONF_ROOT, 'pillar', env.environment)
+    remote_secrets_dir = os.path.join('/srv', 'pillar', env.environment)
+    local_exists = os.path.exists(os.path.join(local_secrets_dir, "secrets.sls"))
+    remote_exists = files.exists(os.path.join(remote_secrets_dir, "secrets.sls"))
+    with lcd(local_secrets_dir):
+        if local_exists and remote_exists:
+            # backup local file
+            local("cp secrets.sls secrets.sls.local")
+            get_secrets("secrets.sls.remote")
+            with settings(warn_only=True):
+                result = local('diff -u secrets.sls.remote secrets.sls.local')
+                if result.failed and not confirm(red("Above changes will be made to secrets.sls. Continue?")):
+                    abort("Aborted. Files have been copied to secrets.sls.local " +
+                          "and secrets.sls.remote. Resolve conflicts, then retry.")
+                else:
+                    local("rm secrets.sls.local")
+                    local("rm secrets.sls.remote")
+        elif remote_exists:
+            # no local secrets file.
+            get_secrets()
+        elif local_exists:
+            # no remote secrets file, so must be the first install. Go ahead and rsync
+            pass
+        else:
+            abort("A secrets.sls isn't present remotely or locally. Get one from a colleague.")
 
 
 @task
@@ -70,6 +112,7 @@ def provision(common='master'):
     environments = ['staging', 'production']
     # Only include current environment's pillar tree
     exclude = [os.path.join('pillar', e) for e in environments if e != env.environment]
+    sync_secrets_file()
     project.rsync_project(local_dir=salt_root, remote_dir='/tmp/salt', delete=True, exclude=exclude)
     sudo('rm -rf /srv/*')
     sudo('mv /tmp/salt/* /srv/')
