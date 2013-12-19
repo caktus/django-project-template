@@ -118,7 +118,6 @@ node_ppa:
 
 nodejs:
   pkg.installed:
-    - version: 0.10.13-1chl1~precise1
     - require:
       - pkgrepo: node_ppa
     - refresh: True
