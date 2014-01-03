@@ -18,7 +18,7 @@ Layout
 
 Below is the server layout created by this provisioning process::
 
-    /var/www/{{ project_name }}-<environment>/
+    /var/www/{{ project_name }}/
         source/
         env/
         log/
@@ -38,7 +38,7 @@ holds the static resources (css/js) for the project and the uploaded user media.
 Deployment
 ------------------------
 
-For deployment, each developer connects to the server as their own user. Each developer
+For deployment, each developer connects to the Salt master as their own user. Each developer
 has SSH access via their public key. These users are created/managed by the Salt
 provisioning. The deployment itself is automated with `Fabric <http://docs.fabfile.org/>`_.
 To deploy, a developer simply runs::
@@ -48,21 +48,7 @@ To deploy, a developer simply runs::
     # Deploy updates to production
     fab production deploy
 
-Each environment (``staging`` or ``production``) is tied to a particular Git branch managed
-by ``env.branch`` in the ``fabfile.py``. Deploying a different branch can be done by
-passing the branch name to the deploy command::
-
-    # Deploy new-feature to staging
-    fab staging deploy:new-feature
-
-Developers should coordinate to ensure that they do not deploy different branches on
-top of one another.
-
-New python requirements add to the ``requirements/`` files and new South migrations
-are detected by grepping the Git diff on deploy. This works fairly well, but if they
-need to be manually updated that can be done via Fabric::
-
-    # Installs new requirements from requirements/production.txt
-    fab staging update_requirements
-    # Runs syncdb/migrate
-    fab staging syncdb
+This runs the Salt highstate for the given environment. This handles both the configuration
+of the server as well as updating the latest source code. This can take a few minutes and
+does not produce any output while it is running. Once it has finished the output should be
+checked for errors.
