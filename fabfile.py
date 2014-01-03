@@ -22,8 +22,9 @@ VALID_ROLES = (
     'cache',
 )
 
+# FIXME: Once the master has been setup this should be set to IP of the master
 # This assumes a single master for both staging and production
-env.master = 'localhost'
+env.master = 'CHANGEME'
 
 
 @task
