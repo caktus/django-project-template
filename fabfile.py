@@ -12,6 +12,15 @@ from fabric.utils import abort
 PROJECT_ROOT = os.path.dirname(__file__)
 CONF_ROOT = os.path.join(PROJECT_ROOT, 'conf')
 
+VALID_ROLES = (
+    'salt-master',
+    'web',
+    'worker',
+    'balancer',
+    'db-master',
+    'queue',
+    'cache',
+)
 
 # This assumes a single master for both staging and production
 env.master = 'localhost'
@@ -117,6 +126,9 @@ def get_secrets():
 def setup_minion(*roles):
     """Setup a minion server with a set of roles."""
     require('environment')
+    for r in roles:
+        if r not in VALID_ROLES:
+            abort('%s is not a valid server role for this project.' % r)
     # install salt minion if it's not there already
     with settings(warn_only=True):
         with hide('running', 'stdout', 'stderr'):
