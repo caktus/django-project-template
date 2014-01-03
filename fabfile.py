@@ -40,7 +40,7 @@ def production():
 @task
 def vagrant():
     env.environment = 'staging'
-    env.master = '10.10.10.2'
+    env.master = '33.33.33.10'
     env.user = 'vagrant'
     vagrant_version = local('vagrant -v', capture=True).split()[-1]
     env.key_filename = '/opt/vagrant/embedded/gems/gems/vagrant-%s/keys/vagrant' % vagrant_version

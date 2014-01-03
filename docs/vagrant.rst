@@ -6,7 +6,7 @@ Starting the VM
 ------------------------
 
 You can test the provisioning/deployment using `Vagrant <http://vagrantup.com/>`_.
-Using the included Vagrantfile you can start up the VM. This requires Vagrant 1.2+ and
+Using the included Vagrantfile you can start up the VM. This requires Vagrant 1.3+ and
 the ``precise32`` box. The box will be installed if you don't have it already.::
 
     vagrant up
@@ -21,25 +21,15 @@ Provisioning the VM
 The ``fabfile.py`` contains a ``vagrant`` environment with the VM's IP already added.
 The rest of the environment is made to match the ``staging`` environment. If you
 have already configured the ``conf/pillar/staging/env.sls`` and ``conf/pillar/staging/secrets.sls``
-then you can continue provisioning the VM.
+then you can continue provisioning the VM. This server will act as both the master and the 
+minion so both need to be setup::
 
-To connect to the VM for the first time, you need to use the private key which ships
-with the Vagrant install. The location of the file may vary on your platform depending
-on which version you installed and how it was installed. You can use ``locate`` to find it::
-
-    # Example locate with output
-    $ locate keys/vagrant
-        /opt/vagrant/embedded/gems/gems/vagrant-1.2.2/keys/vagrant
-        /opt/vagrant/embedded/gems/gems/vagrant-1.2.2/keys/vagrant.pub
-
-You can then call the initial provision using this key location for the ``-i`` option::
-
-    fab -u vagrant -i /opt/vagrant/embedded/gems/gems/vagrant-1.2.2/keys/vagrant vagrant provision
-
-After that has finished you can run the initial deploy::
-
+    fab setup_master -H 33.33.33.10
+    fab vagrant setup_minion:<roles>
+    fab vagrant accept_key:precise32
     fab vagrant deploy
 
+Here ``<roles>`` would the the role/roles which you want to test.
 
 Testing on the VM
 ------------------------
