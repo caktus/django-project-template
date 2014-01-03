@@ -5,6 +5,7 @@ include:
   - project.dirs
   - project.venv
   - project.django
+  - postfix
 
 gunicorn_conf:
   file.managed:

@@ -4,6 +4,7 @@ include:
   - supervisor.pip
   - project.dirs
   - project.venv
+  - postfix
 
 default_conf:
   file.managed:
