@@ -157,6 +157,29 @@ def setup_minion(*roles):
 
 
 @task
+def add_role(name):
+    """Add a role to an exising minion configuration."""
+    if name not in VALID_ROLES:
+        abort('%s is not a valid server role for this project.' % name)
+    _, path = tempfile.mkstemp()
+    put("/etc/salt/minion", path)
+    with open(path, 'r') as f:
+        config = yaml.safe_load(f)
+    grains = config.get('grains', {})
+    roles = grains.get('roles': [])
+    if name not in roles:
+        roles.append(name)
+    else:
+        abort('Server is already configured with the %s role.' % name)
+    grains['roles'] = roles
+    config['grains'] = grains
+    with open(path, 'w') as f:
+        yaml.dump(config, f, default_flow_style=False)
+    put(local_path=path, remote_path="/etc/salt/minion", use_sudo=True)
+    sudo('service salt-minion restart')
+
+
+@task
 def salt(cmd, target="'*'"):
     """Run arbitrary salt commands."""
     with settings(warn_only=True, host_string=env.master):
