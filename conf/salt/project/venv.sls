@@ -1,18 +1,29 @@
 {% import 'project/_vars.sls' as vars with context %}
+{% var python3 = pillar['python_version'].startwith('3') %}
 
 include:
   - project.dirs
   - project.repo
+  {% if python3 %}
   - python
+  {% else %}
+  - python.3k
+  {% endif %}
 
 venv:
   virtualenv.managed:
     - name: {{ vars.venv_dir }}
     - requirements: {{ vars.build_path(vars.source_dir, 'requirements/production.txt') }}
+    - python: "python{{ pillar['python_version'] }}"
     - require:
       - pip: virtualenv
       - file: root_dir
       - git: project_repo
+      {% if python3 %}
+      - pkg: python3-pkgs
+      {% else %}
+      - pkg: python-pkgs
+      {% endif %}
       - pkg: python-headers
 
 venv_dir:
@@ -29,7 +40,7 @@ venv_dir:
 project_path:
   file.managed:
     - contents: "{{ vars.source_dir }}"
-    - name: {{ vars.build_path(vars.venv_dir, 'lib/python3.3/site-packages/project.pth') }}
+    - name: {{ vars.build_path(vars.venv_dir, 'lib/python' + pillar['python_version'] + '/site-packages/project.pth') }}
     - user: {{ pillar['project_name'] }}
     - group: {{ pillar['project_name'] }}
     - require:
