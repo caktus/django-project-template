@@ -12,12 +12,6 @@ base:
   'roles:salt-master':
     - match: grain
     - salt.master
-  'roles:(web|worker)':
-    - match: grain_pcre
-    - project.user
-    - project.dirs
-    - project.repo
-    - project.venv
   'roles:web':
     - match: grain
     - project.web.app
