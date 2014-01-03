@@ -38,6 +38,12 @@ hba_conf:
     - group: postgres
     - mode: 0640
     - template: jinja
+    - context:
+      - servers:
+{%- for host, ifaces in vars.servers.iteritems() %}
+{% set host_addr = vars.get_primary_ip(ifaces) %}
+        - {{ host_addr }}
+{% endfor %}
     - require:
       - pkg: postgresql
     - watch_in:
