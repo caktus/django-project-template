@@ -6,7 +6,6 @@ base:
     - sshd.github
     - locale.utf8
     - users.devs
-    - users.project
     - salt.minion
   'precise32':
     - vagrant.user
@@ -15,6 +14,7 @@ base:
     - salt.master
   'roles:(web|worker)':
     - match: grain_pcre
+    - project.user
     - project.dirs
     - project.repo
     - project.venv
