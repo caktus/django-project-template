@@ -24,7 +24,6 @@ base:
     - project.web.balancer
   'roles:db-master':
     - match: grain
-    - postgresql
     - project.db
   'roles:queue':
     - match: grain
