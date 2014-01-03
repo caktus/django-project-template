@@ -5,7 +5,7 @@ sqlparse==0.1.10
 
 coverage==3.7.1
 pylint==1.1.0
-# Required by coverage
+# Required by pylint
 logilab-common==0.60.1
 astroid==1.0.1
 
