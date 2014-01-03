@@ -14,34 +14,50 @@ Overview
 - Frontend Server: Nginx
 - Cache: Memcached
 
-These services are configured to run together on a single machine. While it is possible
-to run on a single server it is recommended that each environment
-(``staging`` or ``production``) should run on a separate machine. `Supervisord <http://supervisord.org/>`_
-manages the application server process.
+These services can configured to run together on a single machine or on different machines.
+`Supervisord <http://supervisord.org/>`_ manages the application server process.
 
 
 Initial Setup
 ------------------------
 
 Before your project can be deployed to a server, the code needs to be
-accessible in a git repository. Once that is done you should update the ``env.repo`` in
-the ``fabfile.py``. E.g., change this::
+accessible in a git repository. Once that is done you should update 
+``conf/pillar/<environment>/env.sls`` to set the repo and branch for the environment. 
+E.g., change this::
 
-    env.repo = u'' # FIXME: Add repo URL
+    # FIXME: Update to the correct project repo
+    repo:
+      url: git@github.com:CHANGEME/CHANGEME.git
+      branch: master
+
 
 to this::
 
-    env.repo = u'git@github.com:account/reponame.git'
+    repo:
+      url: git@github.com:account/reponame.git
+      branch: master
 
-You also need to set the project name in `conf/pillar/project.sls``. This should
-match the ``env.project`` in ``fabfile.py``. For the environment you want to setup
+The repo will also need a deloyment key generated so that the Salt minion can access the repository.
+See the Github docs on managing deploy keys: https://help.github.com/articles/managing-deploy-keys
+Once generated the private key should be added to `conf/pillar/<environment>/secrets.sls`` under the
+label `github_deploy_key`::
+
+    github_deploy_key: |
+      -----BEGIN RSA PRIVATE KEY-----
+      foobar
+      -----END RSA PRIVATE KEY-----
+
+There will be more information on the secrets in a later section. You may choose to include the public
+SSH key in the repo as well but this is not strictly required.
+
+You also need to set the project name in `conf/pillar/project.sls``. For the environment you want to setup
 you will need to set the ``domain`` in ``conf/pillar/<environment>/env.sls``.
 
 You will also need add the developer's user names and SSH keys to ``conf/pillar/devs.sls``. Each
 user record should match the format::
 
     example-user:
-      groups: [admin, login]
       public_key:
        - ssh-rsa <Full SSH Public Key would go here>
 
@@ -78,78 +94,86 @@ Setup Checklist
 
 To summarize the steps above, you can use the following checklist
 
-- ``env.repo`` is set in ``fabfile.py``
+- ``repo`` is set in ``conf/pillar/<environment>/env.sls``
 - Developer user names and SSH keys have been added to ``conf/pillar/devs.sls``
 - Project name has been set in ``conf/pillar/project.sls``
 - Environment domain name has been set in ``conf/pillar/<environment>/env.sls``
-- Environment secrets have been set in ``conf/pillar/<environment>/secrets.sls``
-- ``ALLOWED_HOSTS`` has been set in ``{{ project_name }}/settings/<environment>.py``
+- Environment secrets including the deploy key have been set in ``conf/pillar/<environment>/secrets.sls``
 
 
-Provision
+Salt Master
 ------------------------
 
-Once you have completed the above steps, you are ready to provision a new server
-for a given environment. You will need to be able to connect to the server
-as a root user. How this is done will depend on where the server is hosted.
+Each project needs to have at least one Salt Master. There can be one per environment or
+a single Master which manages both staging and production. The master is configured with Fabric.
+You will need to be able to connect to the server as a root user. 
+How this is done will depend on where the server is hosted.
 VPS providers such as Linode will give you a username/password combination. Amazon's
 EC2 uses a private key. These credentials will be passed as command line arguments.::
 
     # Template of the command
-    fab -H <fresh-server-ip> -u <root-user> <environment> provision
-    # Example of provisioning 33.33.33.10 as a staging machine
-    fab -H 33.33.33.10 -u root staging provision
+    fab -H <fresh-server-ip> -u <root-user> setup_master
+    # Example of provisioning 33.33.33.10 as the Salt Master
+    fab -H 33.33.33.10 -u root setup_master
 
-Behind the scenes this will rsync the states/pillars in ``conf`` over to the
-server as well as check out the base states from the `margarita <https://github.com/caktus/margarita>`_
-repo. It will then use the `masterless salt-minion <http://docs.saltstack.com/topics/tutorials/quickstart.html>`_
-to ensure the states are up to date.
+This will install salt-master and update the master configuration file. The master will use a
+set of base states from https://github.com/caktus/margarita using the gitfs root. Once the master 
+has been provisioned you should set::
 
-..note::
+    env.master = '<ip-of-master>'
 
-    The initial provision may show errors that the supervisor controlled processes cannot
-    be started or are not running. Since at this point the project source has not been
-    checked out on the server, this is expected. These problems should disappear after the
-    first deploy.
+in the top of the fabfile.
 
-Note that because of the use of rsync it is possible to execute configuration changes which
-have not yet been committed to the repo. This can be handy for testing configuration
-changes and allows for the secrets to be excluded from the repo, but it's a double-edged sword.
-You should be sure to commit any configuration changes to the repo when they are ready.
+If each environment has its own master then it should be set with the environment setup function ``staging`` or ``production``.
+In these case most commands will need to be preceeded with the environment to ensure that ``env.master``
+is set.
 
-Once a server has been created for its environment it should be added to the ``env.hosts``
-for the given environment. In our example we would add::
+Additional states and pillar information are contained in this repo and must be rsync'd to the master via::
 
-    def staging():
-        env.environment = 'staging'
-        env.hosts = ['33.33.33.10', ]
+    fab -u <root-user> sync
 
-At this point we can run the first deploy::
+This must be done each time a state or pillar is updated. This will be called on each deploy to
+ensure they are always up to date.
 
-    fab staging deploy
+To provision the master server itself with salt you need to create a minion on the master::
 
-This will do the initial checkout of the repo source, install the Python requirements,
-run syncdb/migrate, and collect the static resources.
+    fab -H <ip-of-new-master> -u <root-user> --set environment=master setup_minion:salt-master
+    fab -u <root-user> accept_key:<server-name>
+    fab -u <root-user> --set environment=master deploy
+
+This will create developer users on the master server so you will no longer have to connect
+as the root user.
 
 
-Updates
+Provision a Minion
 ------------------------
 
-During the life of the project you will likely need to make updates to the server
-configuration. This might include new secrets added to the pillar, new developers
-added to the project, or new services which need to be installed. Configuration updates
-can be made by calling the ``provision`` command again.::
+Once you have completed the above steps, you are ready to provision a new server
+for a given environment. Again you will need to be able to connect to the server
+as a root user. This is to install the Salt Minion which will connect to the Master
+to complete the provisioning. To setup a minion you call the Fabric command::
 
-    # Template of the command
-    fab <environment> provision
-    # Reprovision the staging server
-    fab staging provision
+    fab <environment> setup_minion:<roles> -H <ip-of-new-server> -u <root-user>
+    fab staging setup_minion:web,balancer,db-master,cache -H  33.33.33.10 -u root
 
-In this case we do not need to connect as the root user. We connect as our developer
-user. We also do not need to specify the host. It will use the ``env.hosts`` previously
-set for this environment.
+The available roles are ``salt-master``, ``web``, ``worker``, ``balancer``, ``db-master``,
+``queue`` and ``cache``. If you are running everything on a single server you need to enable
+the ``web``, ``balancer``, ``db-master``, and ``cache`` roles. The ``worker``
+and ``queue`` roles are only needed to run Celery which is explained in more detail later.
 
-For more information testing the provisioning see the doc:`vagrant guide </vagrant>`.
+Additional roles can be added later to a server via ``add_role``
+
+    fab add_role:web -H  33.33.33.10
+
+This configures the Minion to point the Master but the server cannot connect until its key
+has been accepted on the Master. To accept the key you need to know the hostname of the
+new server and run::
+
+    fab accept_key:<hostname>
+
+After that you can run the deploy/highstate to provision the new server::
+
+    fab <environment> deploy
 
 
 Optional Configuration
@@ -181,12 +205,10 @@ ________________________
 Many Django projects make use of `Celery <http://celery.readthedocs.org/en/latest/>`_
 for handling long running task outside of request/response cycle. Enabling a worker
 makes use of `django-celery <http://celery.readthedocs.org/en/latest/django/first-steps-with-django.html>`_.
-To add the states for the worker simply add::
-
-    - project.worker
-
-to the list of states in the ``top.sls``. This will use RabbitMQ as the broker by default. The
-RabbitMQ user will be named {{ project_name }} and the vhost will be named {{ project_name }}_<environment>
+To add the states you should add the ``worker`` role when provisioning the minion.
+At least one server in the stack should be provisioned with the ``queue`` role as well.
+This will use RabbitMQ as the broker by default. The
+RabbitMQ user will be named {{ project_name }}_<environment> and the vhost will be named {{ project_name }}_<environment>
 for each environment. It requires that you add a password for the RabbitMQ user to each of
 the ``conf/pillar/<environment>/secrets.sls``::
 
@@ -215,5 +237,9 @@ that the vhost is set correctly. These are the minimal settings to make Celery w
 `Celery documentation <http://docs.celeryproject.org/en/latest/configuration.html>`_ for additional
 configuration options.
 
-The worker will run also run the ``beat`` process (via the ``-B`` option) which allows for running
-periodic tasks.
+.. note::
+    
+    If the queue server is configured on a seperate host that will need to be reflected in the
+    ``BROKER_URL`` setting.
+
+The worker will run also run the ``beat`` process which allows for running periodic tasks.
