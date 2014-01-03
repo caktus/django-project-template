@@ -27,7 +27,6 @@ base:
     - project.db
   'roles:queue':
     - match: grain
-    - rabbitmq
     - project.queue
   'roles:cache':
     - match: grain
