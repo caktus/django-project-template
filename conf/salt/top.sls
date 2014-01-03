@@ -30,5 +30,4 @@ base:
     - project.queue
   'roles:cache':
     - match: grain
-    - memcached
     - project.cache
