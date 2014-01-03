@@ -4,6 +4,7 @@ include:
   - supervisor.pip
   - project.dirs
   - project.venv
+  - project.django
 
 gunicorn_conf:
   file.managed:
@@ -49,3 +50,28 @@ less:
     - unless: "which lessc && lessc --version | grep 1.6.0"
     - require:
       - pkg: nodejs
+
+collectstatic:
+  cmd.run:
+    - name: "{{ vars.path_from_root('manage.sh') }} collectstatic --noinput"
+    - user: {{ pillar['project_name'] }}
+    - group: {{ pillar['project_name'] }}
+    - require:
+      - file: manage
+
+syncdb:
+  cmd.run:
+    - name: "{{ vars.path_from_root('manage.sh') }} syncdb --noinput"
+    - user: {{ pillar['project_name'] }}
+    - group: {{ pillar['project_name'] }}
+    - require:
+      - file: manage
+
+migrate:
+  cmd.run:
+    - name: "{{ vars.path_from_root('manage.sh') }} migrate --noinput"
+    - user: {{ pillar['project_name'] }}
+    - group: {{ pillar['project_name'] }}
+    - onlyif: "{{ vars.path_from_root('manage.sh') }} migrate --list | grep '( )'"
+    - require:
+      - file: manage
