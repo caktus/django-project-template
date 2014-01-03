@@ -55,7 +55,7 @@ def setup_master():
     if not installed:
         sudo('apt-get install python-pip git-core -qq -y')
         sudo('pip install -q -U GitPython')
-    put(local_path='conf/master.yaml', remote_path="/etc/salt/master", use_sudo=True)
+    put(local_path='conf/master.conf', remote_path="/etc/salt/master", use_sudo=True)
     sudo('service salt-master restart')
 
 
