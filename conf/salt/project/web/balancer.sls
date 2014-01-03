@@ -1,12 +1,10 @@
 {% import 'project/_vars.sls' as vars with context %}
-{% set ssl_dir = vars.path_from_root('ssl') %}
-{% set public_dir = vars.path_from_root('public') %}
-{% set auth_file = vars.path_from_root(".htpasswd") %}
 
 include:
   - nginx
   - nginx.cert
   - ufw
+  - project.dirs
 
 http_firewall:
   ufw.allow:
@@ -17,7 +15,7 @@ http_firewall:
 
 public_dir:
   file.directory:
-    - name: {{ public_dir }}
+    - name: {{ vars.public_dir }}
     - user: {{ pillar['project_name'] }}
     - group: www-data
     - mode: 775
@@ -27,7 +25,7 @@ public_dir:
 
 ssl_dir:
   file.directory:
-    - name: {{ ssl_dir }}
+    - name: {{ vars.ssl_dir }}
     - user: root
     - group: www-data
     - mode: 644
@@ -37,10 +35,10 @@ ssl_dir:
 
 ssl_cert:
   cmd.run:
-    - name: cd {{ ssl_dir }} && /var/lib/nginx/generate-cert.sh {{ pillar['domain'] }}
-    - cwd: {{ ssl_dir }}
+    - name: cd {{ vars.ssl_dir }} && /var/lib/nginx/generate-cert.sh {{ pillar['domain'] }}
+    - cwd: {{ vars.ssl_dir }}
     - user: root
-    - unless: test -e {{ vars.build_path(ssl_dir, pillar['domain'] + ".crt") }}
+    - unless: test -e {{ vars.build_path(vars.ssl_dir, pillar['domain'] + ".crt") }}
     - require:
       - file: ssl_dir
       - file: generate_cert
@@ -72,17 +70,16 @@ auth_file:
 
 nginx_conf:
   file.managed:
-    - name: /etc/nginx/sites-enabled/{{ vars.project }}.conf
-    - source: salt://project/nginx.conf
+    - name: /etc/nginx/sites-enabled/{{ pillar['project_name'] }}.conf
+    - source: salt://balancer/site.conf
     - user: root
     - group: root
     - mode: 644
     - template: jinja
     - context:
-        public_root: "{{ public_dir }}"
+        public_root: "{{ vars.public_dir }}"
         log_dir: "{{ vars.log_dir }}"
-        ssl_dir: "{{ ssl_dir }}"
-        socket: "{{ vars.server_socket }}"
+        ssl_dir: "{{ vars.ssl_dir }}"
         {%- if 'http_auth' in pillar %}
         auth_file: "{{ auth_file }}"
         {% endif %}
@@ -94,10 +91,5 @@ nginx_conf:
       {%- if 'http_auth' in pillar %}
       - cmd: auth_file
       {% endif %}
-
-extend:
-  nginx:
-    service:
-      - running
-      - watch:
-        - file: nginx_conf
+    - watch_in:
+      - service: nginx
