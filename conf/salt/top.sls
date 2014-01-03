@@ -5,7 +5,7 @@ base:
     - sshd
     - sshd.github
     - locale.utf8
-    - users.devs
+    - project.devs
     - salt.minion
   'precise32':
     - vagrant.user
