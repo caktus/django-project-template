@@ -1,3 +1,5 @@
+{% import 'project/_vars.sls' as vars with context %}
+
 include:
   - rabbitmq
   - ufw
@@ -18,8 +20,8 @@ broker-vhost:
       - rabbitmq_user: broker-user
 
 queue_firewall:
-{% for host, ifaces in salt['mine.get']('roles:(web|worker)', 'network.interfaces', expr_form='grain_pcre').iteritems() %}
-{% set host_addr = ifaces.get(salt['pillar.get']('primary_iface', 'eth0'), {}).get('inet', [{}])[0].get('address') %}
+{% for host, ifaces in vars.servers.iteritems() %}
+{% set host_addr = vars.get_primary_ip(ifaces) %}
   ufw.allow:
     - name: '5672'
     - enabled: true
