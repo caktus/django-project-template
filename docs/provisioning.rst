@@ -31,7 +31,6 @@ E.g., change this::
       url: git@github.com:CHANGEME/CHANGEME.git
       branch: master
 
-
 to this::
 
     repo:
