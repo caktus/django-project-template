@@ -124,8 +124,8 @@ nodejs:
 
 less:
   cmd.run:
-    - name: npm install less@1.4.1 -g
+    - name: npm install less@1.6.0 -g
     - user: root
-    - unless: which lessc
+    - unless: "which lessc && lessc --version | grep 1.6.0"
     - require:
       - pkg: nodejs
