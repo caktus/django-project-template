@@ -12,14 +12,14 @@
     {% block extra-meta %}{% endblock %}
     {% if debug %}
     <link rel="stylesheet/less" type="text/css" media="all" href="{% static 'less/site.less' %}">
-    <script src="{% static 'js/libs/less-1.6.0.min.js' %}"></script>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/less.js/1.5.1/less.min.js"></script>
     {% else %}
     {% compress css %}
     <link rel="stylesheet" type="text/less" media="all" href="{% static 'less/site.less' %}">
     {% endcompress %}
     {% endif %}
     {% block extra-css %}{% endblock %}
-    <script src="{% static 'js/libs/modernizr-2.7.1.js' %}"></script>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/modernizr/2.7.1/modernizr.dev.js"></script>
 </head>
 <body>
     <div class="container">
