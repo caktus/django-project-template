@@ -22,8 +22,8 @@ Initial Setup
 ------------------------
 
 Before your project can be deployed to a server, the code needs to be
-accessible in a git repository. Once that is done you should update 
-``conf/pillar/<environment>/env.sls`` to set the repo and branch for the environment. 
+accessible in a git repository. Once that is done you should update
+``conf/pillar/<environment>/env.sls`` to set the repo and branch for the environment.
 E.g., change this::
 
     # FIXME: Update to the correct project repo
@@ -37,7 +37,7 @@ to this::
       url: git@github.com:account/reponame.git
       branch: master
 
-The repo will also need a deloyment key generated so that the Salt minion can access the repository.
+The repo will also need a deployment key generated so that the Salt minion can access the repository.
 See the Github docs on managing deploy keys: https://help.github.com/articles/managing-deploy-keys
 Once generated the private key should be added to `conf/pillar/<environment>/secrets.sls`` under the
 label `github_deploy_key`::
@@ -94,7 +94,7 @@ Environment Variables
 Other environment variables which need to be configured but aren't secret can be added
 to the ``env`` dictionary in ``conf/pillar/<environment>/env.sls``:
 
-  # Addtional public environment variables to set for the project
+  # Additional public environment variables to set for the project
   env:
     FOO: BAR
 
@@ -124,18 +124,18 @@ Salt Master
 
 Each project needs to have at least one Salt Master. There can be one per environment or
 a single Master which manages both staging and production. The master is configured with Fabric.
-You will need to be able to connect to the server as a root user. 
+You will need to be able to connect to the server as a root user.
 How this is done will depend on where the server is hosted.
 VPS providers such as Linode will give you a username/password combination. Amazon's
 EC2 uses a private key. These credentials will be passed as command line arguments.::
 
     # Template of the command
-    fab -H <fresh-server-ip> -u <root-user> setup_master10.10.20.1
+    fab -H <fresh-server-ip> -u <root-user> setup_master
     # Example of provisioning 33.33.33.10 as the Salt Master
     fab -H 33.33.33.10 -u root setup_master
 
 This will install salt-master and update the master configuration file. The master will use a
-set of base states from https://github.com/caktus/margarita using the gitfs root. Once the master 
+set of base states from https://github.com/caktus/margarita using the gitfs root. Once the master
 has been provisioned you should set::
 
     env.master = '<ip-of-master>'
@@ -143,7 +143,7 @@ has been provisioned you should set::
 in the top of the fabfile.
 
 If each environment has its own master then it should be set with the environment setup function ``staging`` or ``production``.
-In these case most commands will need to be preceeded with the environment to ensure that ``env.master``
+In these case most commands will need to be preceded with the environment to ensure that ``env.master``
 is set.
 
 Additional states and pillar information are contained in this repo and must be rsync'd to the master via::
@@ -179,7 +179,9 @@ The available roles are ``salt-master``, ``web``, ``worker``, ``balancer``, ``db
 the ``web``, ``balancer``, ``db-master``, and ``cache`` roles. The ``worker``
 and ``queue`` roles are only needed to run Celery which is explained in more detail later.
 
-Additional roles can be added later to a server via ``add_role``
+Additional roles can be added later to a server via ``add_role``. Note that there is no
+corresponding ``delete_role`` command because deleting a role does not disable the services or
+remove the configuration files of the deleted role::
 
     fab add_role:web -H  33.33.33.10
 
@@ -242,8 +244,8 @@ that the vhost is set correctly. These are the minimal settings to make Celery w
 `Celery documentation <http://docs.celeryproject.org/en/latest/configuration.html>`_ for additional
 configuration options.
 
-``BROKER_HOST`` defaults to ``127.0.0.1:5672``. If the queue server is configured on a seperate host 
-that will need to be reflected in the ``BROKER_URL`` setting. This is done by setting the ``BROKER_HOST`` 
+``BROKER_HOST`` defaults to ``127.0.0.1:5672``. If the queue server is configured on a separate host
+that will need to be reflected in the ``BROKER_URL`` setting. This is done by setting the ``BROKER_HOST``
 environment variable in the ``env`` dictionary of ``conf/pillar/<environment>/env.sls``.
 
 To add the states you should add the ``worker`` role when provisioning the minion.
