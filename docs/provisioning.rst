@@ -222,32 +222,19 @@ ________________________
 
 Many Django projects make use of `Celery <http://celery.readthedocs.org/en/latest/>`_
 for handling long running task outside of request/response cycle. Enabling a worker
-makes use of `django-celery <http://celery.readthedocs.org/en/latest/django/first-steps-with-django.html>`_.
-To add the states you should add the ``worker`` role when provisioning the minion.
-At least one server in the stack should be provisioned with the ``queue`` role as well.
-This will use RabbitMQ as the broker by default. The
-RabbitMQ user will be named {{ project_name }}_<environment> and the vhost will be named {{ project_name }}_<environment>
-for each environment. It requires that you add a password for the RabbitMQ user to each of
-the ``conf/pillar/<environment>/secrets.sls``::
+makes use of `Django setup for Celery <http://celery.readthedocs.org/en/latest/django/first-steps-with-django.html>`_.
+As documented you should create/import your Celery app in ``{{ project_name }}/__init__.py`` so that you
+can run the worker via::
 
-    secrets:
-      BROKER_PASSWORD: thisisapasswordforrabbitmq
+    python celery -A {{ project_name }} worker
 
-Additionally you will need to configure the project settings for django-celery::
+Additionally you will need to configure the project settings for Celery::
 
     # {{ project_name }}.settings.staging.py
     import os
     from {{ project_name }}.settings.base import *
 
     # Other settings would be here
-
-    INSTALLED_APPS += (
-        'djcelery',
-    )
-
-    import djcelery
-    djcelery.setup_loader()
-
     BROKER_URL = 'amqp://{{ project_name }}_staging:%(BROKER_PASSWORD)s@%(BROKER_HOST)s/{{ project_name }}_staging' % os.environ
 
 You will also need to add the ``BROKER_URL`` to the ``{{ project_name }}.settings.production`` so
@@ -258,5 +245,15 @@ configuration options.
 ``BROKER_HOST`` defaults to ``127.0.0.1:5672``. If the queue server is configured on a seperate host 
 that will need to be reflected in the ``BROKER_URL`` setting. This is done by setting the ``BROKER_HOST`` 
 environment variable in the ``env`` dictionary of ``conf/pillar/<environment>/env.sls``.
+
+To add the states you should add the ``worker`` role when provisioning the minion.
+At least one server in the stack should be provisioned with the ``queue`` role as well.
+This will use RabbitMQ as the broker by default. The
+RabbitMQ user will be named {{ project_name }}_<environment> and the vhost will be named {{ project_name }}_<environment>
+for each environment. It requires that you add a password for the RabbitMQ user to each of
+the ``conf/pillar/<environment>/secrets.sls``::
+
+    secrets:
+      BROKER_PASSWORD: thisisapasswordforrabbitmq
 
 The worker will run also run the ``beat`` process which allows for running periodic tasks.
