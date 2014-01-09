@@ -88,6 +88,25 @@ will not have access to the production secrets. As such there is no need to name
 secrets by their environment.
 
 
+Environment Variables
+------------------------
+
+Other environment variables which need to be configured but aren't secret can be added
+to the ``env`` dictionary in ``conf/pillar/<environment>/env.sls``:
+
+  # Addtional public environment variables to set for the project
+  env:
+    FOO: BAR
+
+For instance the default layout expects the cache server to listen at ``127.0.0.1:11211``
+but if there is a dedicated cache server this can be changed via ``CACHE_HOST``. Similarly
+the ``DB_HOST/DB_PORT`` defaults to ``''/''``::
+
+  env:
+    DB_HOST: 10.10.20.2
+    CACHE_HOST: 10.10.20.1:11211
+
+
 Setup Checklist
 ------------------------
 
@@ -111,7 +130,7 @@ VPS providers such as Linode will give you a username/password combination. Amaz
 EC2 uses a private key. These credentials will be passed as command line arguments.::
 
     # Template of the command
-    fab -H <fresh-server-ip> -u <root-user> setup_master
+    fab -H <fresh-server-ip> -u <root-user> setup_master10.10.20.1
     # Example of provisioning 33.33.33.10 as the Salt Master
     fab -H 33.33.33.10 -u root setup_master
 
@@ -229,16 +248,15 @@ Additionally you will need to configure the project settings for django-celery::
     import djcelery
     djcelery.setup_loader()
 
-    BROKER_URL = 'amqp://{{ project_name }}:%s@localhost:5672/{{ project_name }}_staging' % os.environ['BROKER_PASSWORD']
+    BROKER_URL = 'amqp://{{ project_name }}_staging:%(BROKER_PASSWORD)s@%(BROKER_HOST)s/{{ project_name }}_staging' % os.environ
 
 You will also need to add the ``BROKER_URL`` to the ``{{ project_name }}.settings.production`` so
 that the vhost is set correctly. These are the minimal settings to make Celery work. Refer to the
 `Celery documentation <http://docs.celeryproject.org/en/latest/configuration.html>`_ for additional
 configuration options.
 
-.. note::
-    
-    If the queue server is configured on a seperate host that will need to be reflected in the
-    ``BROKER_URL`` setting.
+``BROKER_HOST`` defaults to ``127.0.0.1:5672``. If the queue server is configured on a seperate host 
+that will need to be reflected in the ``BROKER_URL`` setting. This is done by setting the ``BROKER_HOST`` 
+environment variable in the ``env`` dictionary of ``conf/pillar/<environment>/env.sls``.
 
 The worker will run also run the ``beat`` process which allows for running periodic tasks.
