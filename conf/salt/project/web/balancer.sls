@@ -80,6 +80,11 @@ nginx_conf:
         public_root: "{{ vars.public_dir }}"
         log_dir: "{{ vars.log_dir }}"
         ssl_dir: "{{ vars.ssl_dir }}"
+        servers:
+{% for host, ifaces in vars.get_servers('web').iteritems() %}
+{% set host_addr = vars.get_primary_ip(ifaces) %}
+          - {{ host_addr }}
+{% endfor %}
         {%- if 'http_auth' in pillar %}
         auth_file: "{{ auth_file }}"
         {% endif %}

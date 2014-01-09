@@ -1,5 +1,4 @@
 {% import 'project/_vars.sls' as vars with context %}
-{% set lb = vars.get_servers('balancer') %}
 
 include:
   - supervisor.pip
@@ -37,7 +36,7 @@ gunicorn_process:
       - file: gunicorn_conf
 
 app_firewall:
-{% for host, ifaces in lb.iteritems() %}
+{% for host, ifaces in vars.get_servers('balancer').iteritems() %}
 {% set host_addr = vars.get_primary_ip(ifaces) %}
   ufw.allow:
     - name: '8000'
