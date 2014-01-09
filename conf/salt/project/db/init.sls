@@ -39,10 +39,10 @@ hba_conf:
     - mode: 0640
     - template: jinja
     - context:
-      - servers:
+        servers:
 {%- for host, ifaces in vars.servers.iteritems() %}
 {% set host_addr = vars.get_primary_ip(ifaces) %}
-        - {{ host_addr }}
+          - {{ host_addr }}
 {% endfor %}
     - require:
       - pkg: postgresql
