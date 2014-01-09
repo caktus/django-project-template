@@ -1,4 +1,5 @@
 {% import 'project/_vars.sls' as vars with context %}
+{% set lb = vars.get_servers('balancer') %}
 
 include:
   - supervisor.pip
@@ -6,6 +7,7 @@ include:
   - project.venv
   - project.django
   - postfix
+  - ufw
 
 gunicorn_conf:
   file.managed:
@@ -33,6 +35,17 @@ gunicorn_process:
     - restart: True
     - require:
       - file: gunicorn_conf
+
+app_firewall:
+{% for host, ifaces in lb.iteritems() %}
+{% set host_addr = vars.get_primary_ip(ifaces) %}
+  ufw.allow:
+    - name: '8000'
+    - enabled: true
+    - from: {{ host_addr }}
+    - require:
+      - pkg: ufw
+{% endfor %}
 
 node_ppa:
   pkgrepo.managed:
