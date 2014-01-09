@@ -1,6 +1,7 @@
 {% import 'project/_vars.sls' as vars with context %}
 include:
   - project.dirs
+  - project.user
   - version-control
   - sshd.github
 
