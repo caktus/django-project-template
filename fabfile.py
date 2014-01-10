@@ -74,15 +74,13 @@ def sync():
     """Rysnc local states and pillar data to the master."""
     # Check for missing local secrets so that they don't get deleted
     # project.rsync_project fails if host is not set
-    with settings(host=env.master, host_string=env.master): 
+    with settings(host=env.master, host_string=env.master):
         if not have_secrets():
             get_secrets()
         else:
             # Check for differences in the secrets files
-            results = {}
             for environment in ['staging', 'production']:
                 remote_file = os.path.join('/srv/pillar/', environment, 'secrets.sls')
-                local_file = os.path.join(CONF_ROOT, 'pillar', environment, 'secrets.sls')
                 with lcd(os.path.join(CONF_ROOT, 'pillar', environment)):
                     if files.exists(remote_file):
                         get(remote_file, 'secrets.sls.remote')
