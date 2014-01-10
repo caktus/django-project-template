@@ -1,5 +1,5 @@
 {% import 'project/_vars.sls' as vars with context %}
-{% var python3 = pillar['python_version'].startwith('3') %}
+{% set python3 = pillar['python_version'].startwith('3') %}
 
 include:
   - project.dirs

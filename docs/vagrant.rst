@@ -19,17 +19,22 @@ Provisioning the VM
 ------------------------
 
 The ``fabfile.py`` contains a ``vagrant`` environment with the VM's IP already added.
-The rest of the environment is made to match the ``staging`` environment. If you
-have already configured the ``conf/pillar/staging/env.sls`` and ``conf/pillar/staging/secrets.sls``
-then you can continue provisioning the VM. This server will act as both the master and the 
-minion so both need to be setup::
+The rest of the environment is made to match the ``staging`` environment. Both the staging and
+production settings need to be in place before starting the provision. Make sure that ``env.sls``
+and ``secrets.sls`` files are in ``conf/pillar/staging/`` and ``conf/pillar/production/``.
 
-    fab setup_master -H 33.33.33.10
-    fab vagrant setup_minion:<roles>
+The vagrant box will act as both the master and the minion so both need to be setup::
+
+    fab vagrant setup_master -H 33.33.33.10
+    fab vagrant setup_minion:<roles> -H 33.33.33.10
     fab vagrant accept_key:precise32
     fab vagrant deploy
 
-Here ``<roles>`` would the the role/roles which you want to test.
+Here ``<roles>`` would the the role/roles which you want to test. See the fabfile for the list of
+``VALID_ROLES``.
+
+On the initial provision, you will be prompted twice to accept changes to the secrets.sls file (once
+for staging and once for production). Answer 'Y' to both prompts.
 
 Testing on the VM
 ------------------------

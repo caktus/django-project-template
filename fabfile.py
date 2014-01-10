@@ -163,11 +163,11 @@ def add_role(name):
     if name not in VALID_ROLES:
         abort('%s is not a valid server role for this project.' % name)
     _, path = tempfile.mkstemp()
-    put("/etc/salt/minion", path)
+    get("/etc/salt/minion", path)
     with open(path, 'r') as f:
         config = yaml.safe_load(f)
     grains = config.get('grains', {})
-    roles = grains.get('roles': [])
+    roles = grains.get('roles', [])
     if name not in roles:
         roles.append(name)
     else:
