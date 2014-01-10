@@ -5,7 +5,7 @@ include:
   - ufw
 
 cache_firewall:
-{% for host, ifaces in vars.servers.iteritems() %}
+{% for host, ifaces in salt['mine.get']('roles:web|worker', 'network.interfaces', expr_form='grain_pcre').items() %}
 {% set host_addr = vars.get_primary_ip(ifaces) %}
   ufw.allow:
     - name: '11211'

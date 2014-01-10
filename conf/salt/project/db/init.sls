@@ -40,7 +40,7 @@ hba_conf:
     - template: jinja
     - context:
         servers:
-{%- for host, ifaces in vars.servers.iteritems() %}
+{%- for host, ifaces in salt['mine.get']('roles:web|worker', 'network.interfaces', expr_form='grain_pcre').items() %}
 {% set host_addr = vars.get_primary_ip(ifaces) %}
           - {{ host_addr }}
 {% endfor %}
@@ -63,7 +63,7 @@ postgresql_conf:
       - service: postgresql
 
 db_firewall:
-{% for host, ifaces in vars.servers.iteritems() %}
+{% for host, ifaces in salt['mine.get']('roles:web|worker', 'network.interfaces', expr_form='grain_pcre').items() %}
 {% set host_addr = vars.get_primary_ip(ifaces) %}
   ufw.allow:
     - name: '5432'

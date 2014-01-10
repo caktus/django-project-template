@@ -5,6 +5,7 @@ include:
   - version-control
   - sshd.github
 
+{% if github_deploy_key in pillar %}
 project_repo_identity:
   file.managed:
     - name: "/home/{{ pillar['project_name'] }}/.ssh/github"
@@ -15,16 +16,31 @@ project_repo_identity:
     - makedirs: True
     - require:
       - user: project_user
+{% endif %}
 
 project_repo:
+  {% if grains['environment'] == 'local' %}
+  file.symlink:
+    - name: {{ vars.source_dir }}
+    - target: "/vagrant"
+    - makedirs: True
+    - force: True
+    - require:
+      - file: root_dir
+  {% else %}
   git.latest:
-    - name: "{{ salt['pillar.get']('repo:url') }}"
-    - rev: "{{ salt['pillar.get']('repo:branch', 'master') }}"
+    - name: "{{ pillar['repo']['url'] }}"
+    - rev: "{{ pillar['repo'].get('url', 'master') }}"
     - target: {{ vars.source_dir }}
     - runas: {{ pillar['project_name'] }}
+    {% if github_deploy_key in pillar %}
     - identity: "/home/{{ pillar['project_name'] }}/.ssh/github"
+    {% endif %}
     - require:
       - file: root_dir
       - pkg: git-core
+      {% if github_deploy_key in pillar %}
       - file: project_repo_identity
+      {% endif %}
       - ssh_known_hosts: github.com
+  {% endif %}

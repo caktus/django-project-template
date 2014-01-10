@@ -1,13 +1,7 @@
 {% set root_dir = "/var/www/" + pillar['project_name'] + "/" %}
 
-{% macro get_servers(roles) -%}
-  salt['mine.get']('roles:' + roles, 'network.interfaces', expr_form='grain_pcre')
-{%- endmacro %}
-
-{% set servers = get_servers('web|worker') %}
-
 {% macro get_primary_ip(ifaces) -%}
-  ifaces.get(salt['pillar.get']('primary_iface', 'eth0'), {}).get('inet', [{}])[0].get('address')
+  {{ ifaces.get(salt['pillar.get']('primary_iface', 'eth0'), {}).get('inet', [{}])[0].get('address') }}
 {%- endmacro %}
 
 {% macro build_path(root, name) -%}
@@ -23,3 +17,4 @@
 {% set venv_dir = path_from_root('env') %}
 {% set public_dir = path_from_root('public') %}
 {% set ssl_dir = path_from_root('ssl') %}
+{% set current_ip = grains['ip_interfaces'].get(salt['pillar.get']('primary_iface', 'eth0'), [])[0] %}

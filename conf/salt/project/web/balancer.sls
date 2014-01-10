@@ -71,7 +71,7 @@ auth_file:
 nginx_conf:
   file.managed:
     - name: /etc/nginx/sites-enabled/{{ pillar['project_name'] }}.conf
-    - source: salt://balancer/site.conf
+    - source: salt://project/web/site.conf
     - user: root
     - group: root
     - mode: 644
@@ -81,9 +81,9 @@ nginx_conf:
         log_dir: "{{ vars.log_dir }}"
         ssl_dir: "{{ vars.ssl_dir }}"
         servers:
-{% for host, ifaces in vars.get_servers('web').iteritems() %}
+{% for host, ifaces in salt['mine.get']('roles:web', 'network.interfaces', expr_form='grain_pcre').items() %}
 {% set host_addr = vars.get_primary_ip(ifaces) %}
-          - {{ host_addr }}
+          - {% if host_addr == vars.current_ip %}'127.0.0.1'{% else %}{{ host_addr }}{% endif %}
 {% endfor %}
         {%- if 'http_auth' in pillar %}
         auth_file: "{{ auth_file }}"

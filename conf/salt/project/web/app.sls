@@ -36,7 +36,7 @@ gunicorn_process:
       - file: gunicorn_conf
 
 app_firewall:
-{% for host, ifaces in vars.get_servers('balancer').iteritems() %}
+{% for host, ifaces in salt['mine.get']('roles:balancer', 'network.interfaces', expr_form='grain_pcre').items() %}
 {% set host_addr = vars.get_primary_ip(ifaces) %}
   ufw.allow:
     - name: '8000'
@@ -79,6 +79,7 @@ syncdb:
     - group: {{ pillar['project_name'] }}
     - require:
       - file: manage
+    - order: last
 
 migrate:
   cmd.run:
@@ -87,4 +88,5 @@ migrate:
     - group: {{ pillar['project_name'] }}
     - onlyif: "{{ vars.path_from_root('manage.sh') }} migrate --list | grep '( )'"
     - require:
-      - file: manage
+      - cmd: syncdb
+    - order: last

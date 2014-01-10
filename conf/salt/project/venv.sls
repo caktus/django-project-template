@@ -1,29 +1,28 @@
 {% import 'project/_vars.sls' as vars with context %}
-{% set python3 = pillar['python_version'] >= 3 %}
 
 include:
   - project.dirs
   - project.repo
-  {% if python3 %}
-  - python
+  {% if pillar['python_version'] > 3 %}
+  - python.33
   {% else %}
-  - python.3k
+  - python.27
   {% endif %}
 
 venv:
   virtualenv.managed:
     - name: {{ vars.venv_dir }}
     - requirements: {{ vars.build_path(vars.source_dir, 'requirements/production.txt') }}
-    - python: "python{{ pillar['python_version'] }}"
+    - python: {{ 'python' ~ pillar['python_version'] }}
     - require:
       - pip: virtualenv
       - file: root_dir
-      - git: project_repo
-      {% if python3 %}
-      - pkg: python3-pkgs
+      {% if grains['environment'] == 'local' %}
+      - file: project_repo
       {% else %}
-      - pkg: python-pkgs
+      - git: project_repo
       {% endif %}
+      - pkg: python-pkgs
       - pkg: python-headers
 
 venv_dir:

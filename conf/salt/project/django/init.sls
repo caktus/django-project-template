@@ -3,7 +3,6 @@
 include:
   - project.user
   - project.dirs
-  - project.repo
   - project.venv
 
 manage:
@@ -19,7 +18,6 @@ manage:
         virtualenv_root: "{{ vars.venv_dir }}"
         directory: "{{ vars.source_dir }}"
     - require:
-      - git: project_repo
       - virtualenv: venv
       - file: project_path
       - file: log_dir
