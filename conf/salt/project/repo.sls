@@ -5,7 +5,7 @@ include:
   - version-control
   - sshd.github
 
-{% if github_deploy_key in pillar %}
+{% if 'github_deploy_key' in pillar %}
 project_repo_identity:
   file.managed:
     - name: "/home/{{ pillar['project_name'] }}/.ssh/github"
@@ -30,16 +30,16 @@ project_repo:
   {% else %}
   git.latest:
     - name: "{{ pillar['repo']['url'] }}"
-    - rev: "{{ pillar['repo'].get('url', 'master') }}"
+    - rev: "{{ pillar['repo'].get('branch', 'master') }}"
     - target: {{ vars.source_dir }}
-    - runas: {{ pillar['project_name'] }}
-    {% if github_deploy_key in pillar %}
+    - user: {{ pillar['project_name'] }}
+    {% if 'github_deploy_key' in pillar %}
     - identity: "/home/{{ pillar['project_name'] }}/.ssh/github"
     {% endif %}
     - require:
       - file: root_dir
       - pkg: git-core
-      {% if github_deploy_key in pillar %}
+      {% if 'github_deploy_key' in pillar %}
       - file: project_repo_identity
       {% endif %}
       - ssh_known_hosts: github.com
