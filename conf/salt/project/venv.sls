@@ -1,5 +1,5 @@
 {% import 'project/_vars.sls' as vars with context %}
-{% set python3 = pillar['python_version'].startwith('3') %}
+{% set python3 = pillar['python_version'] >= 3 %}
 
 include:
   - project.dirs
@@ -40,7 +40,7 @@ venv_dir:
 project_path:
   file.managed:
     - contents: "{{ vars.source_dir }}"
-    - name: {{ vars.build_path(vars.venv_dir, 'lib/python' + pillar['python_version'] + '/site-packages/project.pth') }}
+    - name: {{ vars.build_path(vars.venv_dir, 'lib/python' ~ pillar['python_version'] ~ '/site-packages/project.pth') }}
     - user: {{ pillar['project_name'] }}
     - group: {{ pillar['project_name'] }}
     - require:
