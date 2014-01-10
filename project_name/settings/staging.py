@@ -8,8 +8,8 @@ TEMPLATE_DEBUG = DEBUG
 
 DATABASES['default']['NAME'] = '{{ project_name }}_staging'
 DATABASES['default']['USER'] = '{{ project_name }}_staging'
-DATABASES['default']['HOST'] = os.environ.get('DB_HOST',  '')
-DATABASES['default']['PORT'] = os.environ.get('DB_PORT',  '')
+DATABASES['default']['HOST'] = os.environ.get('DB_HOST', '')
+DATABASES['default']['PORT'] = os.environ.get('DB_PORT', '')
 DATABASES['default']['PASSWORD'] = os.environ['DB_PASSWORD']
 
 PUBLIC_ROOT = '/var/www/{{ project_name }}/public/'
