@@ -34,8 +34,7 @@ instead of dev::
     # Override settings here
     DATABASES['default']['NAME'] = '{{ project_name }}_local'
     DATABASES['default']['USER'] = '{{ project_name }}_local'
-    DATABASES['default']['HOST'] = '127.0.0.1'
-
+    
     DEBUG = True
 
 This won't have the same nice features of the development server such as auto-reloading but it will
