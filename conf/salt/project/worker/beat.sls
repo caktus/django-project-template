@@ -20,7 +20,7 @@ beat_conf:
         directory: "{{ vars.source_dir }}"
         name: "celery-beat"
         command: "beat"
-        flags: "--schedule=/var/run/celerybeat-schedule.db --pidfile=/var/run/celerybeat.pid --loglevel=INFO"
+        flags: "--schedule={{ vars.path_from_root('celerybeat-schedule.db') }} --pidfile={{ vars.path_from_root('celerybeat.pid') }} --loglevel=INFO"
     - require:
       - pip: supervisor
       - file: log_dir
