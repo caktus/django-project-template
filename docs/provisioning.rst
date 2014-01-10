@@ -50,8 +50,18 @@ label `github_deploy_key`::
 There will be more information on the secrets in a later section. You may choose to include the public
 SSH key in the repo as well but this is not strictly required.
 
-You also need to set the project name in `conf/pillar/project.sls``. For the environment you want to setup
-you will need to set the ``domain`` in ``conf/pillar/<environment>/env.sls``.
+You also need to set ``project_name`` and ``python_version`` in ``conf/pillar/project.sls``.
+Currently we support using Python 2.7 or Python 3.3. The project template is set up for 2.7 by
+default. If you want to use 3.3, you will need to change ``python_version`` and make a few changes
+to requirements. In ``requirements/base.txt``, you need to change django-compressor to use a forked
+version (``-e git://github.com/vkurup/django_compressor.git@develop#egg=django_compressor``). In
+``requirements/production.txt``, change python-memcached to python3-memcached. Finally, in
+``requirements/dev.txt``, remove Fabric and all its dependencies. Instead you will need Fabric
+installed on your laptop "globally" so that when you run ``fab``, it will not be found in your
+virtualenv, but will then be found in your global environment.
+
+For the environment you want to setup you will need to set the ``domain`` in
+``conf/pillar/<environment>/env.sls``.
 
 You will also need add the developer's user names and SSH keys to ``conf/pillar/devs.sls``. Each
 user record should match the format::
