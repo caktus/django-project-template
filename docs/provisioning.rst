@@ -217,3 +217,71 @@ configuration options.
 
 The worker will run also run the ``beat`` process (via the ``-B`` option) which allows for running
 periodic tasks.
+
+
+Search with Haystack
+________________________
+
+If you're implementing search, you'll probably use django-haystack_. Haystack supports multiple backends, including Apache Solr_ and elasticsearch_.
+
+Solr
+~~~~~~~~~~~~~~~~~~~~~~~~
+
+Here's how to get setup with Solr_. First add the solr states::
+
+    - project.solr
+
+to the list of states in ``top.sls``. This will ensure Java is installed,
+download the Solr package manually and configure it to run within supervisor.
+Make sure to add the solr process to the supervisor group in
+``conf/local/project/supervisor/group.conf``::
+
+    [group:{{ project }}]
+    {% import 'project/_vars.sls' as vars with context %}
+    programs=...,{{ vars.project }}-solr,...
+
+Next add ``django-haystack`` and ``pysolr`` to the project
+``requirements/base.txt`` file::
+
+    django-haystack==2.0.0
+    pysolr==3.0.6
+
+And configure haystack in the project settings file::
+
+    # {{ project_name }}.settings.base.py
+
+    # Other settings would be here
+
+    INSTALLED_APPS += (
+        'haystack',
+    )
+
+    # Haystack Conf
+    HAYSTACK_CONNECTIONS = {
+        'default': {
+            'ENGINE': 'haystack.backends.solr_backend.SolrEngine',
+            'URL': 'http://127.0.0.1:8983/solr'
+        },
+    }
+    HAYSTACK_SIGNAL_PROCESSOR = 'haystack.signals.RealtimeSignalProcessor'
+
+Finally, you'll need to add make a few fabric modifications to enable you to
+update the Solr schema::
+
+    def setup_path():
+        # Other path settings would be here. Append the following line:
+        env.solr_project_dir = os.path.join(env.root, 'apache-solr-3.6.2', u'%(project)s' % env)
+
+
+    @task
+    def configure_solr():
+        """Update solr configuration."""
+        schema_path = os.path.join(env.solr_project_dir, 'solr', 'conf', 'schema.xml')
+        manage_run('build_solr_schema --filename=%s' % schema_path)
+        supervisor_command('restart %(project)s-%(environment)s:%(project)s-%(environment)s-solr' % env)
+
+This should provision Solr appropriately.
+
+.. _django-haystack: http://haystacksearch.org/
+.. _solr: http://lucene.apache.org/solr/
+.. _elasticsearch: http://www.elasticsearch.org/
