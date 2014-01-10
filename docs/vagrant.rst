@@ -18,30 +18,35 @@ so here are notes of the Vagrant specifics.
 Provisioning the VM
 ------------------------
 
-The ``fabfile.py`` contains a ``vagrant`` environment with the VM's IP already added.
-The rest of the environment is made to match the ``staging`` environment. Both the staging and
-production settings need to be in place before starting the provision. Make sure that ``env.sls``
-and ``secrets.sls`` files are in ``conf/pillar/staging/`` and ``conf/pillar/production/``.
+The Vagrantfile is configured to install the Salt Master and Minion inside the VM once you've
+run ``vagrant up``. To finalize the provisioning you simply need to run::
 
-The vagrant box will act as both the master and the minion so both need to be setup::
+    fab vagrant salt:saltutil.sync_all
+    fab vagrant highstate
 
-    fab vagrant setup_master -H 33.33.33.10
-    fab vagrant setup_minion:<roles> -H 33.33.33.10
-    fab vagrant accept_key:precise32
-    fab vagrant deploy
+The Vagrant box will use the current working copy of the project and the local.py settings. If you want
+to use this for development/testing it is helpful to change your local settings to extend from staging
+instead of dev::
 
-Here ``<roles>`` would the the role/roles which you want to test. See the fabfile for the list of
-``VALID_ROLES``.
+    # Example local.py
+    from {{ project_name }}.settings.staging import *
 
-On the initial provision, you will be prompted twice to accept changes to the secrets.sls file (once
-for staging and once for production). Answer 'Y' to both prompts.
+    # Override settings here
+    DATABASES['default']['NAME'] = '{{ project_name }}_local'
+    DATABASES['default']['USER'] = '{{ project_name }}_local'
+    DATABASES['default']['HOST'] = '127.0.0.1'
+
+    DEBUG = True
+
+This won't have the same nice features of the development server such as auto-reloading but it will
+run with a stack which is much closer to the production environment.
+
 
 Testing on the VM
 ------------------------
 
 With the VM fully provisioned and deployed, you can access the VM at the IP address specified in the
-``Vagrantfile``, which is 33.33.33.10 by default. It will also be available on localhost port 8089 via
-port forwarding. Since the Nginx configuration will only listen for the domain name in
+``Vagrantfile``, which is 33.33.33.10 by default. Since the Nginx configuration will only listen for the domain name in
 ``conf/pillar/staging/env.sls``, you will need to modify your ``/etc/hosts`` configuration to view it
 at one of those IP addresses. I recommend 33.33.33.10, otherwise the ports in the localhost URL cause
 the CSRF middleware to complain ``REASON_BAD_REFERER`` when testing over SSL. You will need to add::

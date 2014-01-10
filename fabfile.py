@@ -39,7 +39,7 @@ def production():
 
 @task
 def vagrant():
-    env.environment = 'staging'
+    env.environment = 'local'
     env.master = '33.33.33.10'
     env.user = 'vagrant'
     vagrant_version = local('vagrant -v', capture=True).split()[-1]
