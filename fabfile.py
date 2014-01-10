@@ -147,6 +147,9 @@ def setup_minion(*roles):
             'environment': env.environment,
             'roles': list(roles),
         },
+        'mine_functions': {
+            'network.interfaces': []
+        },
     }
     _, path = tempfile.mkstemp()
     with open(path, 'w') as f:
