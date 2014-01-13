@@ -1,270 +1,224 @@
-import json
 import os
-import re
+import tempfile
 
-from fabric.api import cd, env, get, hide, lcd, local, put, require, run, settings, sudo, task
+import yaml
+
+from fabric.api import env, get, hide, lcd, local, put, require, run, settings, sudo, task
 from fabric.colors import red
 from fabric.contrib import files, project
 from fabric.contrib.console import confirm
-from fabric.utils import abort, error
+from fabric.utils import abort
 
-# Directory structure
 PROJECT_ROOT = os.path.dirname(__file__)
 CONF_ROOT = os.path.join(PROJECT_ROOT, 'conf')
-env.project = '{{ project_name }}'
-env.project_user = '{{ project_name }}'
-env.repo = u'' # FIXME: Add repo URL
-env.shell = '/bin/bash -c'
-env.disable_known_hosts = True
-env.forward_agent = True
 
+VALID_ROLES = (
+    'salt-master',
+    'web',
+    'worker',
+    'balancer',
+    'db-master',
+    'queue',
+    'cache',
+)
 
-@task
-def vagrant():
-    env.environment = 'staging'
-    env.hosts = ['33.33.33.10', ]
-    env.branch = 'master'
-    setup_path()
+# FIXME: Once the master has been setup this should be set to IP of the master
+# This assumes a single master for both staging and production
+env.master = 'CHANGEME'
 
 
 @task
 def staging():
     env.environment = 'staging'
-    env.hosts = []  # FIXME: Add staging server hosts
-    env.branch = 'master'
-    setup_path()
 
 
 @task
 def production():
     env.environment = 'production'
-    env.hosts = []  # FIXME: Add production hosts
-    env.branch = 'master'
-    setup_path()
-
-
-def setup_path():
-    env.home = '/home/%(project_user)s/' % env
-    env.root = os.path.join('/var/www/', '%(project)s-%(environment)s' % env)
-    env.code_root = os.path.join(env.root, 'source')
-    env.virtualenv_root = os.path.join(env.root, 'env')
-    env.db = '%s_%s' % (env.project, env.environment)
-    env.settings = '%(project)s.settings.%(environment)s' % env
 
 
 @task
-def get_secrets(local_file=None):
-    """Get secrets.sls file from remote environment"""
-    require('environment')
-    if not local_file:
-        local_file = os.path.join(CONF_ROOT, 'pillar', env.environment, "%(basename)s")
-    secrets_file = os.path.join('/srv/pillar/%(environment)s/secrets.sls' % env)
-    get(secrets_file, local_file)
-
-
-def sync_secrets_file():
-    """
-    Reconcile any problems with the secrets.sls file.
-    """
-    local_secrets_dir = os.path.join(CONF_ROOT, 'pillar', env.environment)
-    remote_secrets_dir = os.path.join('/srv', 'pillar', env.environment)
-    local_exists = os.path.exists(os.path.join(local_secrets_dir, "secrets.sls"))
-    remote_exists = files.exists(os.path.join(remote_secrets_dir, "secrets.sls"))
-    with lcd(local_secrets_dir):
-        if local_exists and remote_exists:
-            # backup local file
-            local("cp secrets.sls secrets.sls.local")
-            get_secrets("secrets.sls.remote")
-            with settings(warn_only=True):
-                result = local('diff -u secrets.sls.remote secrets.sls.local')
-                if result.failed and not confirm(red("Above changes will be made to secrets.sls. Continue?")):
-                    abort("Aborted. Files have been copied to secrets.sls.local " +
-                          "and secrets.sls.remote. Resolve conflicts, then retry.")
-                else:
-                    local("rm secrets.sls.local")
-                    local("rm secrets.sls.remote")
-        elif remote_exists:
-            # no local secrets file.
-            get_secrets()
-        elif local_exists:
-            # no remote secrets file, so must be the first install. Go ahead and rsync
-            pass
-        else:
-            abort("A secrets.sls isn't present remotely or locally. Get one from a colleague.")
+def vagrant():
+    env.environment = 'local'
+    env.master = '33.33.33.10'
+    env.user = 'vagrant'
+    vagrant_version = local('vagrant -v', capture=True).split()[-1]
+    env.key_filename = '/opt/vagrant/embedded/gems/gems/vagrant-%s/keys/vagrant' % vagrant_version
 
 
 @task
-def provision(common='master'):
-    """Provision server with masterless Salt minion."""
-    require('environment')
-    # Install salt minion
+def setup_master():
+    """Provision master with salt-master."""
     with settings(warn_only=True):
         with hide('running', 'stdout', 'stderr'):
-            installed = run('which salt-call')
+            installed = run('which salt')
     if not installed:
-        bootstrap_file = os.path.join(CONF_ROOT, 'bootstrap-salt.sh')
-        put(bootstrap_file, '/tmp/bootstrap-salt.sh')
-        sudo('sh /tmp/bootstrap-salt.sh stable')
-    # Rsync local states and pillars
-    minion_file = os.path.join(CONF_ROOT, 'minion.conf')
-    files.upload_template(minion_file, '/etc/salt/minion', use_sudo=True, context=env)
-    salt_root = CONF_ROOT if CONF_ROOT.endswith('/') else CONF_ROOT + '/'
-    environments = ['staging', 'production']
-    # Only include current environment's pillar tree
-    exclude = [os.path.join('pillar', e) for e in environments if e != env.environment]
-    sync_secrets_file()
-    project.rsync_project(local_dir=salt_root, remote_dir='/tmp/salt', delete=True, exclude=exclude)
-    sudo('rm -rf /srv/*')
-    sudo('mv /tmp/salt/* /srv/')
-    sudo('rm -rf /tmp/salt/')
-    # Pull common states
-    sudo('rm -rf /tmp/common/')
+        sudo('apt-get update -qq -y')
+        sudo('apt-get install python-software-properties -qq -y')
+        sudo('add-apt-repository ppa:saltstack/salt -y')
+        sudo('apt-get update -qq')
+        sudo('apt-get install salt-master -qq -y')
+    # make sure git is installed for gitfs
     with settings(warn_only=True):
         with hide('running', 'stdout', 'stderr'):
             installed = run('which git')
     if not installed:
-        sudo('apt-get install git-core -q -y')
-    run('git clone git://github.com/caktus/margarita.git /tmp/common/')
-    with cd('/tmp/common/'):
-        run('git checkout %s' % common)
-    sudo('mv /tmp/common/ /srv/common/')
-    sudo('rm -rf /tmp/common/')
-    sudo('chown root:root -R /srv/')
-    # Update to highstate
-    with settings(warn_only=True):
-        sudo('salt-call --local state.highstate -l info --out json > /tmp/output.json')
-        get('/tmp/output.json', 'output.json')
-        with open('output.json', 'r') as f:
-            try:
-                results = json.load(f)
-            except (TypeError, ValueError) as e:
-                error(u'Non-JSON output from salt-call', exception=e)
-            else:
-                for state, result in results['local'].items():
-                    if not result["result"]:
-                        if 'name' in result:
-                            print red(u'Error with %(name)s state: %(comment)s' % result)
+        sudo('apt-get install python-pip git-core -qq -y')
+        sudo('pip install -q -U GitPython')
+    put(local_path='conf/master.conf', remote_path="/etc/salt/master", use_sudo=True)
+    sudo('service salt-master restart')
+
+
+@task
+def sync():
+    """Rysnc local states and pillar data to the master."""
+    # Check for missing local secrets so that they don't get deleted
+    # project.rsync_project fails if host is not set
+    with settings(host=env.master, host_string=env.master):
+        if not have_secrets():
+            get_secrets()
+        else:
+            # Check for differences in the secrets files
+            for environment in ['staging', 'production']:
+                remote_file = os.path.join('/srv/pillar/', environment, 'secrets.sls')
+                with lcd(os.path.join(CONF_ROOT, 'pillar', environment)):
+                    if files.exists(remote_file):
+                        get(remote_file, 'secrets.sls.remote')
+                    else:
+                        local('touch secrets.sls.remote')
+                    with settings(warn_only=True):
+                        result = local('diff -u secrets.sls.remote secrets.sls')
+                        if result.failed and not confirm(red("Above changes will be made to secrets.sls. Continue?")):
+                            abort("Aborted. File have been copied to secrets.sls.remote. " +
+                              "Resolve conflicts, then retry.")
                         else:
-                            print red(u'Error with {0} state: {1}'.format(state, result['comment']))
+                            local("rm secrets.sls.remote")
+        salt_root = CONF_ROOT if CONF_ROOT.endswith('/') else CONF_ROOT + '/'
+        project.rsync_project(local_dir=salt_root, remote_dir='/tmp/salt', delete=True)
+        sudo('rm -rf /srv/salt /srv/pillar')
+        sudo('mv /tmp/salt/* /srv/')
+        sudo('rm -rf /tmp/salt/')
+
+
+def have_secrets():
+    """Check if the local secret files exist for all environments."""
+    found = True
+    for environment in ['staging', 'production']:
+        local_file = os.path.join(CONF_ROOT, 'pillar', environment, 'secrets.sls')
+        found = found and os.path.exists(local_file)
+    return found
 
 
 @task
-def supervisor_command(command):
-    """Run a supervisorctl command."""
-    sudo(u'supervisorctl %s' % command)
-
-
-def project_run(cmd):
-    """ Uses sudo to allow developer to run commands as project user."""
-    sudo(cmd, user=env.project_user)
+def get_secrets():
+    """Grab the latest secrets file from the master."""
+    with settings(host=env.master):
+        for environment in ['staging', 'production']:
+            local_file = os.path.join(CONF_ROOT, 'pillar', environment, 'secrets.sls')
+            if os.path.exists(local_file):
+                local('cp {0} {0}.bak'.format(local_file))
+            remote_file = os.path.join('/srv/pillar/', environment, 'secrets.sls')
+            get(remote_file, local_file)
 
 
 @task
-def update_requirements():
-    """Update required Python libraries."""
+def setup_minion(*roles):
+    """Setup a minion server with a set of roles."""
     require('environment')
-    project_run(u'HOME=%(home)s %(virtualenv)s/bin/pip install --use-mirrors -r %(requirements)s' % {
-        'virtualenv': env.virtualenv_root,
-        'requirements': os.path.join(env.code_root, 'requirements', 'production.txt'),
-        'home': env.home,
-    })
+    for r in roles:
+        if r not in VALID_ROLES:
+            abort('%s is not a valid server role for this project.' % r)
+    # install salt minion if it's not there already
+    with settings(warn_only=True):
+        with hide('running', 'stdout', 'stderr'):
+            installed = run('which salt-call')
+    if not installed:
+        # install salt-minion from PPA
+        sudo('apt-get update -qq -y')
+        sudo('apt-get install python-software-properties -qq -y')
+        sudo('add-apt-repository ppa:saltstack/salt -y')
+        sudo('apt-get update -qq')
+        sudo('apt-get install salt-minion -qq -y')
+    config = {
+        'master': 'localhost' if env.master == env.host else env.master,
+        'environment': env.environment,
+        'output': 'mixed',
+        'grains': {
+            'environment': env.environment,
+            'roles': list(roles),
+        },
+        'mine_functions': {
+            'network.interfaces': []
+        },
+    }
+    _, path = tempfile.mkstemp()
+    with open(path, 'w') as f:
+        yaml.dump(config, f, default_flow_style=False)
+    put(local_path=path, remote_path="/etc/salt/minion", use_sudo=True)
+    sudo('service salt-minion restart')
 
 
 @task
-def manage_run(command):
-    """Run a Django management command on the remote server."""
-    require('environment')
-    manage_base = u"source %(virtualenv_root)s/bin/activate && %(virtualenv_root)s/bin/django-admin.py " % env
-    if '--settings' not in command:
-        command = u"%s --settings=%s" % (command, env.settings)
-    project_run(u'%s %s' % (manage_base, command))
-
-
-@task
-def manage_shell():
-    """Drop into the remote Django shell."""
-    manage_run("shell")
-
-
-@task
-def syncdb():
-    """Run syncdb and South migrations."""
-    manage_run('syncdb --noinput')
-    manage_run('migrate --noinput')
-
-
-@task
-def collectstatic():
-    """Collect static files."""
-    manage_run('collectstatic --noinput')
-
-
-def match_changes(changes, match):
-    pattern = re.compile(match)
-    return pattern.search(changes) is not None
-
-
-@task
-def deploy(branch=None):
-    """Deploy to a given environment."""
-    require('environment')
-    if not env.repo:
-        abort('env.repo is not set.')
-    if branch is not None:
-        env.branch = branch
-    requirements = False
-    migrations = False
-    if files.exists(env.code_root):
-        # Fetch latest changes
-        with cd(env.code_root):
-            run('git fetch origin')
-            # Look for new requirements or migrations
-            changes = run("git diff origin/%(branch)s --stat-name-width=9999" % env)
-            requirements = match_changes(changes, r"requirements/")
-            migrations = match_changes(changes, r"/migrations/")
-            if requirements or migrations:
-                supervisor_command('stop %(project)s-%(environment)s:*' % env)
-            run("git reset --hard origin/%(branch)s" % env)
+def add_role(name):
+    """Add a role to an exising minion configuration."""
+    if name not in VALID_ROLES:
+        abort('%s is not a valid server role for this project.' % name)
+    _, path = tempfile.mkstemp()
+    get("/etc/salt/minion", path)
+    with open(path, 'r') as f:
+        config = yaml.safe_load(f)
+    grains = config.get('grains', {})
+    roles = grains.get('roles', [])
+    if name not in roles:
+        roles.append(name)
     else:
-        # Initial clone
-        run('git clone %(repo)s %(code_root)s' % env)
-        with cd(env.code_root):
-            run('git checkout %(branch)s' % env)
-        requirements = True
-        migrations = True
-        # Add code root to the Python path
-        path_file = os.path.join(env.virtualenv_root, 'lib', 'python2.7', 'site-packages', 'project.pth')
-        files.append(path_file, env.code_root, use_sudo=True)
-        sudo('chown %s:%s %s' % (env.project_user, env.project_user, path_file))
-        sudo('chmod 775 %(code_root)s' % env)
-    sudo('chown %(project_user)s:admin -R %(code_root)s' % env)
-    if requirements:
-        update_requirements()
-        # New requirements might need new tables/migrations
-        syncdb()
-    elif migrations:
-        syncdb()
-    collectstatic()
-    supervisor_command('restart %(project)s-%(environment)s:*' % env)
+        abort('Server is already configured with the %s role.' % name)
+    grains['roles'] = roles
+    config['grains'] = grains
+    with open(path, 'w') as f:
+        yaml.dump(config, f, default_flow_style=False)
+    put(local_path=path, remote_path="/etc/salt/minion", use_sudo=True)
+    sudo('service salt-minion restart')
 
 
 @task
-def get_db_dump(clean=True):
-    """Get db dump of remote enviroment."""
-    require('environment')
-    dump_file = '%(project)s-%(environment)s.sql' % env
-    temp_file = os.path.join(env.home, dump_file)
-    flags = '-Ox'
-    if clean:
-        flags += 'c'
-    sudo('pg_dump %s %s > %s' % (flags, env.db, temp_file), user=env.project_user)
-    get(temp_file, dump_file)
+def salt(cmd, target="'*'"):
+    """Run arbitrary salt commands."""
+    with settings(warn_only=True, host_string=env.master):
+        sudo("salt {0} {1}".format(target, cmd))
 
 
 @task
-def load_db_dump(dump_file):
-    """Load db dump on a remote environment."""
+def highstate(target="'*'"):
+    """Run highstate on master."""
+    with settings(host_string=env.master):
+        print("This can take a long time without output, be patient")
+        salt('state.highstate', target)
+
+
+@task
+def accept_key(name):
+    """Accept minion key on master."""
+    with settings(host_string=env.master):
+        sudo('salt-key --accept={0} -y'.format(name))
+        sudo('salt-key -L')
+
+
+@task
+def delete_key(name):
+    """Delete specific key on master."""
+    with settings(host_string=env.master):
+        sudo('salt-key -L')
+        sudo('salt-key --delete={0} -y'.format(name))
+        sudo('salt-key -L')
+
+
+@task
+def deploy():
+    """Deploy to a given environment by pushing the latest states and executing the highstate."""
     require('environment')
-    temp_file = os.path.join(env.home, '%(project)s-%(environment)s.sql' % env)
-    put(dump_file, temp_file, use_sudo=True)
-    sudo('psql -d %s -f %s' % (env.db, temp_file), user=env.project_user)
+    with settings(host_string=env.master):
+        sync()
+        target = "-G 'environment:{0}'".format(env.environment)
+        salt('saltutil.sync_all', target)
+        highstate(target)

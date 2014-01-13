@@ -6,7 +6,7 @@ Starting the VM
 ------------------------
 
 You can test the provisioning/deployment using `Vagrant <http://vagrantup.com/>`_.
-Using the included Vagrantfile you can start up the VM. This requires Vagrant 1.2+ and
+Using the included Vagrantfile you can start up the VM. This requires Vagrant 1.3+ and
 the ``precise32`` box. The box will be installed if you don't have it already.::
 
     vagrant up
@@ -18,35 +18,34 @@ so here are notes of the Vagrant specifics.
 Provisioning the VM
 ------------------------
 
-The ``fabfile.py`` contains a ``vagrant`` environment with the VM's IP already added.
-The rest of the environment is made to match the ``staging`` environment. If you
-have already configured the ``conf/pillar/staging/env.sls`` and ``conf/pillar/staging/secrets.sls``
-then you can continue provisioning the VM.
+The Vagrantfile is configured to install the Salt Master and Minion inside the VM once you've
+run ``vagrant up``. To finalize the provisioning you simply need to run::
 
-To connect to the VM for the first time, you need to use the private key which ships
-with the Vagrant install. The location of the file may vary on your platform depending
-on which version you installed and how it was installed. You can use ``locate`` to find it::
+    fab vagrant salt:saltutil.sync_all
+    fab vagrant highstate
 
-    # Example locate with output
-    $ locate keys/vagrant
-        /opt/vagrant/embedded/gems/gems/vagrant-1.2.2/keys/vagrant
-        /opt/vagrant/embedded/gems/gems/vagrant-1.2.2/keys/vagrant.pub
+The Vagrant box will use the current working copy of the project and the local.py settings. If you want
+to use this for development/testing it is helpful to change your local settings to extend from staging
+instead of dev::
 
-You can then call the initial provision using this key location for the ``-i`` option::
+    # Example local.py
+    from {{ project_name }}.settings.staging import *
 
-    fab -u vagrant -i /opt/vagrant/embedded/gems/gems/vagrant-1.2.2/keys/vagrant vagrant provision
+    # Override settings here
+    DATABASES['default']['NAME'] = '{{ project_name }}_local'
+    DATABASES['default']['USER'] = '{{ project_name }}_local'
+    
+    DEBUG = True
 
-After that has finished you can run the initial deploy::
-
-    fab vagrant deploy
+This won't have the same nice features of the development server such as auto-reloading but it will
+run with a stack which is much closer to the production environment.
 
 
 Testing on the VM
 ------------------------
 
 With the VM fully provisioned and deployed, you can access the VM at the IP address specified in the
-``Vagrantfile``, which is 33.33.33.10 by default. It will also be available on localhost port 8089 via
-port forwarding. Since the Nginx configuration will only listen for the domain name in
+``Vagrantfile``, which is 33.33.33.10 by default. Since the Nginx configuration will only listen for the domain name in
 ``conf/pillar/staging/env.sls``, you will need to modify your ``/etc/hosts`` configuration to view it
 at one of those IP addresses. I recommend 33.33.33.10, otherwise the ports in the localhost URL cause
 the CSRF middleware to complain ``REASON_BAD_REFERER`` when testing over SSL. You will need to add::

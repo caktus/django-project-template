@@ -1,11 +1,18 @@
 from {{ project_name }}.settings.base import *
 
+os.environ.setdefault('CACHE_HOST', '127.0.0.1:11211')
+os.environ.setdefault('BROKER_HOST', '127.0.0.1:5672')
+
 DEBUG = False
 TEMPLATE_DEBUG = DEBUG
 
 DATABASES['default']['NAME'] = '{{ project_name }}_staging'
+DATABASES['default']['USER'] = '{{ project_name }}_staging'
+DATABASES['default']['HOST'] = os.environ.get('DB_HOST', '')
+DATABASES['default']['PORT'] = os.environ.get('DB_PORT', '')
+DATABASES['default']['PASSWORD'] = os.environ['DB_PASSWORD']
 
-PUBLIC_ROOT = '/var/www/{{ project_name }}-staging/public/'
+PUBLIC_ROOT = '/var/www/{{ project_name }}/public/'
 
 STATIC_ROOT = os.path.join(PUBLIC_ROOT, 'static')
 
@@ -14,7 +21,7 @@ MEDIA_ROOT = os.path.join(PUBLIC_ROOT, 'media')
 CACHES = {
     'default': {
         'BACKEND': 'django.core.cache.backends.memcached.MemcachedCache',
-        'LOCATION': '127.0.0.1:11211',
+        'LOCATION': '%(CACHE_HOST)s' % os.environ,
     }
 }
 
@@ -26,7 +33,7 @@ SESSION_COOKIE_SECURE = True
 
 SESSION_COOKIE_HTTPONLY = True
 
-ALLOWED_HOSTS = ()
+ALLOWED_HOSTS = os.environ.get('ALLOWED_HOSTS', '').split(';')
 
 # Uncomment if using celery worker configuration
-# BROKER_URL = 'amqp://{{ project_name }}:%s@127.0.0.1:5672/{{ project_name }}_staging' % os.environ['BROKER_PASSWORD']
+# BROKER_URL = 'amqp://{{ project_name }}_staging:%(BROKER_PASSWORD)s@%(BROKER_HOST)s/{{ project_name }}_staging' % os.environ
