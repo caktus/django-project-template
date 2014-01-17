@@ -13,7 +13,6 @@ project_repo_identity:
     - user: {{ pillar['project_name'] }}
     - group: {{ pillar['project_name'] }}
     - mode: 600
-    - makedirs: True
     - require:
       - user: project_user
 {% endif %}

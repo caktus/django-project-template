@@ -22,3 +22,13 @@ log_dir:
     - makedirs: True
     - require:
       - file: root_dir
+
+ssh_dir:
+  file.directory:
+    - name: /home/{{ pillar['project_name'] }}/.ssh/
+    - user: {{ pillar['project_name'] }}
+    - group: {{ pillar['project_name'] }}
+    - mode: 700
+    - makedirs: True
+    - require:
+      - user: project_user
