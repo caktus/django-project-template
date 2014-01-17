@@ -8,14 +8,14 @@ include:
 {% if 'github_deploy_key' in pillar %}
 project_repo_identity:
   file.managed:
-    - name: "/home/{{ pillar['project_name'] }}/.ssh/github"
+    - name: "{{ vars.ssh_dir }}github"
     - contents_pillar: github_deploy_key
     - user: {{ pillar['project_name'] }}
     - group: {{ pillar['project_name'] }}
     - mode: 600
-    - makedirs: True
     - require:
       - user: project_user
+      - file: ssh_dir
 {% endif %}
 
 project_repo:

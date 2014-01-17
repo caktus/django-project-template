@@ -12,9 +12,10 @@
   {{ build_path(root_dir, name) }}
 {%- endmacro %}
 
+{% set current_ip = grains['ip_interfaces'].get(salt['pillar.get']('primary_iface', 'eth0'), [])[0] %}
 {% set log_dir = path_from_root('log') %}
+{% set public_dir = path_from_root('public') %}
+{% set ssh_dir = "/home/{{ pillar['project_name'] }}/.ssh/" %}
+{% set ssl_dir = path_from_root('ssl') %}
 {% set source_dir = path_from_root('source') %}
 {% set venv_dir = path_from_root('env') %}
-{% set public_dir = path_from_root('public') %}
-{% set ssl_dir = path_from_root('ssl') %}
-{% set current_ip = grains['ip_interfaces'].get(salt['pillar.get']('primary_iface', 'eth0'), [])[0] %}
