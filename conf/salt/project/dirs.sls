@@ -25,7 +25,7 @@ log_dir:
 
 ssh_dir:
   file.directory:
-    - name: /home/{{ pillar['project_name'] }}/.ssh/
+    - name: {{ vars.ssh_dir }}
     - user: {{ pillar['project_name'] }}
     - group: {{ pillar['project_name'] }}
     - mode: 700

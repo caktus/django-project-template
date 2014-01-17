@@ -15,6 +15,7 @@ project_repo_identity:
     - mode: 600
     - require:
       - user: project_user
+      - file: ssh_dir
 {% endif %}
 
 project_repo:
