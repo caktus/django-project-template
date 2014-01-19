@@ -12,6 +12,7 @@
   {{ build_path(root_dir, name) }}
 {%- endmacro %}
 
+{% set auth_file = path_from_root(".htpasswd") %}
 {% set current_ip = grains['ip_interfaces'].get(salt['pillar.get']('primary_iface', 'eth0'), [])[0] %}
 {% set log_dir = path_from_root('log') %}
 {% set public_dir = path_from_root('public') %}
