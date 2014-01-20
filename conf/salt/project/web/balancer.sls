@@ -1,4 +1,5 @@
 {% import 'project/_vars.sls' as vars with context %}
+{% set auth_file=vars.auth_file %}
 
 include:
   - nginx
