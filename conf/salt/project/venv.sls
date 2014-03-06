@@ -13,7 +13,7 @@ venv:
   virtualenv.managed:
     - name: {{ vars.venv_dir }}
     - requirements: {{ vars.build_path(vars.source_dir, 'requirements/production.txt') }}
-    - python: {{ 'python' ~ pillar['python_version'] }}
+    - python: {{ '/usr/bin/python' ~ pillar['python_version'] }}
     - require:
       - pip: virtualenv
       - file: root_dir
