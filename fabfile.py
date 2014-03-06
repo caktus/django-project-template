@@ -141,7 +141,6 @@ def setup_minion(*roles):
         sudo('apt-get install salt-minion -qq -y')
     config = {
         'master': 'localhost' if env.master == env.host else env.master,
-        'environment': env.environment,
         'output': 'mixed',
         'grains': {
             'environment': env.environment,
