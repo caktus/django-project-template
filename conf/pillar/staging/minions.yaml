@@ -1,0 +1,32 @@
+# Available roles: salt-master, web, worker, balancer, db-master, queue, cache
+
+master-minion:
+  #FIXME: enter minion ipv4
+  ip:
+  conf:
+    master: localhost
+    # do not change minion id 'master'
+    id: master
+    output: mixed
+    mine_functions:
+      network.interfaces: []
+    grains:
+      roles:
+        - salt-master
+
+web:
+  #FIXME: enter minion ipv4
+  ip:
+  conf:
+    master: localhost
+    id: web
+    output: mixed
+    mine_functions:
+      network.interfaces: []
+    grains:
+      environment: staging
+      roles:
+        - web
+        - balancer
+        - db-master
+        - cache
