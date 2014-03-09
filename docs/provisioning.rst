@@ -144,8 +144,8 @@ How this is done will depend on where the server is hosted.
 VPS providers such as Linode will give you a username/password combination. Amazon's
 EC2 uses a private key. These credentials will be passed as command line arguments.::
 
-Before provisining your server take a look at the relevant minion configuration file
-``minions/<environment>.yaml``. If you need to make any changes to the configuration file
+Before provisining your server, take a look at the relevant minion configuration file
+``minions/<environment>.yaml``. If you need to make any changes to the configuration files
 now is a good time to do it. Once you are happy with your minion configuration,
 run the following command to provision the server::
 
@@ -155,8 +155,8 @@ This will install salt-master, update the master configuration file, setup all t
 and do an initial deploy. The master will use a set of base states from
 https://github.com/caktus/margarita using the gitfs root.
 
-If you need to make changes to your minion configuration, please see below the
-section titled Updating Minion Configuration.
+If you need to make changes to your minion configuration, please see the
+section below titled Updating Minion Configuration.
 
 Multi-Server Provisioning
 ------------------------

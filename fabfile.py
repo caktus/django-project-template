@@ -16,7 +16,7 @@ CONF_ROOT = os.path.join(PROJECT_ROOT, 'conf')
 @task
 def staging():
     env.environment = 'staging'
-    env.master = '54.83.52.74'
+    env.master =  ''  # FIXME
     env.hosts = [env.master]
     env.minions_file = 'minions/{0}.yaml'.format(env.environment)
 
@@ -24,7 +24,7 @@ def staging():
 @task
 def production():
     env.environment = 'production'
-    env.master = '54.197.235.57'
+    env.master =  ''  # FIXME
     env.hosts = [env.master]
     env.minions_file = 'minions/{0}.yaml'.format(env.environment)
 
