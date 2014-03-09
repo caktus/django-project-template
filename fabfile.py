@@ -183,7 +183,9 @@ def accept_keys():
         sudo('salt-key --accept={0} -y'.format(minion_id))
 
 
+@task
 def setup_minion(minion_id, minions):
+    require('environment')
     minion = minions[minion_id]
     host = minion.get('ip', env.master)
     with settings(host=host, host_string=host):
