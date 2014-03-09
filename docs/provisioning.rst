@@ -5,7 +5,7 @@ Server Provisioning
 Overview
 ------------------------
 
-{{ project_name|title }} is deployed on the following stack.
+Accountlegal is deployed on the following stack.
 
 - OS: Ubuntu 12.04 LTS
 - Python: 2.7
@@ -73,18 +73,7 @@ user record should match the format::
 Additional developers can be added later, but you will need to create at least one user for
 yourself.
 
-The ip for the master needs to be added to the ``conf/pillar/<environment>/minions.yaml`` file.
-This file will need to be edited every time you need to make any changes to any of the minions,
-e.g: adding a new minion, adding or removing roles for a minion, etc::
-
-  master-minion:
-    #FIXME: enter minion ipv4
-    ip: <master_ip>
-
-
-Make sure to use a unique id for each one of the minions.
-
-Finally, in the fabfile the make sure that set::
+Finally, in the fabfile the make sure that ``env.master`` is set::
 
   env.master = '<ip-of-master>'
 
@@ -142,11 +131,10 @@ To summarize the steps above, you can use the following checklist
 - Project name has been set in ``conf/pillar/project.sls``
 - Environment domain name has been set in ``conf/pillar/<environment>/env.sls``
 - Environment secrets including the deploy key have been set in ``conf/pillar/<environment>/secrets.sls``
-- ``ip`` is set in ``conf/pillar/<environment>/minions.yaml``
 - ``env.master`` is set in fabfile
 
 
-Provisioning
+Single Server Provisioning
 ------------------------
 
 Each project needs to have at least one Salt Master. There can be one per environment or
@@ -156,26 +144,93 @@ How this is done will depend on where the server is hosted.
 VPS providers such as Linode will give you a username/password combination. Amazon's
 EC2 uses a private key. These credentials will be passed as command line arguments.::
 
-    # Template of the command
-    fab -H <fresh-server-ip> -u <root-user> setup_master
-    # Example of provisioning 33.33.33.10 as the Salt Master
-    fab -u root setup_servers
+Before provisining your server take a look at the relevant minion configuration file
+``minions/<environment>.yaml``. If you need to make any changes to the configuration file
+now is a good time to do it. Once you are happy with your minion configuration,
+run the following command to provision the server::
+
+    fab -u <root_user> <environment> setup_servers
 
 This will install salt-master, update the master configuration file, setup all the minions
 and do an initial deploy. The master will use a set of base states from
 https://github.com/caktus/margarita using the gitfs root.
 
+If you need to make changes to your minion configuration, please see below the
+section titled Updating Minion Configuration.
+
+Multi-Server Provisioning
+------------------------
+
+The main difference between a single server provisioning and a multi-server one is
+that there needs to be a minion running in the master server with role ``salt-master``::
+
+  # Example configuration for a salt-master minion
+  master-minion:
+    conf:
+      master: localhost
+      # do not change minion id 'master'
+      id: master
+      output: mixed
+      mine_functions:
+        network.interfaces: []
+      grains:
+        roles:
+          - salt-master
+
+The second difference is that each minion now needs to point to the server where
+the salt master is running as well as the ip for where the minion is running::
+
+  web:
+    # ip: <minion__ip>
+    conf:
+      # change next line if the master is running in a different server.
+      master: <master_ip>
+      id: web
+      output: mixed
+      mine_functions:
+        network.interfaces: []
+      grains:
+        environment: production
+        roles:
+          - web
+          - balancer
+          - db-master
+          - cache
+          # Uncomment if using celery worker configuration
+          # - worker
+          # - queue
+
+After having made the needed changes in the ``minions/<environment>.yaml`` file,
+you can now provision you servers with the same command you use to provision a single
+server::
+
+    fab -u <root_user> <environment> setup_servers
+
+
+Updating Minion Configuration
+----------------------------
+
+At any given moment you may need to make changes to your minion configuration,
+whe this happens you can safely edit the corresponding minion configuration file
+and the run::
+
+  # If you made changes to multiple minions
+  fab <environment> setup_minions
+  # If only one minion was changed
+  fab <environment> setup_minion:<minion_id>
 
 Provision a Minion
 ------------------------
 
-To provision a new minion, add roles, or remove roles edit the corresponding minions.yaml file::
+To provision a new minion, edit the minion configuration file relevant to your
+environment. You only need to provision new minions in a multi-server setup.
 
+  # sample configuration for a new minion
   new_minion:
     ip: <master_ip>
     conf:
       master: localhost
-      id: <new_id>
+      id: <unique_id>
       output: mixed
       mine_functions:
         network.interfaces: []
@@ -184,13 +239,11 @@ To provision a new minion, add roles, or remove roles edit the corresponding min
         roles:
           - <new_role>
 
-This step is not required unless you make changes after your initial provisioning.
-Note that a single minion can have multiple roles and more can be added with out
-having to provision a new one.
+After making the changes needed in the ``<environment>.yaml`` file, run the following command
+to provision the minion::
 
-After making the changes needed in the minions.yaml file, run the following command::
-
-  fab <environment> setup_server
+  fab -u <root_user> <environment> setup_minion:<minion_id>
+  fab <environment> deploy
 
 Optional Configuration
 ------------------------

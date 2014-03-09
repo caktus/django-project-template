@@ -16,17 +16,17 @@ CONF_ROOT = os.path.join(PROJECT_ROOT, 'conf')
 @task
 def staging():
     env.environment = 'staging'
-    env.master = ''  # FIXME
+    env.master = '54.83.52.74'
     env.hosts = [env.master]
-    env.minions_file = 'conf/pillar/{0}/minions.yaml'.format(env.environment)
+    env.minions_file = 'minions/{0}.yaml'.format(env.environment)
 
 
 @task
 def production():
     env.environment = 'production'
-    env.master = ''  # FIXME
+    env.master = '54.197.235.57'
     env.hosts = [env.master]
-    env.minions_file = 'conf/pillar/{0}/minions.yaml'.format(env.environment)
+    env.minions_file = 'minions/{0}.yaml'.format(env.environment)
 
 
 @task
@@ -37,7 +37,7 @@ def vagrant():
     env.user = 'vagrant'
     vagrant_version = local('vagrant -v', capture=True).split()[-1]
     env.key_filename = '/opt/vagrant/embedded/gems/gems/vagrant-%s/keys/vagrant' % vagrant_version
-    env.minions_file = 'conf/pillar/minions.yaml'
+    env.minions_file = 'minions/{0}.yaml'.format(env.environment)
 
 
 @task
@@ -46,8 +46,10 @@ def setup_servers():
     require('environment')
     execute(setup_master)
     execute(setup_minions)
-    execute(accept_keys)
     execute(sync)
+    execute(salt, 'test.ping')
+    execute(accept_keys)
+    execute(salt, 'test.ping')
     execute(deploy)
 
 
@@ -60,6 +62,15 @@ def deploy():
         target = "-G 'environment:{0}'".format(env.environment)
         salt('saltutil.sync_all', target)
         highstate(target)
+
+
+@task
+def provision_minion(minion_id):
+    require('environment')
+    with open(env.minions_file, 'r') as f:
+        minions = yaml.safe_load(f)
+    execute(setup_minion, minion_id, minions)
+    execute(accept_keys)
 
 
 @task
@@ -121,6 +132,15 @@ def get_secrets():
 
 
 @task
+def delete_key(minion_id):
+    """Delete specific minion key on master."""
+    with settings(host_string=env.master):
+        sudo('salt-key -L')
+        sudo('salt-key --delete={0} -y'.format(minion_id))
+        sudo('salt-key -L')
+
+
+@task
 def setup_master():
     """Provision master with salt-master."""
     require('environment')
@@ -145,30 +165,12 @@ def setup_master():
 
 
 @task
-def setup_minions(*roles):
+def setup_minions():
     """Sets up all the minions"""
     with open(env.minions_file, 'r') as f:
         minions = yaml.safe_load(f)
     for minion_id in minions:
-        minion = minions[minion_id]
-        with settings(host=minion['ip'], host_string=minion['ip']):
-            # install salt minion if it's not there already
-            with settings(warn_only=True):
-                with hide('running', 'stdout', 'stderr'):
-                    installed = run('which salt-call')
-            if not installed:
-                # install salt-minion from PPA
-                sudo('apt-get update -qq -y')
-                sudo('apt-get install python-software-properties -qq -y')
-                sudo('add-apt-repository ppa:saltstack/salt -y')
-                sudo('apt-get update -qq')
-                sudo('apt-get install salt-minion -qq -y')
-            config = minion['conf']
-            _, path = tempfile.mkstemp()
-            with open(path, 'w') as f:
-                yaml.dump(config, f, default_flow_style=False)
-            put(local_path=path, remote_path="/etc/salt/minion", use_sudo=True)
-            sudo('service salt-minion restart')
+        execute(setup_minion, minion_id, minions)
 
 
 @task
@@ -178,9 +180,30 @@ def accept_keys():
     with open(env.minions_file, 'r') as f:
         minions = yaml.safe_load(f)
     for minion_id in minions:
-        if not minion_id == 'master':
-            # we do not need to accept the key for the master
-            sudo('salt-key --accept={0} -y'.format(minion_id))
+        sudo('salt-key --accept={0} -y'.format(minion_id))
+
+
+def setup_minion(minion_id, minions):
+    minion = minions[minion_id]
+    host = minion.get('ip', env.master)
+    with settings(host=host, host_string=host):
+        # install salt minion if it's not there already
+        with settings(warn_only=True):
+            with hide('running', 'stdout', 'stderr'):
+                installed = run('which salt-call')
+        if not installed:
+            # install salt-minion from PPA
+            sudo('apt-get update -qq -y')
+            sudo('apt-get install python-software-properties -qq -y')
+            sudo('add-apt-repository ppa:saltstack/salt -y')
+            sudo('apt-get update -qq')
+            sudo('apt-get install salt-minion -qq -y')
+        config = minion['conf']
+        _, path = tempfile.mkstemp()
+        with open(path, 'w') as f:
+            yaml.dump(config, f, default_flow_style=False)
+        put(local_path=path, remote_path="/etc/salt/minion", use_sudo=True)
+        sudo('service salt-minion restart')
 
 
 def have_secrets():

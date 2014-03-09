@@ -11,7 +11,7 @@ states specific to this project are contained within the ``conf`` directory at t
 of the repository::
 
   # To provision a new set of servers
-  fab -u <root_user> setup_server
+  fab -u <root_user> <environment> setup_server
 
 For more information see the doc:`provisioning guide </provisioning>`.
 

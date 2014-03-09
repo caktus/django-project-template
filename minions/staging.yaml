@@ -1,23 +1,10 @@
 # Available roles: salt-master, web, worker, balancer, db-master, queue, cache
-
-master-minion:
-  #FIXME: enter minion ipv4
-  ip:
-  conf:
-    master: localhost
-    # do not change minion id 'master'
-    id: master
-    output: mixed
-    mine_functions:
-      network.interfaces: []
-    grains:
-      roles:
-        - salt-master
+# When adding new minions, make sure that each has a unique id.
 
 web:
-  #FIXME: enter minion ipv4
-  ip:
+  # ip: <minion__ip>
   conf:
+    # change next line if the master is running in a different server.
     master: localhost
     id: web
     output: mixed
@@ -30,3 +17,6 @@ web:
         - balancer
         - db-master
         - cache
+        # Uncomment if using celery worker configuration
+        # - worker
+        # - queue
