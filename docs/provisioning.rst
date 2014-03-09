@@ -5,7 +5,7 @@ Server Provisioning
 Overview
 ------------------------
 
-Accountlegal is deployed on the following stack.
+{{ project_name|title }} is deployed on the following stack.
 
 - OS: Ubuntu 12.04 LTS
 - Python: 2.7
