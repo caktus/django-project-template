@@ -1,0 +1,16 @@
+# Available roles: salt-master, web, worker, balancer, db-master, queue, cache
+
+web:
+  conf:
+    master: localhost
+    id: web
+    output: mixed
+    mine_functions:
+      network.interfaces: []
+    grains:
+      environment: local
+      roles:
+        - web
+        - balancer
+        - db-master
+        - cache

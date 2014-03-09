@@ -73,6 +73,10 @@ user record should match the format::
 Additional developers can be added later, but you will need to create at least one user for
 yourself.
 
+Finally, in the fabfile the make sure that ``env.master`` is set::
+
+  env.master = '<ip-of-master>'
+
 
 Managing Secrets
 ------------------------
@@ -127,9 +131,10 @@ To summarize the steps above, you can use the following checklist
 - Project name has been set in ``conf/pillar/project.sls``
 - Environment domain name has been set in ``conf/pillar/<environment>/env.sls``
 - Environment secrets including the deploy key have been set in ``conf/pillar/<environment>/secrets.sls``
+- ``env.master`` is set in fabfile
 
 
-Salt Master
+Single Server Provisioning
 ------------------------
 
 Each project needs to have at least one Salt Master. There can be one per environment or
@@ -139,72 +144,106 @@ How this is done will depend on where the server is hosted.
 VPS providers such as Linode will give you a username/password combination. Amazon's
 EC2 uses a private key. These credentials will be passed as command line arguments.::
 
-    # Template of the command
-    fab -H <fresh-server-ip> -u <root-user> setup_master
-    # Example of provisioning 33.33.33.10 as the Salt Master
-    fab -H 33.33.33.10 -u root setup_master
+Before provisining your server, take a look at the relevant minion configuration file
+``minions/<environment>.yaml``. If you need to make any changes to the configuration files
+now is a good time to do it. Once you are happy with your minion configuration,
+run the following command to provision the server::
 
-This will install salt-master and update the master configuration file. The master will use a
-set of base states from https://github.com/caktus/margarita using the gitfs root. Once the master
-has been provisioned you should set::
+    fab -u <root_user> <environment> setup_servers
 
-    env.master = '<ip-of-master>'
+This will install salt-master, update the master configuration file, setup all the minions
+and do an initial deploy. The master will use a set of base states from
+https://github.com/caktus/margarita using the gitfs root.
 
-in the top of the fabfile.
+If you need to make changes to your minion configuration, please see the
+section below titled Updating Minion Configuration.
 
-If each environment has its own master then it should be set with the environment setup function ``staging`` or ``production``.
-In these case most commands will need to be preceded with the environment to ensure that ``env.master``
-is set.
+Multi-Server Provisioning
+------------------------
 
-Additional states and pillar information are contained in this repo and must be rsync'd to the master via::
+The main difference between a single server provisioning and a multi-server one is
+that there needs to be a minion running in the master server with role ``salt-master``::
 
-    fab -u <root-user> sync
+  # Example configuration for a salt-master minion
+  master-minion:
+    conf:
+      master: localhost
+      # do not change minion id 'master'
+      id: master
+      output: mixed
+      mine_functions:
+        network.interfaces: []
+      grains:
+        roles:
+          - salt-master
 
-This must be done each time a state or pillar is updated. This will be called on each deploy to
-ensure they are always up to date.
+The second difference is that each minion now needs to point to the server where
+the salt master is running as well as the ip for where the minion is running::
 
-To provision the master server itself with salt you need to create a minion on the master::
+  web:
+    # ip: <minion__ip>
+    conf:
+      # change next line if the master is running in a different server.
+      master: <master_ip>
+      id: web
+      output: mixed
+      mine_functions:
+        network.interfaces: []
+      grains:
+        environment: production
+        roles:
+          - web
+          - balancer
+          - db-master
+          - cache
+          # Uncomment if using celery worker configuration
+          # - worker
+          # - queue
 
-    fab -H <ip-of-new-master> -u <root-user> --set environment=master setup_minion:salt-master
-    fab -u <root-user> accept_key:<server-name>
-    fab -u <root-user> --set environment=master deploy
+After having made the needed changes in the ``minions/<environment>.yaml`` file,
+you can now provision you servers with the same command you use to provision a single
+server::
 
-This will create developer users on the master server so you will no longer have to connect
-as the root user.
+    fab -u <root_user> <environment> setup_servers
 
+
+Updating Minion Configuration
+----------------------------
+
+At any given moment you may need to make changes to your minion configuration,
+whe this happens you can safely edit the corresponding minion configuration file
+and the run::
+
+  # If you made changes to multiple minions
+  fab <environment> setup_minions
+  # If only one minion was changed
+  fab <environment> setup_minion:<minion_id>
 
 Provision a Minion
 ------------------------
 
-Once you have completed the above steps, you are ready to provision a new server
-for a given environment. Again you will need to be able to connect to the server
-as a root user. This is to install the Salt Minion which will connect to the Master
-to complete the provisioning. To setup a minion you call the Fabric command::
+To provision a new minion, edit the minion configuration file relevant to your
+environment. You only need to provision new minions in a multi-server setup.
 
-    fab <environment> setup_minion:<roles> -H <ip-of-new-server> -u <root-user>
-    fab staging setup_minion:web,balancer,db-master,cache -H  33.33.33.10 -u root
+  # sample configuration for a new minion
+  new_minion:
+    ip: <master_ip>
+    conf:
+      master: localhost
+      id: <unique_id>
+      output: mixed
+      mine_functions:
+        network.interfaces: []
+      grains:
+        environment: staging
+        roles:
+          - <new_role>
 
-The available roles are ``salt-master``, ``web``, ``worker``, ``balancer``, ``db-master``,
-``queue`` and ``cache``. If you are running everything on a single server you need to enable
-the ``web``, ``balancer``, ``db-master``, and ``cache`` roles. The ``worker``
-and ``queue`` roles are only needed to run Celery which is explained in more detail later.
+After making the changes needed in the ``<environment>.yaml`` file, run the following command
+to provision the minion::
 
-Additional roles can be added later to a server via ``add_role``. Note that there is no
-corresponding ``delete_role`` command because deleting a role does not disable the services or
-remove the configuration files of the deleted role::
-
-    fab add_role:web -H  33.33.33.10
-
-This configures the Minion to point the Master but the server cannot connect until its key
-has been accepted on the Master. To accept the key you need to know the hostname of the
-new server and run::
-
-    fab accept_key:<hostname>
-
-After that you can run the deploy/highstate to provision the new server::
-
-    fab <environment> deploy
-
+  fab -u <root_user> <environment> provision_minion:<minion_id>
+  fab <environment> deploy
 
 Optional Configuration
 ------------------------

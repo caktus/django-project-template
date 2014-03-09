@@ -8,7 +8,10 @@ Provisioning
 The server provisioning is managed using `Salt Stack <http://saltstack.com/>`_. The base
 states are managed in a `common repo <https://github.com/caktus/margarita>`_ and additional
 states specific to this project are contained within the ``conf`` directory at the root
-of the repository.
+of the repository::
+
+  # To provision a new set of servers
+  fab -u <root_user> <environment> setup_server
 
 For more information see the doc:`provisioning guide </provisioning>`.
 

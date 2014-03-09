@@ -1,0 +1,22 @@
+# Available roles: salt-master, web, worker, balancer, db-master, queue, cache
+# When adding new minions, make sure that each has a unique id.
+
+web:
+  # ip: <minion__ip>
+  conf:
+    # change next line if the master is running in a different server.
+    master: localhost
+    id: web
+    output: mixed
+    mine_functions:
+      network.interfaces: []
+    grains:
+      environment: production
+      roles:
+        - web
+        - balancer
+        - db-master
+        - cache
+        # Uncomment if using celery worker configuration
+        # - worker
+        # - queue
