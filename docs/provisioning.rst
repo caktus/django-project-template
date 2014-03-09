@@ -242,7 +242,7 @@ environment. You only need to provision new minions in a multi-server setup.
 After making the changes needed in the ``<environment>.yaml`` file, run the following command
 to provision the minion::
 
-  fab -u <root_user> <environment> setup_minion:<minion_id>
+  fab -u <root_user> <environment> provision_minion:<minion_id>
   fab <environment> deploy
 
 Optional Configuration
