@@ -3,7 +3,7 @@ import tempfile
 
 import yaml
 
-from fabric.api import env, get, hide, lcd, local, put, require, run, settings, sudo, task
+from fabric.api import env, execute, get, hide, lcd, local, put, require, run, settings, sudo, task
 from fabric.colors import red
 from fabric.contrib import files, project
 from fabric.contrib.console import confirm
@@ -155,6 +155,9 @@ def setup_minion(*roles):
         yaml.dump(config, f, default_flow_style=False)
     put(local_path=path, remote_path="/etc/salt/minion", use_sudo=True)
     sudo('service salt-minion restart')
+    # queries server for its fully qualified domain name to get minion id
+    key_name = run('python -c "import socket; print socket.getfqdn()"')
+    execute(accept_key, key_name)
 
 
 @task
