@@ -18,6 +18,6 @@ manage:
         virtualenv_root: "{{ vars.venv_dir }}"
         directory: "{{ vars.source_dir }}"
     - require:
-      - virtualenv: venv
+      - pip: pip_requirements
       - file: project_path
       - file: log_dir

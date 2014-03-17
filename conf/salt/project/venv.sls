@@ -12,7 +12,6 @@ include:
 venv:
   virtualenv.managed:
     - name: {{ vars.venv_dir }}
-    - requirements: {{ vars.build_path(vars.source_dir, 'requirements/production.txt') }}
     - python: {{ '/usr/bin/python' ~ pillar['python_version'] }}
     - require:
       - pip: virtualenv
@@ -25,6 +24,15 @@ venv:
       - pkg: python-pkgs
       - pkg: python-headers
 
+pip_requirements:
+  pip.installed:
+    - bin_env: {{ vars.venv_dir }}
+    - requirements: {{ vars.build_path(vars.source_dir, 'requirements/production.txt') }}
+    - upgrade: true
+    - find_links: {{ vars.build_path(vars.source_dir, 'requirements/sdists') }}
+    - require:
+      - virtualenv: venv
+
 venv_dir:
   file.directory:
     - name: {{ vars.venv_dir }}
@@ -34,7 +42,7 @@ venv_dir:
       - user
       - group
     - require:
-      - virtualenv: venv
+      - pip: pip_requirements
 
 project_path:
   file.managed:
@@ -43,4 +51,4 @@ project_path:
     - user: {{ pillar['project_name'] }}
     - group: {{ pillar['project_name'] }}
     - require:
-      - virtualenv: venv
+      - pip: pip_requirements
