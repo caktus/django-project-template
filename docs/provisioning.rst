@@ -195,12 +195,6 @@ remove the configuration files of the deleted role::
 
     fab add_role:web -H  33.33.33.10
 
-This configures the Minion to point the Master but the server cannot connect until its key
-has been accepted on the Master. To accept the key you need to know the hostname of the
-new server and run::
-
-    fab accept_key:<hostname>
-
 After that you can run the deploy/highstate to provision the new server::
 
     fab <environment> deploy
