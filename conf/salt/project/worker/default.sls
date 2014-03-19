@@ -25,7 +25,7 @@ default_conf:
     - require:
       - pip: supervisor
       - file: log_dir
-      - virtualenv: venv
+      - pip: pip_requirements
     - watch_in:
       - cmd: supervisor_update
 
