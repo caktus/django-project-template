@@ -1,17 +1,8 @@
 -r base.txt
-django-debug-toolbar==1.0
-# Required by django-debug-toolbar
-sqlparse==0.1.10
+django-debug-toolbar==1.0.1
 
 coverage==3.7.1
 pylint==1.1.0
-# Required by pylint
-logilab-common==0.60.1
-astroid==1.0.1
 
 PyYAML==3.10
-Fabric==1.8.1
-# Required by Fabric
-paramiko==1.12.0
-pycrypto==2.6.1
-ecdsa==0.10
+Fabric==1.8.2
