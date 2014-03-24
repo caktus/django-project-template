@@ -1,8 +1,8 @@
 # Django settings for {{ project_name }} project.
 import os
 
-PROJECT_PATH = os.path.abspath(os.path.join(os.path.dirname(__file__), os.pardir))
-PROJECT_ROOT = os.path.abspath(os.path.join(PROJECT_PATH, os.pardir))
+BASE_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), os.pardir))
+PROJECT_ROOT = os.path.abspath(os.path.join(BASE_DIR, os.pardir))
 
 DEBUG = True
 TEMPLATE_DEBUG = DEBUG
@@ -10,8 +10,6 @@ TEMPLATE_DEBUG = DEBUG
 ADMINS = (
     # ('Your Name', 'your_email@example.com'),
 )
-
-MANAGERS = ADMINS
 
 DATABASES = {
     'default': {
@@ -36,8 +34,6 @@ TIME_ZONE = 'America/New_York'
 # Language code for this installation. All choices can be found here:
 # http://www.i18nguy.com/unicode/language-identifiers.html
 LANGUAGE_CODE = 'en-us'
-
-SITE_ID = 1
 
 # If you set this to False, Django will make some optimizations so as not
 # to load the internationalization machinery.
@@ -71,7 +67,7 @@ STATIC_URL = '/static/'
 
 # Additional locations of static files
 STATICFILES_DIRS = (
-    os.path.join(PROJECT_PATH, 'static'),
+    os.path.join(BASE_DIR, 'static'),
 )
 
 # List of finder classes that know how to find static files in
@@ -88,12 +84,13 @@ SECRET_KEY = '{{ secret_key }}'
 
 TEMPLATE_CONTEXT_PROCESSORS = (
     'django.contrib.auth.context_processors.auth',
-    'django.contrib.messages.context_processors.messages',
     'django.core.context_processors.debug',
-    'django.core.context_processors.media',
-    'django.core.context_processors.request',
     'django.core.context_processors.i18n',
-    'django.core.context_processors.static',    
+    'django.core.context_processors.media',
+    'django.core.context_processors.static',
+    'django.core.context_processors.tz',
+    'django.core.context_processors.request',
+    'django.contrib.messages.context_processors.messages',
 )
 
 MIDDLEWARE_CLASSES = (
@@ -111,11 +108,11 @@ ROOT_URLCONF = '{{ project_name }}.urls'
 WSGI_APPLICATION = '{{ project_name }}.wsgi.application'
 
 TEMPLATE_DIRS = (
-    os.path.join(PROJECT_PATH, 'templates'),
+    os.path.join(BASE_DIR, 'templates'),
 )
 
 FIXTURE_DIRS = (
-    os.path.join(PROJECT_PATH, 'fixtures'),
+    os.path.join(BASE_DIR, 'fixtures'),
 )
 
 INSTALLED_APPS = (
