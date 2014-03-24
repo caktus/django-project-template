@@ -1,8 +1,8 @@
 # Django settings for {{ project_name }} project.
 import os
 
-PROJECT_PATH = os.path.abspath(os.path.join(os.path.dirname(__file__), os.pardir))
-PROJECT_ROOT = os.path.abspath(os.path.join(PROJECT_PATH, os.pardir))
+BASE_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), os.pardir))
+PROJECT_ROOT = os.path.abspath(os.path.join(BASE_DIR, os.pardir))
 
 DEBUG = True
 TEMPLATE_DEBUG = DEBUG
@@ -67,7 +67,7 @@ STATIC_URL = '/static/'
 
 # Additional locations of static files
 STATICFILES_DIRS = (
-    os.path.join(PROJECT_PATH, 'static'),
+    os.path.join(BASE_DIR, 'static'),
 )
 
 # List of finder classes that know how to find static files in
@@ -107,11 +107,11 @@ ROOT_URLCONF = '{{ project_name }}.urls'
 WSGI_APPLICATION = '{{ project_name }}.wsgi.application'
 
 TEMPLATE_DIRS = (
-    os.path.join(PROJECT_PATH, 'templates'),
+    os.path.join(BASE_DIR, 'templates'),
 )
 
 FIXTURE_DIRS = (
-    os.path.join(PROJECT_PATH, 'fixtures'),
+    os.path.join(BASE_DIR, 'fixtures'),
 )
 
 INSTALLED_APPS = (
