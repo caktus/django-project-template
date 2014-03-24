@@ -26,7 +26,6 @@ database-{{ pillar['project_name'] }}:
     - lc_ctype: en_US.UTF-8
     - require:
       - postgres_user: user-{{ pillar['project_name'] }}
-      - file: /var/lib/postgresql/configure_utf-8.sh
       - file: hba_conf
       - file: postgresql_conf
 
@@ -46,6 +45,7 @@ hba_conf:
 {% endfor %}
     - require:
       - pkg: postgresql
+      - cmd: /var/lib/postgresql/configure_utf-8.sh
     - watch_in:
       - service: postgresql
 
@@ -59,6 +59,7 @@ postgresql_conf:
     - template: jinja
     - require:
       - pkg: postgresql
+      - cmd: /var/lib/postgresql/configure_utf-8.sh
     - watch_in:
       - service: postgresql
 
