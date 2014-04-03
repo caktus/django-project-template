@@ -35,9 +35,9 @@ gunicorn_process:
     - require:
       - file: gunicorn_conf
 
-app_firewall:
 {% for host, ifaces in salt['mine.get']('roles:balancer', 'network.interfaces', expr_form='grain_pcre').items() %}
 {% set host_addr = vars.get_primary_ip(ifaces) %}
+app_allow-{{ host_addr }}:
   ufw.allow:
     - name: '8000'
     - enabled: true
