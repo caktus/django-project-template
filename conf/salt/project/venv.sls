@@ -13,6 +13,7 @@ venv:
   virtualenv.managed:
     - name: {{ vars.venv_dir }}
     - python: {{ '/usr/bin/python' ~ pillar['python_version'] }}
+    - user: {{ pillar['project_name'] }}
     - require:
       - pip: virtualenv
       - file: root_dir
@@ -31,17 +32,6 @@ pip_requirements:
     - upgrade: true
     - require:
       - virtualenv: venv
-
-venv_dir:
-  file.directory:
-    - name: {{ vars.venv_dir }}
-    - user: {{ pillar['project_name'] }}
-    - group: {{ pillar['project_name'] }}
-    - recurse:
-      - user
-      - group
-    - require:
-      - pip: pip_requirements
 
 project_path:
   file.managed:
