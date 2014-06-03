@@ -64,7 +64,7 @@ For the environment you want to setup you will need to set the ``domain`` in
 ``conf/pillar/<environment>/env.sls``.
 
 You will also need add the developer's user names and SSH keys to ``conf/pillar/devs.sls``. Each
-user record should match the format::
+user record (under the parent ``users:`` key) should match the format::
 
     example-user:
       public_key:
