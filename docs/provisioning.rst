@@ -45,10 +45,12 @@ server like so::
 
 This will generate two files named ``<servername>`` and ``<servername>.pub``.
 The first file contains the private key and the second file contains the public
-key.
+key. The public key needs to be added to the "Deploy keys" in the GitHub repository.
+For more information, see the Github docs on managing deploy keys:
+https://help.github.com/articles/managing-deploy-keys
 
-The text in the private key file should be added to `conf/pillar/<environment>/secrets.sls`` under the
-label `github_deploy_key`, e.g.::
+The text in the private key file should be added to `conf/pillar/<environment>/secrets.sls``
+under the label `github_deploy_key`, e.g.::
 
     github_deploy_key: |
       -----BEGIN RSA PRIVATE KEY-----
@@ -56,9 +58,8 @@ label `github_deploy_key`, e.g.::
       -----END RSA PRIVATE KEY-----
 
 There will be more information on the secrets in a later section. You may choose
-to include the public SSH key in the repo (e.g., GitHub) as well, but this is not
-strictly required. For more information, see the Github docs on managing deploy
-keys: https://help.github.com/articles/managing-deploy-keys
+to include the public SSH key inside the repo itself as well, but this is not
+strictly required.
 
 You also need to set ``project_name`` and ``python_version`` in ``conf/pillar/project.sls``.
 Currently we support using Python 2.7 or Python 3.3. The project template is set up for 2.7 by
