@@ -199,6 +199,10 @@ After that you can run the deploy/highstate to provision the new server::
 
     fab <environment> deploy
 
+The first time you run this command, it may complete before the server is set up.
+It is most likely still completing in the background. If the server does not become
+accessible or if you encounter errors during the process, review the Salt logs for
+any hints in ``/var/log/salt`` on the minion and/or master.
 
 Optional Configuration
 ------------------------
