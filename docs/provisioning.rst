@@ -53,10 +53,8 @@ SSH key in the repo as well but this is not strictly required.
 You also need to set ``project_name`` and ``python_version`` in ``conf/pillar/project.sls``.
 Currently we support using Python 2.7 or Python 3.3. The project template is set up for 2.7 by
 default. If you want to use 3.3, you will need to change ``python_version`` and make a few changes
-to requirements. In ``requirements/base.txt``, you need to change django-compressor to use a forked
-version (``-e git://github.com/vkurup/django_compressor.git@develop#egg=django_compressor``). In
-``requirements/production.txt``, change python-memcached to python3-memcached. Finally, in
-``requirements/dev.txt``, remove Fabric and all its dependencies. Instead you will need Fabric
+to requirements. In ``requirements/production.txt``, change python-memcached to python3-memcached.
+In ``requirements/dev.txt``, remove Fabric and all its dependencies. Instead you will need Fabric
 installed on your laptop "globally" so that when you run ``fab``, it will not be found in your
 virtualenv, but will then be found in your global environment.
 
