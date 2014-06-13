@@ -35,7 +35,7 @@ gunicorn_process:
     - require:
       - file: gunicorn_conf
 
-{% for host, ifaces in salt['mine.get']('roles:balancer', 'network.interfaces', expr_form='grain_pcre').items() %}
+{% for host, ifaces in vars.balancer_minions.items() %}
 {% set host_addr = vars.get_primary_ip(ifaces) %}
 app_allow-{{ host_addr }}:
   ufw.allow:
