@@ -7,7 +7,8 @@ base:
     - locale.utf8
     - project.devs
     - salt.minion
-  'precise32':
+  'environment:local':
+    - match: grain
     - vagrant.user
   'roles:salt-master':
     - match: grain
