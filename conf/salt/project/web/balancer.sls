@@ -49,15 +49,24 @@ apache2-utils:
   pkg:
     - installed
 
+clear_auth_file:
+  file.absent:
+    - name: {{ auth_file }}
+    - require:
+      - file: root_dir
+      - pkg: apache2-utils
+
 auth_file:
   cmd.run:
     - names:
 {%- for key, value in pillar['http_auth'].items() %}
-      - htpasswd {% if loop.first -%}-c{%- endif %} -bd {{ auth_file }} {{ key }} {{ value }}
+      - htpasswd -bd {{ auth_file }} {{ key }} {{ value }}
 {% endfor %}
     - require:
       - pkg: apache2-utils
       - file: root_dir
+      - file: clear_auth_file
+      - file: {{ auth_file }}
 
 {{ auth_file }}:
   file.managed:
@@ -66,7 +75,7 @@ auth_file:
     - mode: 640
     - require:
       - file: root_dir
-      - cmd: auth_file
+      - file: clear_auth_file
 {% endif %}
 
 nginx_conf:
