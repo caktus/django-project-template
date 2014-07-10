@@ -220,7 +220,8 @@ def deploy():
     """Deploy to a given environment by pushing the latest states and executing the highstate."""
     require('environment')
     with settings(host_string=env.master):
-        sync()
+        if env.environment != "local":
+            sync()
         target = "-G 'environment:{0}'".format(env.environment)
         salt('saltutil.sync_all', target)
         highstate(target)
