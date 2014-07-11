@@ -40,4 +40,5 @@ SESSION_COOKIE_HTTPONLY = True
 ALLOWED_HOSTS = os.environ.get('ALLOWED_HOSTS', '').split(';')
 
 # Uncomment if using celery worker configuration
+# CELERY_SEND_TASK_ERROR_EMAILS = True
 # BROKER_URL = 'amqp://{{ project_name }}_staging:%(BROKER_PASSWORD)s@%(BROKER_HOST)s/{{ project_name }}_staging' % os.environ
