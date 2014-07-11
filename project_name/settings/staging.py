@@ -12,11 +12,15 @@ DATABASES['default']['HOST'] = os.environ.get('DB_HOST', '')
 DATABASES['default']['PORT'] = os.environ.get('DB_PORT', '')
 DATABASES['default']['PASSWORD'] = os.environ['DB_PASSWORD']
 
-PUBLIC_ROOT = '/var/www/{{ project_name }}/public/'
+WEBSERVER_ROOT = '/var/www/{{ project_name }}/'
+
+PUBLIC_ROOT = os.path.join(WEBSERVER_ROOT, 'public')
 
 STATIC_ROOT = os.path.join(PUBLIC_ROOT, 'static')
 
 MEDIA_ROOT = os.path.join(PUBLIC_ROOT, 'media')
+
+LOGGING['handlers']['file']['filename'] = os.path.join(WEBSERVER_ROOT, 'log', '{{ project_name }}.log')
 
 CACHES = {
     'default': {
