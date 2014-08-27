@@ -63,7 +63,7 @@ postgresql_conf:
     - watch_in:
       - service: postgresql
 
-{% for host, ifaces in vars.web_minions.items() + vars.worker_minions.items() %}
+{% for host, ifaces in vars.app_minions.items() %}
 {% set host_addr = vars.get_primary_ip(ifaces) %}
 db_allow-{{ host_addr }}:
   ufw.allow:
