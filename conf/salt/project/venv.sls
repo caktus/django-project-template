@@ -3,11 +3,16 @@
 include:
   - project.dirs
   - project.repo
-  {% if pillar['python_version'] > 3 %}
-  - python.33
-  {% else %}
-  - python.27
-  {% endif %}
+  - python
+
+python-pkgs:
+  pkg:
+    - installed
+    - names:
+      - python{{ pillar['python_version'] }}
+      - python{{ pillar['python_version'] }}-dev
+    - require:
+      - pkgrepo: deadsnakes
 
 venv:
   virtualenv.managed:
