@@ -1,5 +1,6 @@
 {% import 'project/_vars.sls' as vars with context %}
 {% set auth_file=vars.auth_file %}
+{% set self_signed='ssl_key' not in pillar and 'ssl_cert' not in pillar %}
 
 include:
   - nginx
@@ -34,6 +35,7 @@ ssl_dir:
     - require:
       - file: root_dir
 
+{% if self_signed %}
 ssl_cert:
   cmd.run:
     - name: cd {{ vars.ssl_dir }} && /var/lib/nginx/generate-cert.sh {{ pillar['domain'] }}
@@ -43,6 +45,25 @@ ssl_cert:
     - require:
       - file: ssl_dir
       - file: generate_cert
+{% else %}
+ssl_key:
+  file.managed:
+    - name: {{ vars.build_path(vars.ssl_dir, pillar['domain'] + ".key") }}
+    - contents_pillar: ssl_key
+    - user: root
+    - mode: 600
+    - require:
+      - file: ssh_dir
+
+ssl_cert:
+  file.managed:
+    - name: {{ vars.build_path(vars.ssl_dir, pillar['domain'] + ".crt") }}
+    - contents_pillar: ssl_cert
+    - user: root
+    - mode: 600
+    - require:
+      - file: ssh_dir
+{% endif %}
 
 {% if 'http_auth' in pillar %}
 apache2-utils:
@@ -102,7 +123,12 @@ nginx_conf:
       - pkg: nginx
       - file: log_dir
       - file: ssl_dir
+      {%- if self_signed %}
       - cmd: ssl_cert
+      {% else %}
+      - file: ssl_key
+      - file: ssl_cert
+      {% endif %}
       {%- if 'http_auth' in pillar %}
       - cmd: auth_file
       {% endif %}
