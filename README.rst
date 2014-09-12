@@ -16,9 +16,9 @@ project. To begin you should have the following applications installed on your
 local development system::
 
 - Python >= 2.7
-- `pip >= 1.5 <http://www.pip-installer.org/>`_
-- `virtualenv >= 1.10 <http://www.virtualenv.org/>`_
-- `virtualenvwrapper >= 3.0 <http://pypi.python.org/pypi/virtualenvwrapper>`_
+- `pip <http://www.pip-installer.org/>`_ >= 1.5
+- `virtualenv <http://www.virtualenv.org/>`_ >= 1.10
+- `virtualenvwrapper <http://pypi.python.org/pypi/virtualenvwrapper>`_ >= 3.0
 - Postgres >= 9.1
 - git >= 1.7
 
