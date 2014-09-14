@@ -8,6 +8,14 @@ include:
   - postfix
   - ufw
 
+gunicorn_requirements:
+  pip.installed:
+    - name: "gunicorn>=19.1,<19.2"
+    - bin_env: {{ vars.venv_dir }}
+    - upgrade: true
+    - require:
+      - virtualenv: venv
+
 gunicorn_conf:
   file.managed:
     - name: /etc/supervisor/conf.d/{{ pillar['project_name'] }}-gunicorn.conf
@@ -25,6 +33,7 @@ gunicorn_conf:
       - pip: supervisor
       - file: log_dir
       - pip: pip_requirements
+      - pip: gunicorn_requirements
     - watch_in:
       - cmd: supervisor_update
 
