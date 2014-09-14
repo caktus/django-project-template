@@ -9,6 +9,7 @@ from fabric.contrib import files, project
 from fabric.contrib.console import confirm
 from fabric.utils import abort
 
+DEFAULT_SALT_LOGLEVEL = 'info'
 PROJECT_ROOT = os.path.dirname(__file__)
 CONF_ROOT = os.path.join(PROJECT_ROOT, 'conf')
 
@@ -184,18 +185,18 @@ def add_role(name):
 
 
 @task
-def salt(cmd, target="'*'"):
+def salt(cmd, target="'*'", loglevel=DEFAULT_SALT_LOGLEVEL):
     """Run arbitrary salt commands."""
     with settings(warn_only=True, host_string=env.master):
-        sudo("salt {0} {1}".format(target, cmd))
+        sudo("salt {0} -l{1} {2} ".format(target, loglevel, cmd))
 
 
 @task
-def highstate(target="'*'"):
+def highstate(target="'*'", loglevel=DEFAULT_SALT_LOGLEVEL):
     """Run highstate on master."""
     with settings(host_string=env.master):
         print("This can take a long time without output, be patient")
-        salt('state.highstate', target)
+        salt('state.highstate', target, loglevel)
 
 
 @task
@@ -216,12 +217,12 @@ def delete_key(name):
 
 
 @task
-def deploy():
+def deploy(loglevel=DEFAULT_SALT_LOGLEVEL):
     """Deploy to a given environment by pushing the latest states and executing the highstate."""
     require('environment')
     with settings(host_string=env.master):
         if env.environment != "local":
             sync()
         target = "-G 'environment:{0}'".format(env.environment)
-        salt('saltutil.sync_all', target)
+        salt('saltutil.sync_all', target, loglevel)
         highstate(target)
