@@ -2,7 +2,7 @@
 export DJANGO_SETTINGS_MODULE={{ settings }}
 export ALLOWED_HOST={{ pillar['domain'] }}
 {% for key, value in pillar.get('secrets', {}).items() + pillar.get('env', {}).items() %}
-export {{ key }}={{ value }}
+export {{ key }}='{{ value }}'
 {% endfor %}
 cd {{ directory }}
 {{ virtualenv_root }}/bin/python {{ directory }}/manage.py $@
