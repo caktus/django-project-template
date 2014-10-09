@@ -1,6 +1,6 @@
 {% import 'project/_vars.sls' as vars with context %}
 {% set auth_file=vars.auth_file %}
-{% set self_signed='ssl_key' not in pillar and 'ssl_cert' not in pillar %}
+{% set self_signed='ssl_key' not in pillar or 'ssl_cert' not in pillar %}
 
 include:
   - nginx
@@ -53,7 +53,7 @@ ssl_key:
     - user: root
     - mode: 600
     - require:
-      - file: ssh_dir
+      - file: ssl_dir
 
 ssl_cert:
   file.managed:
@@ -62,7 +62,7 @@ ssl_cert:
     - user: root
     - mode: 600
     - require:
-      - file: ssh_dir
+      - file: ssl_dir
 {% endif %}
 
 {% if 'http_auth' in pillar %}

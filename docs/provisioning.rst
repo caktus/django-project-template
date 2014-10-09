@@ -282,7 +282,7 @@ The worker will run also run the ``beat`` process which allows for running perio
 SSL
 ________________________
 
-The default configuration expects the site to under HTTPS everywhere. However, unless
+The default configuration expects the site to run under HTTPS everywhere. However, unless
 an SSL certificate is provided, the site will use a self-signed certificate. To include
 a certificate signed by a CA you must update the ``ssl_key`` and ``ssl_cert`` pillars
 in the environment secrets. The ``ssl_cert`` should contain the intermediate certificates
@@ -306,6 +306,6 @@ email, etc. The most important field in this request is the common name which mu
 match the domain for which the certificate is going to be deployed (i.e example.com).
 
 This signing request (.csr) will be handed off to a trusted Certificate Authority (CA) such as
-StartSSL, NameCheap, GoDaddy, etc purchase the signed certificate. The contents of
+StartSSL, NameCheap, GoDaddy, etc. to purchase the signed certificate. The contents of
 the *.key file will be added to the ``ssl_key`` pillar and the signed certificate
 from the CA will be added to the ``ssl_cert`` pillar.
