@@ -1,0 +1,13 @@
+language: python
+python:
+  - "2.7"
+addons:
+  postgresql: "9.1"
+install:
+  - git clone https://github.com/caktus/dpt-tests.git
+  - pip install -r dpt-tests/requirements.txt --use-mirrors
+script:
+  - python ./dpt-tests/run-tests.py
+notifications:
+  email:
+    - tobias@caktusgroup.com
