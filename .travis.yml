@@ -11,3 +11,4 @@ script:
 notifications:
   email:
     - tobias@caktusgroup.com
+
