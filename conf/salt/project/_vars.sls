@@ -20,3 +20,8 @@
 {% set ssl_dir = path_from_root('ssl') %}
 {% set source_dir = path_from_root('source') %}
 {% set venv_dir = path_from_root('env') %}
+
+{% set web_minions = salt['mine.get']('G@roles:web and G@environment:' + pillar['environment'], 'network.interfaces', expr_form='compound') %}
+{% set worker_minions = salt['mine.get']('G@roles:worker and G@environment:' + pillar['environment'], 'network.interfaces', expr_form='compound') %}
+{% set app_minions = salt['mine.get']('P@roles:(worker|web) and G@environment:' + pillar['environment'], 'network.interfaces', expr_form='compound') %}
+{% set balancer_minions = salt['mine.get']('G@roles:balancer and G@environment:' + pillar['environment'], 'network.interfaces', expr_form='compound') %}

@@ -8,6 +8,14 @@ include:
   - postfix
   - ufw
 
+gunicorn_requirements:
+  pip.installed:
+    - name: "gunicorn>=19.1,<19.2"
+    - bin_env: {{ vars.venv_dir }}
+    - upgrade: true
+    - require:
+      - virtualenv: venv
+
 gunicorn_conf:
   file.managed:
     - name: /etc/supervisor/conf.d/{{ pillar['project_name'] }}-gunicorn.conf
@@ -25,6 +33,7 @@ gunicorn_conf:
       - pip: supervisor
       - file: log_dir
       - pip: pip_requirements
+      - pip: gunicorn_requirements
     - watch_in:
       - cmd: supervisor_update
 
@@ -35,7 +44,7 @@ gunicorn_process:
     - require:
       - file: gunicorn_conf
 
-{% for host, ifaces in salt['mine.get']('roles:balancer', 'network.interfaces', expr_form='grain_pcre').items() %}
+{% for host, ifaces in vars.balancer_minions.items() %}
 {% set host_addr = vars.get_primary_ip(ifaces) %}
 app_allow-{{ host_addr }}:
   ufw.allow:
@@ -72,21 +81,12 @@ collectstatic:
     - require:
       - file: manage
 
-syncdb:
-  cmd.run:
-    - name: "{{ vars.path_from_root('manage.sh') }} syncdb --noinput"
-    - user: {{ pillar['project_name'] }}
-    - group: {{ pillar['project_name'] }}
-    - require:
-      - file: manage
-    - order: last
-
 migrate:
   cmd.run:
     - name: "{{ vars.path_from_root('manage.sh') }} migrate --noinput"
     - user: {{ pillar['project_name'] }}
     - group: {{ pillar['project_name'] }}
-    - onlyif: "{{ vars.path_from_root('manage.sh') }} migrate --list | grep '( )'"
+    - onlyif: "{{ vars.path_from_root('manage.sh') }} migrate --list | grep '\\[ \\]'"
     - require:
       - cmd: syncdb
     - order: last
