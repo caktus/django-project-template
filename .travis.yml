@@ -1,19 +1,22 @@
 language: python
 python:
-  - "2.7"
+- "2.7"
 addons:
   postgresql: "9.1"
 env:
   global:
-    - GITHUB_USER="caktus-dpt-test"
-    - secure: "NeCPrKo+eBwmCSk2VF9veLaUzkwrzKDj9WI9AlvXyTZa6pUEPBZX00P/YsSznWJLSqqF6J58MukrQFaYs3fbZ8rwlPQKkYmb72I5sA9B36kbO3Uw98Oc8FFxh03+sBl+MfeV2V9LvKbMuWkbhsumUVC9cr5R+BkLmu3KyFRAOwo="
-    - AWS_ACCESS_KEY_ID="AKIAJIQHX34I5URDPLZQ"
-    - secure: "LkCXoM3EHPgF3atwVEqUYqGs86j3XG4K0KjQkFS/iWEGo7ROj6Tqvnhd1NIyz0yMINjnOMI4EyFNbKvN8M51t6xTHYe69sYIyMYB8+rN8zGMjmEV4AHVhMUPlQTUBmYuuDO/twwYlc7LBiMvR0dtvEkz7tBFm+IlJ1tjDmv0drU="
+  - GITHUB_USER="caktus-dpt-test"
+  - secure: NeCPrKo+eBwmCSk2VF9veLaUzkwrzKDj9WI9AlvXyTZa6pUEPBZX00P/YsSznWJLSqqF6J58MukrQFaYs3fbZ8rwlPQKkYmb72I5sA9B36kbO3Uw98Oc8FFxh03+sBl+MfeV2V9LvKbMuWkbhsumUVC9cr5R+BkLmu3KyFRAOwo=
+  - AWS_ACCESS_KEY_ID="AKIAJIQHX34I5URDPLZQ"
+  - secure: LkCXoM3EHPgF3atwVEqUYqGs86j3XG4K0KjQkFS/iWEGo7ROj6Tqvnhd1NIyz0yMINjnOMI4EyFNbKvN8M51t6xTHYe69sYIyMYB8+rN8zGMjmEV4AHVhMUPlQTUBmYuuDO/twwYlc7LBiMvR0dtvEkz7tBFm+IlJ1tjDmv0drU=
 install:
-  - git clone https://github.com/caktus/dpt-tests.git
-  - pip install -r dpt-tests/requirements.txt --use-mirrors
+- git clone https://github.com/caktus/dpt-tests.git
+- pip install -r dpt-tests/requirements.txt --use-mirrors
 script:
-  - python ./dpt-tests/run-tests.py
+- python ./dpt-tests/run-tests.py
 notifications:
   email:
-    - tobias@caktusgroup.com
+  - tobias@caktusgroup.com
+  hipchat:
+    rooms:
+      secure: Lzg8B5+jcxQ1TYdUJ+tJ4JWJDPs8F9BCLSkcmJD9rnXozcnaEBdHx8MG7fe+RkRm0v2dF7lwps/o11lW+9/467YEfHj+udmJ1AiOzMahnZ82ZbonoaADrG6lTgSInRp4tABezYzIJkcoZjLrEEhfahoms1OWEPXWwg5jZg5bNdU=
