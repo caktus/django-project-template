@@ -13,7 +13,7 @@ install:
 - git clone https://github.com/caktus/dpt-tests.git
 - pip install -r dpt-tests/requirements.txt --use-mirrors
 script:
-- python ./dpt-tests/run-tests.py
+- travis_wait python ./dpt-tests/run-tests.py
 notifications:
   email:
   - tobias@caktusgroup.com
