@@ -1,6 +1,6 @@
 import os
 import tempfile
-
+import time
 import yaml
 
 from fabric.api import env, execute, get, hide, lcd, local, put, require, run, settings, sudo, task
@@ -70,13 +70,19 @@ def setup_master():
 
 
 @task
-def sync():
+def sync(force_overwrite_secrets=False):
     """Rysnc local states and pillar data to the master."""
     # Check for missing local secrets so that they don't get deleted
     # project.rsync_project fails if host is not set
+    try:
+        force_overwrite_secrets = bool(int(force_overwrite_secrets))
+    except TypeError:
+        pass
     with settings(host=env.master, host_string=env.master):
         if not have_secrets():
             get_secrets()
+        elif force_overwrite_secrets:
+            pass
         else:
             # Check for differences in the secrets files
             for environment in ['staging', 'production']:
@@ -94,7 +100,13 @@ def sync():
                         else:
                             local("rm secrets.sls.remote")
         salt_root = CONF_ROOT if CONF_ROOT.endswith('/') else CONF_ROOT + '/'
-        project.rsync_project(local_dir=salt_root, remote_dir='/tmp/salt', delete=True)
+        # support disable_known_hosts for rsync_project (which fabric doesn't do by default)
+        if env.disable_known_hosts:
+            ssh_opts = '-o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no'
+        else:
+            ssh_opts = ''
+        project.rsync_project(local_dir=salt_root, remote_dir='/tmp/salt', delete=True,
+                              ssh_opts=ssh_opts)
         sudo('rm -rf /srv/salt /srv/pillar')
         sudo('mv /tmp/salt/* /srv/')
         sudo('rm -rf /tmp/salt/')
@@ -155,6 +167,8 @@ def setup_minion(*roles):
         yaml.dump(config, f, default_flow_style=False)
     put(local_path=path, remote_path="/etc/salt/minion", use_sudo=True)
     sudo('service salt-minion restart')
+    # wait for minion to connect to master (otherwise accept_key will fail)
+    time.sleep(5)
     # queries server for its fully qualified domain name to get minion id
     key_name = run('python -c "import socket; print socket.getfqdn()"')
     execute(accept_key, key_name)
