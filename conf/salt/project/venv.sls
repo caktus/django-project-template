@@ -46,3 +46,6 @@ project_path:
     - group: {{ pillar['project_name'] }}
     - require:
       - pip: pip_requirements
+
+ghostscript:
+  pkg.installed
