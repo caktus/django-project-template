@@ -25,7 +25,7 @@ venv:
       {% if grains['environment'] == 'local' %}
       - file: project_repo
       {% else %}
-      - git: delete_pyc
+      - cmd: delete_pyc
       {% endif %}
       - pkg: python-pkgs
       - pkg: python-headers
