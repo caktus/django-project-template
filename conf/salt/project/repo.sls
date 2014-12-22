@@ -45,3 +45,12 @@ project_repo:
       {% endif %}
       - ssh_known_hosts: github.com
   {% endif %}
+
+{% if grains['environment'] != 'local' %}
+delete_pyc:
+  cmd.run:
+    - name: find {{ vars.source_dir}} -name "*.pyc" -delete
+    - user: {{ pillar['project_name'] }}
+    - require:
+        - git: project_repo
+{% endif %}
