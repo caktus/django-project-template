@@ -43,6 +43,8 @@ ssl_cert:
     - require:
       - file: ssl_dir
       - file: generate_cert
+    - watch_in:
+      - service: nginx
 
 {% if 'http_auth' in pillar %}
 apache2-utils:
@@ -76,6 +78,8 @@ auth_file:
     - require:
       - file: root_dir
       - file: clear_auth_file
+    - watch_in:
+      - service: nginx
 {% endif %}
 
 nginx_conf:
