@@ -277,3 +277,35 @@ the ``conf/pillar/<environment>/secrets.sls``::
       BROKER_PASSWORD: thisisapasswordforrabbitmq
 
 The worker will run also run the ``beat`` process which allows for running periodic tasks.
+
+
+SSL
+________________________
+
+The default configuration expects the site to run under HTTPS everywhere. However, unless
+an SSL certificate is provided, the site will use a self-signed certificate. To include
+a certificate signed by a CA you must update the ``ssl_key`` and ``ssl_cert`` pillars
+in the environment secrets. The ``ssl_cert`` should contain the intermediate certificates
+provided by the CA. It is recommended that this pillar is only pushed to servers
+using the ``balancer`` role. See the ``secrets.ex`` file for an example.
+
+You can use the below OpenSSL commands to generate the key and signing request::
+
+  # Generate a new 2048 bit RSA key
+  openssl genrsa -out {{ project_name }}.key 2048
+  # Make copy of the key with the passphrase
+  cp {{ project_name }}.key {{ project_name }}.key.secure
+  # Remove any passphrase
+  openssl rsa -in {{ project_name }}.secure -out {{ project_name }}.key
+  # Generate signing request
+  openssl req -new -key {{ project_name }}.key -out {{ project_name }}.csr
+
+The last command will prompt you for information for the signing request including
+the organization for which the request is being made, the location (country, city, state),
+email, etc. The most important field in this request is the common name which must
+match the domain for which the certificate is going to be deployed (i.e example.com).
+
+This signing request (.csr) will be handed off to a trusted Certificate Authority (CA) such as
+StartSSL, NameCheap, GoDaddy, etc. to purchase the signed certificate. The contents of
+the *.key file will be added to the ``ssl_key`` pillar and the signed certificate
+from the CA will be added to the ``ssl_cert`` pillar.
