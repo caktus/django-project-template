@@ -15,6 +15,9 @@ default_conf:
     - mode: 600
     - template: jinja
     - context:
+{% if 'newrelic_license_key' in pillar['secrets'] %}
+        newrelic_config_file: "{{ vars.services_dir }}/newrelic-worker.ini"
+{% endif %}
         log_dir: "{{ vars.log_dir }}"
         settings: "{{ pillar['project_name'] }}.settings.{{ pillar['environment'] }}"
         virtualenv_root: "{{ vars.venv_dir }}"
