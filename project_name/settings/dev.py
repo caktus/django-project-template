@@ -1,6 +1,6 @@
 import sys
 
-from {{ project_name }}.settings.base import *
+from {{ project_name }}.settings.base import *  # noqa
 
 DEBUG = True
 TEMPLATE_DEBUG = DEBUG
