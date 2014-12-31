@@ -65,9 +65,15 @@ conf/pillar/%/deploy.pub:
 	ssh-keygen -t rsa -b 4096 -f $(basename $@ .pub) -C "$*@${PROJECT_NAME}"
 
 conf/pillar/%/secrets.sls: conf/pillar/%/deploy.pub
-	# Creates new secrets file for a given environment
+	# Creates new secrets file for a given environment and includes the deploy key
 	cp ./conf/pillar/secrets.ex $@
-
+	@echo '' >> $@
+	@echo 'github_deploy_key: |' >> $@
+	@cat $(basename $< .pub) | sed "s/^/  /" >> $@
+	@sed -i "s/DB_PASSWORD: XXXXXX/DB_PASSWORD: `strings /dev/urandom | grep -o '[[:alnum:]]' | head -n 24 | tr -d '\n'; echo`/" $@
+	@sed -i "s/BROKER_PASSWORD: XXXXXX/BROKER_PASSWORD: `strings /dev/urandom | grep -o '[[:alnum:]]' | head -n 24 | tr -d '\n'; echo`/" $@
+	@sed -i "s/SECRET_KEY: XXXXXX/SECRET_KEY: `strings /dev/urandom | grep -o '[[:alnum:]]' | head -n 64 | tr -d '\n'; echo`/" $@
+	
 bootstrap-pillars: conf/pillar/staging/secrets.sls conf/pillar/production/secrets.sls
 
 .PHONY: default test lint lint-py lint-js generate-secret
