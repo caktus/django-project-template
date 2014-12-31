@@ -22,11 +22,7 @@ venv:
     - require:
       - pip: virtualenv
       - file: root_dir
-      {% if grains['environment'] == 'local' %}
       - file: project_repo
-      {% else %}
-      - cmd: delete_pyc
-      {% endif %}
       - pkg: python-pkgs
       - pkg: python-headers
 
