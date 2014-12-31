@@ -11,4 +11,5 @@
 */settings/local.py
 public/static/
 public/media/
+conf/pillar/*/deploy
 secrets.sls*
