@@ -1,4 +1,4 @@
-from {{ project_name }}.settings.base import *
+from {{ project_name }}.settings.base import *  # noqa
 
 os.environ.setdefault('CACHE_HOST', '127.0.0.1:11211')
 os.environ.setdefault('BROKER_HOST', '127.0.0.1:5672')
@@ -20,7 +20,8 @@ STATIC_ROOT = os.path.join(PUBLIC_ROOT, 'static')
 
 MEDIA_ROOT = os.path.join(PUBLIC_ROOT, 'media')
 
-LOGGING['handlers']['file']['filename'] = os.path.join(WEBSERVER_ROOT, 'log', '{{ project_name }}.log')
+LOGGING['handlers']['file']['filename'] = os.path.join(
+    WEBSERVER_ROOT, 'log', '{{ project_name }}.log')
 
 CACHES = {
     'default': {
@@ -41,4 +42,4 @@ ALLOWED_HOSTS = os.environ['ALLOWED_HOSTS'].split(';')
 
 # Uncomment if using celery worker configuration
 # CELERY_SEND_TASK_ERROR_EMAILS = True
-# BROKER_URL = 'amqp://{{ project_name }}_staging:%(BROKER_PASSWORD)s@%(BROKER_HOST)s/{{ project_name }}_staging' % os.environ
+# BROKER_URL = 'amqp://{{ project_name }}_staging:%(BROKER_PASSWORD)s@%(BROKER_HOST)s/{{ project_name }}_staging' % os.environ  # noqa

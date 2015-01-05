@@ -12,21 +12,23 @@
     {% block extra-meta %}{% endblock %}
     {% if debug %}
     <link rel="stylesheet/less" type="text/css" media="all" href="{% static 'less/site.less' %}">
-    <script src="//cdnjs.cloudflare.com/ajax/libs/less.js/1.5.1/less.min.js"></script>
+    <script src="{% static 'libs/less.js' %}"></script>
     {% else %}
     {% compress css %}
     <link rel="stylesheet" type="text/less" media="all" href="{% static 'less/site.less' %}">
     {% endcompress %}
     {% endif %}
     {% block extra-css %}{% endblock %}
-    <script src="//cdnjs.cloudflare.com/ajax/libs/modernizr/2.7.1/modernizr.dev.js"></script>
+    {% compress js %}
+    <script src="{% static 'libs/modernizr.js' %}"></script>
+    {% endcompress %}
 </head>
 <body>
     <div class="container">
         {% block content %}{% endblock %}
     </div>
-    <script src="//ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
     {% compress js %}
+    <script src="{% static 'libs/jquery.js' %}"></script>
     <script src="{% static 'js/site.js' %}"></script>
     {% endcompress %}
     {% block extra-js %}{% endblock %}

@@ -4,10 +4,11 @@ django-debug-toolbar==1.2.1
 sqlparse==0.1.11
 
 coverage==3.7.1
-pylint==1.1.0
-# Required by pylint
-logilab-common==0.61.0
-astroid==1.0.1
+flake8==2.2.5
+# Required by flake8
+pyflakes==0.8.1
+pep8==1.5.7
+mccabe==0.3
 
 PyYAML==3.10
 Fabric==1.8.2

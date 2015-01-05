@@ -1,10 +1,63 @@
-// usage: log('inside coolFunc', this, arguments);
-// paulirish.com/2009/log-a-lightweight-wrapper-for-consolelog/
-window.log = function f(){ log.history = log.history || []; log.history.push(arguments); if(this.console) { var args = arguments, newarr; try { args.callee = f.caller } catch(e) {}; newarr = [].slice.call(args); if (typeof console.log === 'object') log.apply.call(console.log, console, newarr); else console.log.apply(console, newarr);}};
+/* global jQuery */
+// Avoid `console` errors in browsers that lack a console.
+(function () {
+    var method;
+    var noop = function () {};
+    var methods = [
+        'assert', 'clear', 'count', 'debug', 'dir', 'dirxml', 'error',
+        'exception', 'group', 'groupCollapsed', 'groupEnd', 'info', 'log',
+        'markTimeline', 'profile', 'profileEnd', 'table', 'time', 'timeEnd',
+        'timeline', 'timelineEnd', 'timeStamp', 'trace', 'warn'
+    ];
+    var length = methods.length;
+    var console = (window.console = window.console || {});
 
-// make it safe to use console.log always
-(function(a){function b(){}for(var c="assert,count,debug,dir,dirxml,error,exception,group,groupCollapsed,groupEnd,info,log,markTimeline,profile,profileEnd,time,timeEnd,trace,warn".split(","),d;!!(d=c.pop());){a[d]=a[d]||b;}})
-(function(){try{console.log();return window.console;}catch(a){return (window.console={});}}());
+    while (length--) {
+        method = methods[length];
 
+        // Only stub undefined methods.
+        if (!console[method]) {
+            console[method] = noop;
+        }
+    }
+}());
 
-// place any jQuery/helper plugins in here, instead of separate, slower script files.
+// Place any jQuery/helper plugins in here.
+(function ($) {
+
+    // CSRF helper functions taken directly from Django docs
+    function csrfSafeMethod(method) {
+        // these HTTP methods do not require CSRF protection
+        return (/^(GET|HEAD|OPTIONS|TRACE)$/i.test(method));
+    }
+    
+    function getCookie(name) {
+        var cookieValue = null;
+        if (document.cookie && document.cookie !== '') {
+            var cookies = document.cookie.split(';');
+            for (var i = 0; i < cookies.length; i++) {
+                var cookie = $.trim(cookies[i]);
+                // Does this cookie string begin with the name we want?
+                if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                    cookieValue = decodeURIComponent(
+                    cookie.substring(name.length + 1));
+                    break;
+                }
+            }
+        }
+        return cookieValue;
+    }
+    
+    // Setup jQuery ajax calls to handle CSRF
+    $.ajaxPrefilter(function (settings, originalOptions, xhr) {
+        var csrftoken;
+        if (!csrfSafeMethod(settings.type) && !this.crossDomain) {
+            // Send the token to same-origin, relative URLs only.
+            // Send the token only if the method warrants CSRF protection
+            // Using the CSRFToken value acquired earlier
+            csrftoken = getCookie('csrftoken');
+            xhr.setRequestHeader('X-CSRFToken', csrftoken);
+        }
+    });
+
+})(jQuery);
