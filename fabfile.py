@@ -64,8 +64,7 @@ def setup_master():
         with hide('running', 'stdout', 'stderr'):
             installed = run('which git')
     if not installed:
-        sudo('apt-get install python-pip git-core -qq -y')
-        sudo('pip install -q -U GitPython')
+        sudo('apt-get install python-pip git-core python-git -qq -y')
     put(local_path='conf/master.conf', remote_path="/etc/salt/master", use_sudo=True)
     sudo('service salt-master restart')
 
