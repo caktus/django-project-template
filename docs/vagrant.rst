@@ -6,7 +6,7 @@ Starting the VM
 ------------------------
 
 You can test the provisioning/deployment using `Vagrant <http://vagrantup.com/>`_. This requires
-Vagrant 1.3+. The Vagrantfile is configured to install the Salt Master and Minion inside the VM once
+Vagrant 1.7+. The Vagrantfile is configured to install the Salt Master and Minion inside the VM once
 you've run ``vagrant up``. The box will be installed if you don't have it already.::
 
     vagrant up
