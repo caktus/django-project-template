@@ -1,5 +1,6 @@
 import os
 import tempfile
+import time
 
 import yaml
 
@@ -161,6 +162,7 @@ def setup_minion(*roles):
     sudo('service salt-minion restart')
     # queries server for its fully qualified domain name to get minion id
     key_name = run('python -c "import socket; print socket.getfqdn()"')
+    time.sleep(5)
     execute(accept_key, key_name)
 
 
