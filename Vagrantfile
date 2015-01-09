@@ -1,6 +1,7 @@
+Vagrant.require_version ">= 1.7.0"
+
 Vagrant.configure("2") do |config|
-  config.vm.box = "precise32"
-  config.vm.box_url = "http://files.vagrantup.com/precise32.box"
+  config.vm.box = "ubuntu/trusty64"
   config.vm.network :private_network, ip: "33.33.33.10"
   config.vm.provider :virtualbox do |vbox|
     vbox.customize ["modifyvm", :id, "--memory", "1024"]
@@ -8,8 +9,7 @@ Vagrant.configure("2") do |config|
 
   config.vm.synced_folder "conf/", "/srv/"
 
-  config.vm.provision :shell, :inline => "sudo apt-get install python-pip git-core -qq -y"
-  config.vm.provision :shell, :inline => "sudo pip install -q -U GitPython"
+  config.vm.provision :shell, :inline => "sudo apt-get install python-pip git-core python-git -qq -y"
 
   config.vm.provision :salt do |salt|
 
