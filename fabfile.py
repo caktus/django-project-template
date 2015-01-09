@@ -42,10 +42,12 @@ def production():
 @task
 def vagrant():
     env.environment = 'local'
-    env.master = '33.33.33.10'
     env.user = 'vagrant'
-    vagrant_version = local('vagrant -v', capture=True).split()[-1]
-    env.key_filename = '/opt/vagrant/embedded/gems/gems/vagrant-%s/keys/vagrant' % vagrant_version
+    # convert vagrant's ssh-config output to a dictionary
+    ssh_config_output = local('vagrant ssh-config', capture=True)
+    ssh_config = dict(line.split() for line in ssh_config_output.splitlines())
+    env.master = '{HostName}:{Port}'.format(**ssh_config)
+    env.key_filename = ssh_config['IdentityFile']
 
 
 @task
