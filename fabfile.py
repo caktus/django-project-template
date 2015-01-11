@@ -42,10 +42,10 @@ def production():
 @task
 def vagrant():
     env.environment = 'local'
-    env.master = '33.33.33.10'
-    env.user = 'vagrant'
-    vagrant_version = local('vagrant -v', capture=True).split()[-1]
-    env.key_filename = '/opt/vagrant/embedded/gems/gems/vagrant-%s/keys/vagrant' % vagrant_version
+    #  docker inspect --format '{{ .NetworkSettings.IPAddress }}' vagrant
+    env.master = 'x.x.x.x'  # enter docker's IP (obtained from command above ^)
+    env.user = 'root'
+    env.key_filename = os.path.join(PROJECT_ROOT,  'phusion.key')
 
 
 @task
