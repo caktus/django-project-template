@@ -7,9 +7,9 @@ Overview
 
 {{ project_name|title }} is deployed on the following stack.
 
-- OS: Ubuntu 12.04 LTS
+- OS: Ubuntu 14.04 LTS
 - Python: 2.7
-- Database: Postgres 9.1
+- Database: Postgres 9.3
 - Application Server: Gunicorn
 - Frontend Server: Nginx
 - Cache: Memcached
