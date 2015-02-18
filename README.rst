@@ -29,6 +29,10 @@ forwarding if it is not already by adding ``ForwardAgent yes`` to your SSH confi
 Getting Started
 ------------------------
 
+Setting up this project requires a machine with the proper development pre-
+requisites installed. You can find documentation of these pre-requisites in the
+project documentation at `docs/dev-setup.rst`.
+
 To setup your local environment you should create a virtualenv and install the
 necessary requirements::
 
