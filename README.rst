@@ -26,6 +26,11 @@ local development system::
 Getting Started
 ------------------------
 
+First clone the repository from Github and switch to the new directory::
+    
+    git clone git@github.com:[ORGANIZATION]/{{ project_name }}.git
+    cd {{ project_name }}
+
 To setup your local environment you should create a virtualenv and install the
 necessary requirements::
 
