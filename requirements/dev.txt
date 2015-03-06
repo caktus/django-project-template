@@ -1,7 +1,7 @@
 -r base.txt
-django-debug-toolbar==1.2.1
+django-debug-toolbar==1.2.2
 # Required by django-debug-toolbar
-sqlparse==0.1.11
+sqlparse==0.1.14
 
 coverage==3.7.1
 flake8==2.2.5
