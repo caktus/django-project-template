@@ -26,7 +26,7 @@ gunicorn_conf:
     - template: jinja
     - context:
         log_dir: "{{ vars.log_dir }}"
-        settings: "{{ pillar['project_name'] }}.settings.{{ pillar['environment'] }}"
+        settings: "{{ pillar['project_name'] }}.settings.live"
         virtualenv_root: "{{ vars.venv_dir }}"
         directory: "{{ vars.source_dir }}"
     - require:
