@@ -16,7 +16,7 @@ default_conf:
     - template: jinja
     - context:
         log_dir: "{{ vars.log_dir }}"
-        settings: "{{ pillar['project_name'] }}.settings.live"
+        settings: "{{ pillar['project_name'] }}.settings.deploy"
         virtualenv_root: "{{ vars.venv_dir }}"
         directory: "{{ vars.source_dir }}"
         name: "celery-default"
