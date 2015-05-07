@@ -83,56 +83,14 @@ def setup_master():
 @task
 def sync():
     """Rysnc local states and pillar data to the master."""
-    # Check for missing local secrets so that they don't get deleted
     # project.rsync_project fails if host is not set
     with settings(host=env.master, host_string=env.master):
-        if not have_secrets():
-            get_secrets()
-        else:
-            # Check for differences in the secrets files
-            for environment in ['staging', 'production']:
-                remote_file = os.path.join('/srv/pillar/', environment, 'secrets.sls')
-                with lcd(os.path.join(CONF_ROOT, 'pillar', environment)):
-                    if files.exists(remote_file):
-                        get(remote_file, 'secrets.sls.remote')
-                    else:
-                        local('touch secrets.sls.remote')
-                    with settings(warn_only=True):
-                        result = local('diff -u secrets.sls.remote secrets.sls')
-                        if (result.failed and
-                            not confirm(red(
-                                "Above changes will be made to secrets.sls. Continue?"))):
-                            abort(
-                                "Aborted. File have been copied to secrets.sls.remote. " +
-                                "Resolve conflicts, then retry.")
-                        else:
-                            local("rm secrets.sls.remote")
         salt_root = CONF_ROOT if CONF_ROOT.endswith('/') else CONF_ROOT + '/'
-        project.rsync_project(local_dir=salt_root, remote_dir='/tmp/salt', delete=True)
+        project.rsync_project(
+            local_dir=salt_root, remote_dir='/tmp/salt', delete=True)
         sudo('rm -rf /srv/salt /srv/pillar')
         sudo('mv /tmp/salt/* /srv/')
         sudo('rm -rf /tmp/salt/')
-
-
-def have_secrets():
-    """Check if the local secret files exist for all environments."""
-    found = True
-    for environment in ['staging', 'production']:
-        local_file = os.path.join(CONF_ROOT, 'pillar', environment, 'secrets.sls')
-        found = found and os.path.exists(local_file)
-    return found
-
-
-@task
-def get_secrets():
-    """Grab the latest secrets file from the master."""
-    with settings(host=env.master):
-        for environment in ['staging', 'production']:
-            local_file = os.path.join(CONF_ROOT, 'pillar', environment, 'secrets.sls')
-            if os.path.exists(local_file):
-                local('cp {0} {0}.bak'.format(local_file))
-            remote_file = os.path.join('/srv/pillar/', environment, 'secrets.sls')
-            get(remote_file, local_file)
 
 
 @task
