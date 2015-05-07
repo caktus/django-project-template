@@ -32,11 +32,13 @@ env.master = 'CHANGEME'
 @task
 def staging():
     env.environment = 'staging'
+    initialize_env()
 
 
 @task
 def production():
     env.environment = 'production'
+    initialize_env()
 
 
 @task
@@ -48,28 +50,34 @@ def vagrant():
     ssh_config = dict(line.split() for line in ssh_config_output.splitlines())
     env.master = '{HostName}:{Port}'.format(**ssh_config)
     env.key_filename = ssh_config['IdentityFile']
+    initialize_env()
+
+
+def initialize_env():
+    """Build some common variables into the env dictionary."""
+    env.gpg_key = os.path.join(CONF_ROOT, '{}.pub.gpg'.format(env.environment))
 
 
 @task
 def setup_master():
     """Provision master with salt-master."""
-    with settings(warn_only=True):
-        with hide('running', 'stdout', 'stderr'):
-            installed = run('which salt')
-    if not installed:
-        sudo('apt-get update -qq -y')
-        sudo('apt-get install python-software-properties -qq -y')
-        sudo('add-apt-repository ppa:saltstack/salt -y')
-        sudo('apt-get update -qq')
-        sudo('apt-get install salt-master -qq -y')
-    # make sure git is installed for gitfs
-    with settings(warn_only=True):
-        with hide('running', 'stdout', 'stderr'):
-            installed = run('which git')
-    if not installed:
-        sudo('apt-get install python-pip git-core python-git -qq -y')
-    put(local_path='conf/master.conf', remote_path="/etc/salt/master", use_sudo=True)
-    sudo('service salt-master restart')
+    require('environment')
+    with settings(host_string=env.master):
+        with settings(warn_only=True):
+            with hide('running', 'stdout', 'stderr'):
+                installed = run('which salt-master')
+        if not installed:
+            sudo('apt-get update -qq -y')
+            sudo('apt-get install python-software-properties -qq -y')
+            sudo('add-apt-repository ppa:saltstack/salt -y')
+            sudo('apt-get update -qq')
+            sudo('apt-get install salt-master -qq -y')
+            sudo('apt-get install python-pip git-core python-git python-gnupg haveged -qq -y')
+        put(local_path='conf/master.conf',
+            remote_path="/etc/salt/master", use_sudo=True)
+        sudo('service salt-master restart')
+    generate_gpg_key()
+    fetch_gpg_key()
 
 
 @task
@@ -137,7 +145,7 @@ def setup_minion(*roles):
     # install salt minion if it's not there already
     with settings(warn_only=True):
         with hide('running', 'stdout', 'stderr'):
-            installed = run('which salt-call')
+            installed = run('which salt-minion')
     if not installed:
         # install salt-minion from PPA
         sudo('apt-get update -qq -y')
@@ -232,3 +240,59 @@ def deploy(loglevel=DEFAULT_SALT_LOGLEVEL):
         target = "-G 'environment:{0}'".format(env.environment)
         salt('saltutil.sync_all', target, loglevel)
         highstate(target)
+
+
+@task
+def generate_gpg_key():
+    """Generate a GPG on the master if one does not exist."""
+    require('environment')
+    gpg_home = '/etc/salt/gpgkeys'
+    gpg_file = '/tmp/gpg-batch'
+    with settings(host_string=env.master):
+        if not files.exists(os.path.join(gpg_home, 'secring.gpg'), use_sudo=True):
+            sudo('mkdir -p {}'.format(gpg_home))
+            files.upload_template(
+                filename='conf/gpg.tmpl', destination=gpg_file,
+                context={'environment': env.environment},
+                use_jinja=False, use_sudo=False, backup=True)
+            sudo('gpg --gen-key --homedir {} --batch {}'.format(gpg_home, gpg_file))
+
+
+@task
+def fetch_gpg_key():
+    """Export GPG keys from the master."""
+    require('environment')
+    gpg_home = '/etc/salt/gpgkeys'
+    gpg_public = '/tmp/public.gpg'
+    with settings(host_string=env.master):
+        with hide('running', 'stdout', 'stderr'):
+            sudo('gpg --armor --homedir {} --armor --export > {}'.format(gpg_home, gpg_public))
+            get(gpg_public, env.gpg_key)
+
+
+@task
+def encrypt(*args, **kwargs):
+    """Encrypt a secret value for a given environment."""
+    require('environment')
+    # Convert ASCII key to binary
+    temp_key = '/tmp/tmp.key'
+    with hide('running', 'stdout', 'stderr'):
+        local('gpg --dearmor < {} > {}'.format(env.gpg_key, temp_key))
+        # Encrypt each file
+        for name in args:
+            local(
+                'gpg --no-default-keyring --keyring {} '
+                '--trust-model always -aer {}_salt_key {}'.format(
+                    temp_key, env.environment, name))
+        # Encrypt each value
+        updates = {}
+        for name, value in kwargs.items():
+            updates[name] = '{}'.format(
+                local(
+                    'echo -n "{}" | '
+                    'gpg --no-default-keyring --keyring {} '
+                    '--trust-model always -aer {}_salt_key'.format(
+                        value, temp_key, env.environment), capture=True))
+        os.remove(temp_key)
+    if updates:
+        print(yaml.dump(updates, default_flow_style=False, default_style='|', indent=2))
