@@ -1,13 +1,16 @@
-from {{ project_name }}.settings.base import *  # noqa
+# Settings for live deployed environments: vagrant, staging, production, etc
+from .base import *  # noqa
 
 os.environ.setdefault('CACHE_HOST', '127.0.0.1:11211')
 os.environ.setdefault('BROKER_HOST', '127.0.0.1:5672')
 
+ENVIRONMENT = os.environ['ENVIRONMENT']
+
 DEBUG = False
 TEMPLATE_DEBUG = DEBUG
 
-DATABASES['default']['NAME'] = '{{ project_name }}_staging'
-DATABASES['default']['USER'] = '{{ project_name }}_staging'
+DATABASES['default']['NAME'] = '{{ project_name }}_%s' % ENVIRONMENT.lower()
+DATABASES['default']['USER'] = '{{ project_name }}_%s' % ENVIRONMENT.lower()
 DATABASES['default']['HOST'] = os.environ.get('DB_HOST', '')
 DATABASES['default']['PORT'] = os.environ.get('DB_PORT', '')
 DATABASES['default']['PASSWORD'] = os.environ['DB_PASSWORD']
@@ -30,7 +33,7 @@ CACHES = {
     }
 }
 
-EMAIL_SUBJECT_PREFIX = '[{{ project_name|title }} Staging] '
+EMAIL_SUBJECT_PREFIX = '[{{ project_name|title }} %s] ' % ENVIRONMENT.title()
 
 COMPRESS_ENABLED = True
 
@@ -43,3 +46,9 @@ ALLOWED_HOSTS = os.environ['ALLOWED_HOSTS'].split(';')
 # Uncomment if using celery worker configuration
 # CELERY_SEND_TASK_ERROR_EMAILS = True
 # BROKER_URL = 'amqp://{{ project_name }}_staging:%(BROKER_PASSWORD)s@%(BROKER_HOST)s/{{ project_name }}_staging' % os.environ  # noqa
+
+# Environment overrides
+# These should be kept to an absolute minimum
+if ENVIRONMENT.upper() == 'LOCAL':
+    # Don't send emails from the Vagrant boxes
+    EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
