@@ -150,7 +150,11 @@ this is 32 characters long but can be adjusted using the ``length`` argument.::
 This can be combined with the above encryption command to generate a random
 secret and immediately encrypt it.::
 
-    fab staging encrypt:SECRET_KEY=`make generate-secret length=64` 
+    fab staging encrypt:SECRET_KEY=`make generate-secret length=64`
+
+By default the project will use the ``SECRET_KEY`` if it is set. You can also
+optionally set a ``DB_PASSWORD``. If not set, you can only connect to the database
+server on localhost so this will only work for single server setups.
 
 
 Github Deploy Keys
