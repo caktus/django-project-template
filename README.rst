@@ -15,7 +15,7 @@ Below you will find basic setup and deployment instructions for the {{ project_n
 project. To begin you should have the following applications installed on your
 local development system::
 
-- Python >= 2.7
+- Python >= 3.4
 - `pip <http://www.pip-installer.org/>`_ >= 1.5
 - `virtualenv <http://www.virtualenv.org/>`_ >= 1.10
 - `virtualenvwrapper <http://pypi.python.org/pypi/virtualenvwrapper>`_ >= 3.0
@@ -34,7 +34,9 @@ First clone the repository from Github and switch to the new directory::
 To setup your local environment you should create a virtualenv and install the
 necessary requirements::
 
-    mkvirtualenv {{ project_name }}
+    # Check that you have python3.4 installed
+    which python3.4
+    mkvirtualenv {{ project_name }} -p `which python3.4`
     $VIRTUAL_ENV/bin/pip install -r $PWD/requirements/dev.txt
 
 Then create a local settings file and set your ``DJANGO_SETTINGS_MODULE`` to use it::
@@ -51,7 +53,6 @@ Exit the virtualenv and reactivate it to activate the settings just changed::
 Create the Postgres database and run the initial syncdb/migrate::
 
     createdb -E UTF-8 {{ project_name }}
-    python manage.py syncdb
     python manage.py migrate
 
 You should now be able to run the development server::
