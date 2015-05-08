@@ -13,7 +13,7 @@ DATABASES['default']['NAME'] = '{{ project_name }}_%s' % ENVIRONMENT.lower()
 DATABASES['default']['USER'] = '{{ project_name }}_%s' % ENVIRONMENT.lower()
 DATABASES['default']['HOST'] = os.environ.get('DB_HOST', '')
 DATABASES['default']['PORT'] = os.environ.get('DB_PORT', '')
-DATABASES['default']['PASSWORD'] = os.environ['DB_PASSWORD']
+DATABASES['default']['PASSWORD'] = os.environ.get('DB_PASSWORD', '')
 
 WEBSERVER_ROOT = '/var/www/{{ project_name }}/'
 
