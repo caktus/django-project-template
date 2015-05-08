@@ -24,20 +24,18 @@ VALID_ROLES = (
     'cache',
 )
 
-# FIXME: Once the master has been setup this should be set to IP of the master
-# This assumes a single master for both staging and production
-env.master = 'CHANGEME'
-
 
 @task
 def staging():
     env.environment = 'staging'
+    env.master = 'CHANGEME'
     initialize_env()
 
 
 @task
 def production():
     env.environment = 'production'
+    env.master = 'CHANGEME'
     initialize_env()
 
 
