@@ -7,9 +7,7 @@ base:
     - local
   'environment:staging':
     - match: grain
-    - staging.env
-    - staging.secrets
+    - staging
   'environment:production':
     - match: grain
-    - production.env
-    - production.secrets
+    - production
