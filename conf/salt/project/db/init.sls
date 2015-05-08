@@ -1,5 +1,7 @@
 {% import 'project/_vars.sls' as vars with context %}
 
+{% set pg_version = salt['pillar.get']('postgres_version', '9.3') %}
+
 include:
   - postgresql
   - ufw
@@ -31,13 +33,14 @@ database-{{ pillar['project_name'] }}:
 
 hba_conf:
   file.managed:
-    - name: /etc/postgresql/9.1/main/pg_hba.conf
+    - name: /etc/postgresql/{{ pg_version }}/main/pg_hba.conf
     - source: salt://project/db/pg_hba.conf
     - user: postgres
     - group: postgres
     - mode: 0640
     - template: jinja
     - context:
+        version: {{ pg_version }}
         servers:
 {%- for host, ifaces in vars.app_minions.items() %}
 {% set host_addr = vars.get_primary_ip(ifaces) %}
@@ -51,12 +54,14 @@ hba_conf:
 
 postgresql_conf:
   file.managed:
-    - name: /etc/postgresql/9.1/main/postgresql.conf
+    - name: /etc/postgresql/{{ pg_version }}/main/postgresql.conf
     - source: salt://project/db/postgresql.conf
     - user: postgres
     - group: postgres
     - mode: 0644
     - template: jinja
+    - context:
+        version: {{ pg_version }}
     - require:
       - pkg: postgresql
       - cmd: /var/lib/postgresql/configure_utf-8.sh
