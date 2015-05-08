@@ -40,7 +40,7 @@ hba_conf:
     - mode: 0640
     - template: jinja
     - context:
-        version: {{ pg_version }}
+        version: "{{ pg_version }}"
         servers:
 {%- for host, ifaces in vars.app_minions.items() %}
 {% set host_addr = vars.get_primary_ip(ifaces) %}
@@ -61,7 +61,7 @@ postgresql_conf:
     - mode: 0644
     - template: jinja
     - context:
-        version: {{ pg_version }}
+        version: "{{ pg_version }}"
     - require:
       - pkg: postgresql
       - cmd: /var/lib/postgresql/configure_utf-8.sh
