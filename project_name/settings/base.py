@@ -145,6 +145,9 @@ LOGGING = {
         'basic': {
             'format': '%(asctime)s %(name)-20s %(levelname)-8s %(message)s',
         },
+        'syslog': {
+            'format': '[%(levelname)s/%(processName)s] %(name)s %(message)s',
+        },
     },
     'handlers': {
         'mail_admins': {
@@ -163,7 +166,7 @@ LOGGING = {
         'syslog': {
             'level': 'INFO',
             'class': 'logging.handlers.SysLogHandler',
-            'formatter': 'basic',
+            'formatter': 'syslog',
             'address': '/dev/log',
             'facility': 'local7',
         },
