@@ -160,6 +160,13 @@ LOGGING = {
             'maxBytes': 10 * 1024 * 1024,  # 10 MB
             'backupCount': 10,
         },
+        'syslog': {
+            'level': 'INFO',
+            'class': 'logging.handlers.SysLogHandler',
+            'formatter': 'basic',
+            'address': '/dev/log',
+            'facility': 'local7',
+        },
     },
     'loggers': {
         'django.request': {
@@ -167,10 +174,10 @@ LOGGING = {
             'level': 'ERROR',
             'propagate': True,
         },
-        '{{ project_name }}': {
-            'handlers': ['file', 'mail_admins'],
-            'level': 'INFO',
-        },
+    },
+    'root': {
+        'handlers': ['file', 'mail_admins'],
+        'level': 'INFO',
     }
 }
 
