@@ -194,7 +194,8 @@ def add_role(name):
 def salt(cmd, target="'*'", loglevel=DEFAULT_SALT_LOGLEVEL):
     """Run arbitrary salt commands."""
     with settings(warn_only=True, host_string=env.master):
-        sudo("salt {0} -l{1} {2} ".format(target, loglevel, cmd))
+        result = sudo("salt {0} -l{1} {2} ".format(target, loglevel, cmd))
+    return result
 
 
 @task
@@ -232,3 +233,29 @@ def deploy(loglevel=DEFAULT_SALT_LOGLEVEL):
         target = "-G 'environment:{0}'".format(env.environment)
         salt('saltutil.sync_all', target, loglevel)
         highstate(target)
+
+
+def hostnames_for_role(role):
+    with hide('running', 'stdout'):
+        result = salt(
+            cmd='test.ping --output=yaml',
+            target='-G "roles:%s"' % role)
+    return yaml.safe_load(result.stdout).keys()
+
+
+def get_project_name():
+    with open(os.path.join(CONF_ROOT, 'pillar', 'project.sls'), 'r') as f:
+        return yaml.safe_load(f)['project_name']
+
+@task
+def manage_run(command):
+    require('environment')
+    project_name = get_project_name()
+    manage_sh = u'/var/www/%s/manage.sh ' % project_name
+    with settings(host_string=hostnames_for_role('web')[0]):
+        sudo(manage_sh + command, user=project_name)
+
+
+@task
+def manage_shell():
+    manage_run('shell')
