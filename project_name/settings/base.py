@@ -79,7 +79,7 @@ STATICFILES_FINDERS = (
 )
 
 # Make this unique, and don't share it with anybody.
-SECRET_KEY = '{{ secret_key }}'
+SECRET_KEY = os.environ.get('SECRET_KEY', '{{ secret_key }}')
 
 TEMPLATE_CONTEXT_PROCESSORS = (
     'django.contrib.auth.context_processors.auth',
