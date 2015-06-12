@@ -163,6 +163,11 @@ LOGGING = {
             'maxBytes': 10 * 1024 * 1024,  # 10 MB
             'backupCount': 10,
         },
+        'console': {
+            'level': 'INFO',
+            'class': 'logging.StreamHandler',
+            'formatter': 'basic',
+        },
         'syslog': {
             'level': 'INFO',
             'class': 'logging.handlers.SysLogHandler',
@@ -179,7 +184,7 @@ LOGGING = {
         },
     },
     'root': {
-        'handlers': ['file', 'mail_admins'],
+        'handlers': ['mail_admins'],
         'level': 'INFO',
     }
 }

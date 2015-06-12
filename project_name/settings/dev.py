@@ -13,6 +13,7 @@ INTERNAL_IPS = ('127.0.0.1', )
 
 EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
 
+LOGGING['root']['handlers'].append('file')
 SOUTH_TESTS_MIGRATE = True
 
 CELERY_ALWAYS_EAGER = True
