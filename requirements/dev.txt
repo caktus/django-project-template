@@ -9,10 +9,3 @@ flake8==2.2.5
 pyflakes==0.8.1
 pep8==1.5.7
 mccabe==0.3
-
-PyYAML==3.10
-Fabric==1.8.2
-# Required by Fabric
-paramiko==1.13.0
-pycrypto==2.6.1
-ecdsa==0.11
