@@ -9,6 +9,7 @@ Vagrant.configure("2") do |config|
 
   config.vm.synced_folder "conf/", "/srv/"
 
+  config.vm.provision :shell, :inline => "sudo apt-get update -qq -y"
   config.vm.provision :shell, :inline => "sudo apt-get install python-pip git-core python-git python-gnupg haveged -qq -y"
 
   config.vm.provision :salt do |salt|
