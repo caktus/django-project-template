@@ -27,7 +27,7 @@ Getting Started
 ------------------------
 
 First clone the repository from Github and switch to the new directory::
-    
+
     $ git clone git@github.com:[ORGANIZATION]/{{ project_name }}.git
     $ cd {{ project_name }}
 
@@ -50,7 +50,7 @@ Exit the virtualenv and reactivate it to activate the settings just changed::
     ({{ project_name }})$ deactivate
     $ workon {{ project_name }}
 
-Create the Postgres database and run the initial syncdb/migrate::
+Create the Postgres database and run the initial migrate::
 
     ({{ project_name }})$ createdb -E UTF-8 {{ project_name }}
     ({{ project_name }})$ python manage.py migrate
@@ -67,7 +67,7 @@ The deployment of requires Fabric but Fabric does not yet support Python 3. You
 must either create a new virtualenv for the deployment::
 
     # Create a new virtualenv for the deployment
-    mkvirtualenv {{ project_name }}-deploy -p `which python2.7`
+    $ mkvirtualenv {{ project_name }}-deploy -p `which python2.7`
     ({{ project_name }}-deploy)$ pip install -r requirements/deploy.txt
 
 or install the deploy requirements
@@ -79,7 +79,7 @@ globally.::
 You can deploy changes to a particular environment with
 the ``deploy`` command::
 
-    fab staging deploy
+    $ fab staging deploy
 
 New requirements or South migrations are detected by parsing the VCS changes and
 will be installed/run automatically.
