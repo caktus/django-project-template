@@ -58,7 +58,7 @@ app_allow-{{ host_addr }}:
 npm:
   pkg.installed
 
-less:
+less@{{ pillar['less_version'] }}:
   npm.installed:
     - require:
       - pkg: npm
