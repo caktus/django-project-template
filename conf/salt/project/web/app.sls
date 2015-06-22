@@ -55,13 +55,20 @@ app_allow-{{ host_addr }}:
       - pkg: ufw
 {% endfor %}
 
-npm:
-  pkg.installed
+node-pkgs:
+  pkg:
+    - installed
+    - names:
+      - npm
+      - nodejs-legacy
 
-less@{{ pillar['less_version'] }}:
-  npm.installed:
+less:
+  cmd.run:
+    - name: npm install less@{{ pillar['less_version'] }} -g
+    - user: root
+    - unless: "which lessc && lessc --version | grep {{ pillar['less_version'] }}"
     - require:
-      - pkg: npm
+      - pkg: node-pkgs
 
 collectstatic:
   cmd.run:
