@@ -45,7 +45,6 @@ hba_conf:
 {% endfor %}
     - require:
       - pkg: postgresql
-      - cmd: /var/lib/postgresql/configure_utf-8.sh
     - watch_in:
       - service: postgresql
 
@@ -59,7 +58,6 @@ postgresql_conf:
     - template: jinja
     - require:
       - pkg: postgresql
-      - cmd: /var/lib/postgresql/configure_utf-8.sh
     - watch_in:
       - service: postgresql
 
