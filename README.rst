@@ -19,7 +19,7 @@ local development system::
 - `pip <http://www.pip-installer.org/>`_ >= 1.5
 - `virtualenv <http://www.virtualenv.org/>`_ >= 1.10
 - `virtualenvwrapper <http://pypi.python.org/pypi/virtualenvwrapper>`_ >= 3.0
-- Postgres >= 9.1
+- Postgres >= 9.3
 - git >= 1.7
 
 
