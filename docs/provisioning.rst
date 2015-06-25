@@ -41,7 +41,8 @@ EC2 uses a private key. These credentials will be passed as command line argumen
     fab -u root staging setup_master
 
 This will install salt-master and update the master configuration file. The master will use a
-set of base states from https://github.com/caktus/margarita using the gitfs root.
+set of base states from https://github.com/caktus/margarita checked out
+at ``/srv/margarita``.
 
 As part of the master setup, a new GPG public/private key pair is generated. The private
 key remains on the master but the public version is exported and fetched back to the

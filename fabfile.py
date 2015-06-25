@@ -80,7 +80,9 @@ def setup_master():
 
 @task
 def sync():
-    """Rysnc local states and pillar data to the master."""
+    """Rysnc local states and pillar data to the master.,
+    and update our checkout of margarita
+    """
     # project.rsync_project fails if host is not set
     with settings(host=env.master, host_string=env.master):
         salt_root = CONF_ROOT if CONF_ROOT.endswith('/') else CONF_ROOT + '/'
@@ -89,6 +91,7 @@ def sync():
         sudo('rm -rf /srv/salt /srv/pillar')
         sudo('mv /tmp/salt/* /srv/')
         sudo('rm -rf /tmp/salt/')
+        execute(margarita)
 
 
 @task
@@ -160,6 +163,18 @@ def salt(cmd, target="'*'", loglevel=DEFAULT_SALT_LOGLEVEL):
     with settings(warn_only=True, host_string=env.master):
         result = sudo("salt {0} -l{1} {2} ".format(target, loglevel, cmd))
     return result
+
+
+@task
+def state(name, target="'*'", loglevel=DEFAULT_SALT_LOGLEVEL):
+    salt('state.sls {}'.format(name), target, loglevel)
+
+
+@task
+def margarita():
+    require('environment')
+    execute(state, 'margarita')
+    sudo('service salt-master restart')
 
 
 @task
