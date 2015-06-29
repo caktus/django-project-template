@@ -4,20 +4,24 @@ include:
   - rabbitmq
   - ufw
 
+broker-vhost:
+  rabbitmq_vhost.present:
+    - name: {{ pillar['project_name'] }}_{{ pillar['environment'] }}
+    - require:
+      - service: rabbitmq-server
+
 broker-user:
   rabbitmq_user.present:
     - name: {{ pillar['project_name'] }}_{{ pillar['environment'] }}
     - password: {{ pillar.get('secrets', {}).get('BROKER_PASSWORD') }}
     - force: True
+    - perms:
+      - {{ pillar['project_name'] }}_{{ pillar['environment'] }}
+        - '.*'
+        - '.*'
+        - '.*'
     - require:
-      - service: rabbitmq-server
-
-broker-vhost:
-  rabbitmq_vhost.present:
-    - name: {{ pillar['project_name'] }}_{{ pillar['environment'] }}
-    - owner: {{ pillar['project_name'] }}_{{ pillar['environment'] }}
-    - require:
-      - rabbitmq_user: broker-user
+      - rabbitmq_vhost: broker-vhost
 
 {% for host, ifaces in vars.app_minions.items() %}
 {% set host_addr = vars.get_primary_ip(ifaces) %}
