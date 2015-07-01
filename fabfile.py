@@ -128,8 +128,9 @@ def setup_master():
     with settings(host_string=env.master):
         sudo('apt-get update -qq')
         sudo('apt-get install python-pip git-core python-git python-gnupg haveged -qq -y')
+        sudo('mkdir -p /etc/salt/')
         put(local_path='conf/master.conf',
-            remote_path="/etc/salt/master", use_sudo=True)
+            remote_path='/etc/salt/master', use_sudo=True)
         # install salt master if it's not there already, or restart to pick up config changes
         install_salt(master=True, restart=True, version=SALT_VERSION)
     generate_gpg_key()
@@ -173,7 +174,8 @@ def setup_minion(*roles):
     _, path = tempfile.mkstemp()
     with open(path, 'w') as f:
         yaml.dump(config, f, default_flow_style=False)
-    put(local_path=path, remote_path="/etc/salt/minion", use_sudo=True)
+    sudo('mkdir -p /etc/salt/')
+    put(local_path=path, remote_path='/etc/salt/minion', use_sudo=True)
     # install salt minion if it's not there already, or restart to pick up config changes
     install_salt(SALT_VERSION, minion=True, restart=True)
     # queries server for its fully qualified domain name to get minion id
