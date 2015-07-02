@@ -16,7 +16,7 @@ broker-user:
     - password: {{ pillar.get('secrets', {}).get('BROKER_PASSWORD') }}
     - force: True
     - perms:
-      - {{ pillar['project_name'] }}_{{ pillar['environment'] }}
+      - {{ pillar['project_name'] }}_{{ pillar['environment'] }}:
         - '.*'
         - '.*'
         - '.*'
