@@ -165,8 +165,10 @@ def setup_minion(*roles):
     for r in roles:
         if r not in VALID_ROLES:
             abort('%s is not a valid server role for this project.' % r)
+    # Master hostname/IP without the SSH port
+    master_host = env.master.split(':')[0]
     config = {
-        'master': 'localhost' if env.master == env.host else env.master,
+        'master': 'localhost' if master_host == env.host.split(':')[0] else master_host,
         'output': 'mixed',
         'grains': {
             'environment': env.environment,
