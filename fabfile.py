@@ -230,7 +230,7 @@ def state(name, target="'*'", loglevel=DEFAULT_SALT_LOGLEVEL):
 @task
 def margarita():
     require('environment')
-    execute(state, 'margarita')
+    execute(state, 'margarita', target="-G 'roles:salt-master'")
     sudo('service salt-master restart')
 
 
@@ -264,7 +264,11 @@ def deploy(loglevel=DEFAULT_SALT_LOGLEVEL):
     """Deploy to a given environment by pushing the latest states and executing the highstate."""
     require('environment')
     with settings(host_string=env.master):
-        if env.environment != "local":
+        if env.environment == "local":
+            # Don't need to rysnc the states but do need to grab
+            # the margarita states
+            margarita()
+        else:
             sync()
         target = "-G 'environment:{0}'".format(env.environment)
         salt('saltutil.sync_all', target, loglevel)
