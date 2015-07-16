@@ -22,7 +22,13 @@ Set your environment variables and secrets in ``conf/pillar/local.sls``. It is O
 be checked into version control because it can only be used on the developer's local machine. To
 finalize the provisioning you simply need to run::
 
+    fab vagrant setup_master
+    fab vagrant setup_minion:salt-master,db-master,cache,web,balancer -H 127.0.0.1:2222
     fab vagrant deploy
+
+The above command will setup Vagrant to run the full stack. If you want to test only a subset
+of the roles you can remove the unneeded roles. If you want to test the Celery setup then you
+can also add the ``queue`` and ``worker`` roles to the list.
 
 The Vagrant box will use the current working copy of the project and the local.py settings. If you
 want to use this for development/testing it is helpful to change your local settings to extend from
