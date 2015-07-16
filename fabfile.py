@@ -162,6 +162,9 @@ def sync():
 def setup_minion(*roles):
     """Setup a minion server with a set of roles."""
     require('environment')
+    if not env.host_string:
+        abort('When calling "setup_minion", you must pass "-H <hostname|ipaddress> " '
+              'to specify which server to setup a minion on.')
     for r in roles:
         if r not in VALID_ROLES:
             abort('%s is not a valid server role for this project.' % r)
