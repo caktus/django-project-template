@@ -197,6 +197,9 @@ def setup_minion(*roles):
 @task
 def add_role(name):
     """Add a role to an exising minion configuration."""
+    if not env.host_string:
+        abort('When calling "add_role", you must pass "-H <hostname|ipaddress> " '
+              'to specify which server to add the new role.')
     if name not in VALID_ROLES:
         abort('%s is not a valid server role for this project.' % name)
     _, path = tempfile.mkstemp()
