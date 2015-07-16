@@ -240,9 +240,8 @@ def margarita():
 @task
 def highstate(target="'*'", loglevel=DEFAULT_SALT_LOGLEVEL):
     """Run highstate on master."""
-    with settings(host_string=env.master):
-        print("This can take a long time without output, be patient")
-        salt('state.highstate', target, loglevel)
+    print("This can take a long time without output, be patient")
+    salt('state.highstate', target, loglevel)
 
 
 @task
@@ -266,11 +265,10 @@ def delete_key(name):
 def deploy(loglevel=DEFAULT_SALT_LOGLEVEL):
     """Deploy to a given environment by pushing the latest states and executing the highstate."""
     require('environment')
-    with settings(host_string=env.master):
-        sync()
-        target = "-G 'environment:{0}'".format(env.environment)
-        salt('saltutil.sync_all', target, loglevel)
-        highstate(target)
+    sync()
+    target = "-G 'environment:{0}'".format(env.environment)
+    salt('saltutil.sync_all', target, loglevel)
+    highstate(target)
 
 
 @task
