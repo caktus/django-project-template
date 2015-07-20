@@ -55,15 +55,12 @@ app_allow-{{ host_addr }}:
       - pkg: ufw
 {% endfor %}
 
-node_ppa:
-  pkgrepo.managed:
-    - ppa: chris-lea/node.js
-
-nodejs:
-  pkg.installed:
-    - require:
-      - pkgrepo: node_ppa
-    - refresh: True
+node-pkgs:
+  pkg:
+    - installed
+    - names:
+      - npm
+      - nodejs-legacy
 
 less:
   cmd.run:
@@ -71,7 +68,7 @@ less:
     - user: root
     - unless: "which lessc && lessc --version | grep {{ pillar['less_version'] }}"
     - require:
-      - pkg: nodejs
+      - pkg: node-pkgs
 
 collectstatic:
   cmd.run:

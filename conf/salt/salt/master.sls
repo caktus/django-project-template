@@ -1,15 +1,5 @@
 include:
-  - salt
   - ufw
-
-salt-master:
-  pkg:
-    - installed
-    - require:
-      - pkgrepo: salt-ppa
-  service:
-    - running
-    - enable: True
 
 ports:
   ufw.allow:

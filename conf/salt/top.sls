@@ -6,7 +6,6 @@ base:
     - sshd.github
     - locale.utf8
     - project.devs
-    - salt.minion
   'environment:local':
     - match: grain
     - vagrant.user

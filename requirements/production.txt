@@ -1,2 +1,2 @@
 -r base.txt
-python-memcached==1.53
+python3-memcached==1.51

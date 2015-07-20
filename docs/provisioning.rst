@@ -8,7 +8,7 @@ Overview
 {{ project_name|title }} is deployed on the following stack.
 
 - OS: Ubuntu 14.04 LTS
-- Python: 2.7
+- Python: 3.4
 - Database: Postgres 9.3
 - Application Server: Gunicorn
 - Frontend Server: Nginx
@@ -41,7 +41,8 @@ EC2 uses a private key. These credentials will be passed as command line argumen
     fab -u root staging setup_master
 
 This will install salt-master and update the master configuration file. The master will use a
-set of base states from https://github.com/caktus/margarita using the gitfs root.
+set of base states from https://github.com/caktus/margarita checked out
+at ``/srv/margarita``.
 
 As part of the master setup, a new GPG public/private key pair is generated. The private
 key remains on the master but the public version is exported and fetched back to the
@@ -70,12 +71,7 @@ to this::
       branch: master
 
 You also need to set ``project_name`` and ``python_version`` in ``conf/pillar/project.sls``.
-Currently we support using Python 2.7 or Python 3.3. The project template is set up for 2.7 by
-default. If you want to use 3.3, you will need to change ``python_version`` and make a few changes
-to requirements. In ``requirements/production.txt``, change python-memcached to python3-memcached.
-In ``requirements/dev.txt``, remove Fabric and all its dependencies. Instead you will need Fabric
-installed on your laptop "globally" so that when you run ``fab``, it will not be found in your
-virtualenv, but will then be found in your global environment.
+The project template is set up for 3.4 by default. If you want to use 2.7, you will need to change ``python_version`` and make a few changes to requirements. In ``requirements/production.txt``, change python3-memcached to python-memcached.
 
 For the environment you want to setup you will need to set the ``domain`` in
 ``conf/pillar/<environment>.sls``.
