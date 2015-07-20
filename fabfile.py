@@ -10,7 +10,7 @@ from fabric.contrib import files, project
 from fabric.utils import abort
 
 DEFAULT_SALT_LOGLEVEL = 'info'
-SALT_VERSION = '2015.5.2'
+SALT_VERSION = '2015.5.3'
 PROJECT_ROOT = os.path.dirname(__file__)
 CONF_ROOT = os.path.join(PROJECT_ROOT, 'conf')
 
