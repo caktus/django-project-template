@@ -3,7 +3,6 @@ import sys
 from {{ project_name }}.settings.base import *  # noqa
 
 DEBUG = True
-TEMPLATE_DEBUG = DEBUG
 
 INSTALLED_APPS += (
     'debug_toolbar',

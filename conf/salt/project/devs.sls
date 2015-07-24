@@ -1,7 +1,7 @@
 include:
   - users.groups
 
-{% if 'users' in pillar %}
+{% if 'users' in pillar and pillar['users'] %}
 {% for user, args in pillar['users'].iteritems() %}
 {{ user }}:
   user.present:
