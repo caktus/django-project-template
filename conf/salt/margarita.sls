@@ -5,7 +5,7 @@ git-install:
 project_repo:
   git.latest:
     - name: https://github.com/caktus/margarita.git
-    - rev: 1.0.1
+    - rev: 1.0.3
     - force: true
     - target: /srv/margarita
     - user: root
