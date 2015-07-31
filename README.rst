@@ -12,7 +12,7 @@ To start a new project with this template::
 
 Below you will find basic setup and deployment instructions for the {{ project_name }}
 project. To begin you should have the following applications installed on your
-local development system::
+local development system:
 
 - Python >= 3.4
 - `pip <http://www.pip-installer.org/>`_ >= 1.5
