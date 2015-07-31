@@ -7,7 +7,6 @@ os.environ.setdefault('BROKER_HOST', '127.0.0.1:5672')
 ENVIRONMENT = os.environ['ENVIRONMENT']
 
 DEBUG = False
-TEMPLATE_DEBUG = DEBUG
 
 DATABASES['default']['NAME'] = '{{ project_name }}_%s' % ENVIRONMENT.lower()
 DATABASES['default']['USER'] = '{{ project_name }}_%s' % ENVIRONMENT.lower()

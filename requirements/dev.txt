@@ -1,11 +1,11 @@
 -r base.txt
-django-debug-toolbar==1.2.2
+django-debug-toolbar==1.3.2
 # Required by django-debug-toolbar
-sqlparse==0.1.14
+sqlparse==0.1.16
 
 coverage==3.7.1
-flake8==2.2.5
+flake8==2.4.1
 # Required by flake8
 pyflakes==0.8.1
 pep8==1.5.7
-mccabe==0.3
+mccabe==0.3.1
