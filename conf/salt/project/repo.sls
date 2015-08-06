@@ -27,7 +27,7 @@ project_repo:
     - user: root
   file.directory:
     - name: {{ vars.source_dir }}
-    - owner: {{ pillar['project_name'] }}
+    - user: {{ pillar['project_name'] }}
     - recurse:
       - user
     - require:
@@ -52,7 +52,7 @@ project_repo:
   # This is just here so we can always 'require' file: project_repo
   file.directory:
     - name: {{ vars.source_dir }}
-    - owner: {{ pillar['project_name'] }}
+    - user: {{ pillar['project_name'] }}
   {% endif %}
 
 delete_pyc:
