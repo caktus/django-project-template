@@ -238,7 +238,7 @@ def margarita():
     require('environment')
     execute(state, 'margarita', target="-G 'roles:salt-master'")
     with settings(host_string=env.master):
-        sudo('salt-run fileserver.update')
+        sudo('service salt-master restart')
 
 
 @task
