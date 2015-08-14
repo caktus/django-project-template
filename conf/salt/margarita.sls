@@ -22,7 +22,7 @@ fetch_repo:
 
 reset_repo:
   cmd.run:
-     - name: git reset --hard {{ pillar['margarita_version'] }}
+     - name: git reset --hard origin/{{ pillar['margarita_version'] }}
      - user: root
      - cwd: /srv/margarita
      - requires:

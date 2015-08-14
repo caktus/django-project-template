@@ -5,7 +5,6 @@ base:
     - sshd
     - sshd.github
     - locale.utf8
-    - project.devs
   'environment:local':
     - match: grain
     - vagrant.user
