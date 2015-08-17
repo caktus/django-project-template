@@ -22,8 +22,8 @@ STATIC_ROOT = os.path.join(PUBLIC_ROOT, 'static')
 
 MEDIA_ROOT = os.path.join(PUBLIC_ROOT, 'media')
 
-LOGGING['handlers']['file']['filename'] = os.path.join(
-    WEBSERVER_ROOT, 'log', '{{ project_name }}.log')
+LOGGING['root']['handlers'].append('syslog')
+LOGGING['root']['handlers'].append('console')
 
 CACHES = {
     'default': {

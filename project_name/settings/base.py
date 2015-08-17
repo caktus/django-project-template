@@ -116,6 +116,9 @@ LOGGING = {
         'basic': {
             'format': '%(asctime)s %(name)-20s %(levelname)-8s %(message)s',
         },
+        'syslog': {
+            'format': '[%(levelname)s/%(processName)s] %(name)s %(message)s',
+        },
     },
     'handlers': {
         'mail_admins': {
@@ -131,6 +134,18 @@ LOGGING = {
             'maxBytes': 10 * 1024 * 1024,  # 10 MB
             'backupCount': 10,
         },
+        'console': {
+            'level': 'INFO',
+            'class': 'logging.StreamHandler',
+            'formatter': 'basic',
+        },
+        'syslog': {
+            'level': 'INFO',
+            'class': 'logging.handlers.SysLogHandler',
+            'formatter': 'syslog',
+            'address': '/dev/log',
+            'facility': 'local7',
+        },
     },
     'loggers': {
         'django.request': {
@@ -138,10 +153,10 @@ LOGGING = {
             'level': 'ERROR',
             'propagate': True,
         },
-        '{{ project_name }}': {
-            'handlers': ['file', 'mail_admins'],
-            'level': 'INFO',
-        },
+    },
+    'root': {
+        'handlers': ['mail_admins'],
+        'level': 'INFO',
     }
 }
 
