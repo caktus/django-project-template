@@ -7,4 +7,4 @@ less_version: 2.1.0
 
 postgres_version: 9.3
 
-margarita_version: move_states_to_margarita
+margarita_version: 1.0.4
