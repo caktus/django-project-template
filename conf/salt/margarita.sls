@@ -2,13 +2,28 @@ git-install:
   pkg.installed:
     - name: git-core
 
-project_repo:
-  git.latest:
-    - name: https://github.com/caktus/margarita.git
-    - rev: 1.0.3
-    - force: true
-    - target: /srv/margarita
-    - user: root
-    - always_fetch: true
-    - require:
-      - pkg: git-install
+clone_repo:
+  cmd.run:
+     - name: git clone https://github.com/caktus/margarita.git margarita
+     - user: root
+     - unless: test -e /srv/margarita/.git
+     - cwd: /srv
+     - requires:
+       - pkg: git-install
+
+fetch_repo:
+  cmd.run:
+     - name: git fetch origin
+     - user: root
+     - cwd: /srv/margarita
+     - requires:
+        - cmd: clone_repo
+        - pkg: git-install
+
+reset_repo:
+  cmd.run:
+     - name: git reset --hard origin/{{ pillar['margarita_version'] }}
+     - user: root
+     - cwd: /srv/margarita
+     - requires:
+        - cmd: fetch_repo
