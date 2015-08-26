@@ -6,6 +6,7 @@ base:
     - sshd.github
     - locale.utf8
     - newrelic_sysmon
+    - project.devs
   'environment:local':
     - match: grain
     - vagrant.user
