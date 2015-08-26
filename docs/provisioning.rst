@@ -22,9 +22,9 @@ Salt Master
 ------------------------
 
 Each project needs a Salt Master per environment (staging, production, etc).
-The master is configured with Fabric. ``env.master`` should be set to the IP 
+The master is configured with Fabric. ``env.master`` should be set to the IP
 of this server in the environment where it will be used::
-    
+
     @task
     def staging():
         ...
@@ -37,8 +37,10 @@ EC2 uses a private key. These credentials will be passed as command line argumen
 
     # Template of the command
     fab -u <root-user> <environment> setup_master
-    # Example of provisioning 33.33.33.10 as the Salt Master for staging
+    # Example of provisioning a Linode VM for staging
     fab -u root staging setup_master
+    # Example of provisioning an AWS VM for production
+    fab -u ubuntu production setup_master -i aws-private.pem
 
 This will install salt-master and update the master configuration file. The master will use a
 set of base states from https://github.com/caktus/margarita checked out
@@ -94,7 +96,7 @@ Secret information such as passwords and API keys must be encrypted before being
 to the pillar files. As previously noted, provisioning the master for the environment
 generates a public GPG key which is added to repo under ``conf/<environment>.pub.gpg``
 To encrypt a new secret using this key, you can use the ``encrypt`` fab command::
-  
+
     # Example command
     fab <environment> encrypt:<key>=<secret-value>
     # Encrypt the SECRET_KEY for the staging environment
@@ -238,7 +240,7 @@ to complete the provisioning. To setup a minion you call the Fabric command::
 
 The available roles are ``salt-master``, ``web``, ``worker``, ``balancer``, ``db-master``,
 ``queue`` and ``cache``. If you are running everything on a single server you need to enable
-the ``web``, ``balancer``, ``db-master``, and ``cache`` roles. The ``worker``
+the ``salt-master``, ``web``, ``balancer``, ``db-master``, and ``cache`` roles. The ``worker``
 and ``queue`` roles are only needed to run Celery which is explained in more detail later.
 
 Additional roles can be added later to a server via ``add_role``. Note that there is no
@@ -249,7 +251,7 @@ remove the configuration files of the deleted role::
 
 After that you can run the deploy/highstate to provision the new server::
 
-    fab <environment> deploy
+    fab <environment> deploy -u <root-user>
 
 The first time you run this command, it may complete before the server is set up.
 It is most likely still completing in the background. If the server does not become
@@ -316,31 +318,27 @@ can run the worker via::
 
     celery -A {{ project_name }} worker
 
-Additionally you will need to configure the project settings for Celery::
+Additionally you will need to uncomment the ``BROKER_URL`` setting in the project settings::
 
-    # {{ project_name }}.settings.staging.py
-    import os
-    from {{ project_name }}.settings.base import *
+    # {{ project_name }}/settings/deploy.py
+    from .base import *
 
-    # Other settings would be here
-    BROKER_URL = 'amqp://{{ project_name }}_staging:%(BROKER_PASSWORD)s@%(BROKER_HOST)s/{{ project_name }}_staging' % os.environ
+    # ...
+    BROKER_URL = 'amqp://{{ project_name }}_%(ENVIRONMENT)s:%(BROKER_PASSWORD)s@%(BROKER_HOST)s/{{ project_name }}_%(ENVIRONMENT)s' % os.environ
 
-You will also need to add the ``BROKER_URL`` to the ``{{ project_name }}.settings.production`` so
-that the vhost is set correctly. These are the minimal settings to make Celery work. Refer to the
-`Celery documentation <http://docs.celeryproject.org/en/latest/configuration.html>`_ for additional
-configuration options.
+These are the minimal settings to make Celery work. Refer to the `Celery documentation
+<http://docs.celeryproject.org/en/latest/configuration.html>`_ for additional configuration options.
 
 ``BROKER_HOST`` defaults to ``127.0.0.1:5672``. If the queue server is configured on a separate host
 that will need to be reflected in the ``BROKER_URL`` setting. This is done by setting the ``BROKER_HOST``
 environment variable in the ``env`` dictionary of ``conf/pillar/<environment>.sls``.
 
-To add the states you should add the ``worker`` role when provisioning the minion.
-At least one server in the stack should be provisioned with the ``queue`` role as well.
-This will use RabbitMQ as the broker by default. The
-RabbitMQ user will be named {{ project_name }}_<environment> and the vhost will be named {{ project_name }}_<environment>
-for each environment. It requires that you add a password for the RabbitMQ user to each of
-the ``conf/pillar/<environment>.sls`` under the secrets using the key ``BROKER_PASSWORD``.
-As with all secrets this must be encrypted.
+To add the states you should add the ``worker`` role when provisioning the minion. At least one
+server in the stack should be provisioned with the ``queue`` role as well. This will use RabbitMQ as
+the broker by default. The RabbitMQ user will be named ``{{ project_name }}_<environment>`` and the
+vhost will be named ``{{ project_name }}_<environment>`` for each environment. It requires that you
+add a password for the RabbitMQ user to each of the ``conf/pillar/<environment>.sls`` under the
+secrets using the key ``BROKER_PASSWORD``. As with all secrets this must be encrypted.
 
 The worker will run also run the ``beat`` process which allows for running periodic tasks.
 
@@ -364,7 +362,7 @@ You can use the below OpenSSL commands to generate the key and signing request::
   # Remove any passphrase
   openssl rsa -in {{ project_name }}.secure -out {{ project_name }}.key
   # Generate signing request
-  openssl req -new -key {{ project_name }}.key -out {{ project_name }}.csr
+  openssl req -nodes -sha256 -new -key {{ project_name }}.key -out {{ project_name }}.csr
 
 The last command will prompt you for information for the signing request including
 the organization for which the request is being made, the location (country, city, state),
