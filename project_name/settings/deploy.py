@@ -33,6 +33,8 @@ CACHES = {
 }
 
 EMAIL_SUBJECT_PREFIX = '[{{ project_name|title }} %s] ' % ENVIRONMENT.title()
+DEFAULT_FROM_EMAIL = 'noreply@%(DOMAIN)s' % os.environ
+SERVER_EMAIL = DEFAULT_FROM_EMAIL
 
 COMPRESS_ENABLED = True
 
@@ -40,7 +42,7 @@ SESSION_COOKIE_SECURE = True
 
 SESSION_COOKIE_HTTPONLY = True
 
-ALLOWED_HOSTS = os.environ['ALLOWED_HOSTS'].split(';')
+ALLOWED_HOSTS = [os.environ['DOMAIN']]
 
 # Uncomment if using celery worker configuration
 # CELERY_SEND_TASK_ERROR_EMAILS = True

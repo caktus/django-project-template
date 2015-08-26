@@ -7,4 +7,5 @@ less_version: 2.1.0
 
 postgres_version: 9.3
 
-margarita_version: new_relic
+# FIXME: change to next released version of margarita
+margarita_version: 59-change-allowed-hosts-to-domain
