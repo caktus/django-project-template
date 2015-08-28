@@ -13,3 +13,4 @@ public/static/
 public/media/
 conf/pillar/*/deploy
 *.priv
+.env
