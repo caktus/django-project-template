@@ -1,0 +1,40 @@
+language: python
+
+sudo: false
+
+python:
+  - "3.4"
+
+# Match postgresql version to that in conf/pillar/project.sls
+addons:
+  postgresql: "9.3"
+
+cache:
+  directories:
+    - $HOME/.cache/pip
+
+env:
+  - DJANGO_SETTINGS_MODULE="{{ project_name }}.settings.dev"
+
+install:
+  - pip install -U pip
+  - pip install -U -r requirements/dev.txt
+
+before_script:
+  - createdb -E UTF-8 {{ project_name }} -U postgres -O $USER
+  # Uncomment for PostGIS support
+  # - psql service_info -c "CREATE EXTENSION postgis;" -U postgres
+
+script:
+  - python manage.py makemigrations --dry-run | grep 'No changes detected' || (echo 'There are changes which require migrations.' && exit 1)
+  - coverage run manage.py test
+  - coverage report -m --fail-under 80
+  - flake8 .
+
+notifications:
+  hipchat:
+    rooms:
+      secure: 'FIXME: replace with "travis encrypt <api_token@room_id> --add notifications.hipchat.rooms"'
+    template:
+      - '%{repository}#%{build_number} (%{branch} - %{commit} : %{author}): %{message} (<a href="%{build_url}">Details</a>/<a href="%{compare_url}">Change view</a>)'
+    format: html
