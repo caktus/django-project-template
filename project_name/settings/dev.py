@@ -12,9 +12,8 @@ INTERNAL_IPS = ('127.0.0.1', )
 
 EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
 
-SOUTH_TESTS_MIGRATE = True
-
 CELERY_ALWAYS_EAGER = True
+
 CELERY_EAGER_PROPAGATES_EXCEPTIONS = True
 
 COMPRESS_ENABLED = False
@@ -27,3 +26,5 @@ if 'test' in sys.argv:
         'django.contrib.auth.hashers.SHA1PasswordHasher',
         'django.contrib.auth.hashers.MD5PasswordHasher',
     )
+
+    LOGGING['root']['handlers'] = []

@@ -22,9 +22,6 @@ STATIC_ROOT = os.path.join(PUBLIC_ROOT, 'static')
 
 MEDIA_ROOT = os.path.join(PUBLIC_ROOT, 'media')
 
-LOGGING['handlers']['file']['filename'] = os.path.join(
-    WEBSERVER_ROOT, 'log', '{{ project_name }}.log')
-
 CACHES = {
     'default': {
         'BACKEND': 'django.core.cache.backends.memcached.MemcachedCache',

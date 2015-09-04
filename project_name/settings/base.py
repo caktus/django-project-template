@@ -123,13 +123,10 @@ LOGGING = {
             'filters': ['require_debug_false'],
             'class': 'django.utils.log.AdminEmailHandler'
         },
-        'file': {
-            'level': 'DEBUG',
-            'class': 'logging.handlers.RotatingFileHandler',
+        'console': {
+            'level': 'INFO',
+            'class': 'logging.StreamHandler',
             'formatter': 'basic',
-            'filename': os.path.join(PROJECT_ROOT, '{{ project_name }}.log'),
-            'maxBytes': 10 * 1024 * 1024,  # 10 MB
-            'backupCount': 10,
         },
     },
     'loggers': {
@@ -138,11 +135,16 @@ LOGGING = {
             'level': 'ERROR',
             'propagate': True,
         },
-        '{{ project_name }}': {
-            'handlers': ['file', 'mail_admins'],
-            'level': 'INFO',
+        'django.security': {
+            'handlers': ['mail_admins'],
+            'level': 'ERROR',
+            'propagate': True,
         },
-    }
+    },
+    'root': {
+        'handlers': ['console', ],
+        'level': 'INFO',
+    },
 }
 
 # Internationalization
