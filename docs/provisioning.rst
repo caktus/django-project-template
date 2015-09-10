@@ -318,7 +318,8 @@ modify ``{{ project_name }}/__init__.py`` to import that file. You'll also need 
 project_name}}/celery.py`` to import the environment variables from ``.env``. Add this (before the
 ``os.environ.setdefault`` call)::
 
-    from . import load_env  # noqa
+    from . import load_env
+    load_env.load_env()
 
 You should now be able to run the worker locally via (once you've added ``celery`` to your
 ``requirements/base.txt`` and installed it)::
