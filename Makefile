@@ -69,6 +69,26 @@ staging-deploy-key: conf/staging.pub.ssh
 
 production-deploy-key: conf/production.pub.ssh
 
-.PHONY: default test lint lint-py lint-js generate-secret
+# Translation helpers
+makemessages:
+	# Extract English messages from our source code
+	python manage.py makemessages --ignore 'conf/*' --ignore 'docs/*' --ignore 'requirements/*' \
+		--no-location --no-obsolete -l en
+
+compilemessages:
+	# Compile PO files into the MO files that Django will use at runtime
+	python manage.py compilemessages
+
+pushmessages:
+	# Upload the latest English PO file to Transifex
+	tx push -s
+
+pullmessages:
+	# Pull the latest Arabic PO file from Transifex
+	tx pull -af
+
+
+.PHONY: default test lint lint-py lint-js generate-secret makemessages \
+		pushmessages pullmessages compilemessages
 
 .PRECIOUS: conf/%.pub.ssh
