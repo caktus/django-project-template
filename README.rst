@@ -41,16 +41,13 @@ necessary requirements::
     $ mkvirtualenv {{ project_name }} -p `which python3.4`
     ({{ project_name }})$ $VIRTUAL_ENV/bin/pip install -r $PWD/requirements/dev.txt
 
-Then create a local settings file and set your ``DJANGO_SETTINGS_MODULE`` to use it::
+Next, we'll set up our local environment variables. We use `django-dotenv
+<https://github.com/jpadilla/django-dotenv>`_ to help with this. It reads environment variables
+located in a file name ``.env`` in the top level directory of the project. The only variable we need
+to start is ``DJANGO_SETTINGS_MODULE``::
 
     ({{ project_name }})$ cp {{ project_name }}/settings/local.example.py {{ project_name }}/settings/local.py
-    ({{ project_name }})$ echo "export DJANGO_SETTINGS_MODULE={{ project_name }}.settings.local" >> $VIRTUAL_ENV/bin/postactivate
-    ({{ project_name }})$ echo "unset DJANGO_SETTINGS_MODULE" >> $VIRTUAL_ENV/bin/postdeactivate
-
-Exit the virtualenv and reactivate it to activate the settings just changed::
-
-    ({{ project_name }})$ deactivate
-    $ workon {{ project_name }}
+    ({{ project_name }})$ echo "DJANGO_SETTINGS_MODULE={{ project_name }}.settings.local" > .env
 
 Create the Postgres database and run the initial migrate::
 

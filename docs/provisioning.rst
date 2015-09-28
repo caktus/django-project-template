@@ -310,11 +310,19 @@ password.
 Celery
 ________________________
 
-Many Django projects make use of `Celery <http://celery.readthedocs.org/en/latest/>`_
-for handling long running task outside of request/response cycle. Enabling a worker
-makes use of `Django setup for Celery <http://celery.readthedocs.org/en/latest/django/first-steps-with-django.html>`_.
-As documented you should create/import your Celery app in ``{{ project_name }}/__init__.py`` so that you
-can run the worker via::
+Many Django projects make use of `Celery <http://celery.readthedocs.org/en/latest/>`_ for handling
+long running tasks outside of the request/response cycle. Enabling a worker makes use of `Django
+setup for Celery <http://celery.readthedocs.org/en/latest/django/first-steps-with-django.html>`_. As
+documented on that page, you need to create a new file in ``{{ project_name }}/celery.py`` and then
+modify ``{{ project_name }}/__init__.py`` to import that file. You'll also need to customize ``{{
+project_name}}/celery.py`` to import the environment variables from ``.env``. Add this (before the
+``os.environ.setdefault`` call)::
+
+    from . import load_env
+    load_env.load_env()
+
+You should now be able to run the worker locally via (once you've added ``celery`` to your
+``requirements/base.txt`` and installed it)::
 
     celery -A {{ project_name }} worker
 
