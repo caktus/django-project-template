@@ -61,6 +61,26 @@ To change the servers in an environment or their roles, edit the file
 Just don't put any secrets (like passwords) in the inventory files.
 See below for how to handle secrets.
 
+The First Deploy
+----------------
+
+The first deploy to a new system is typically a little different from subsequent
+deploys because you don't have a user account on the new system yet.
+
+For now, manually edit ``inventory/<envname>`` and add a setting ``ansible_ssh_user``
+to the host linefor the new system, specifying the user that you can ssh in as and use
+sudo from. You might need to also specify the SSH key.
+
+E.g.::
+
+    # For new AWS EC2 Ubuntu systems
+    hostname ansible_ssh_user=ubuntu ansible_ssh_private_key_file=xxxxxxxxxxxxxx
+
+    # For misc. systems
+    hostname ansible_ssh_user=root
+
+For vagrant, the default vagrant file has some settings that might work as-is,
+or you might need to tweak the port.
 
 Managing Secrets
 ------------------------

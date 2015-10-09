@@ -21,6 +21,6 @@ db1 ansible_ssh_host=192.168.1.1
 web1
 web2
 
-[db-master]
+[db]
 # Include database servers in this group
 db1
