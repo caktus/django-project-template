@@ -1,0 +1,8 @@
+# Requirements to deploy the project using ansible and tequila.
+# (These are not the requirements for a deployed project to run,
+# those are in production.txt.)
+
+# NOTE that ansible is still not ready for Python 3.
+
+ansible==1.9.3
+git+https://github.com/caktus/tequila@make_installable#egg=tequila

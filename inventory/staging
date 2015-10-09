@@ -1,0 +1,26 @@
+# This is the inventory file for the staging environment.
+
+# List each hostname here on its own line. You can add
+# variable definitions that are specific to that host after
+# it on the same line. For example, you might want to use
+# a short name to refer to a host in Ansible but set its IP
+# address as a host variable so Ansible knows how to get to it,
+# like this:
+#
+# web1 ansible_ssh_host=192.168.0.3
+
+# EDIT THIS!
+
+
+web1 ansible_ssh_host=192.168.0.1
+web2 ansible_ssh_host=192.168.0.2
+db1 ansible_ssh_host=192.168.1.1
+
+[web]
+# Include web servers in this group
+web1
+web2
+
+[db-master]
+# Include database servers in this group
+db1

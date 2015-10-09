@@ -1,0 +1,14 @@
+---
+# file: inventory/group_vars/all
+#
+# Variables that are common for all deploys of this project
+#
+project_name: example
+python_version: 3.4
+
+users:
+  - { name: 'vagrant', public_key: [] }
+  - { name: 'devuser1', public_key: ['ssh-rsa longkeystring== devuser1@example.com'] }
+
+app_minions: "{{ groups['web'] | union(groups['worker']) }}"
+ansible_sudo: true

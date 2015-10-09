@@ -1,0 +1,14 @@
+---
+# file: inventory/group_vars/vagrant
+#
+# Common variables for all deploys in the vagrant environment
+#
+domain: vagrant.example.com
+
+# FIXME: Update to the correct project repo
+repo:
+  url: git@github.com:CHANGEME/CHANGEME.git
+  branch: master
+
+# MOVE TO SECRETS
+db_password: foobar

@@ -1,3 +1,8 @@
+# These are the requirements that need to be on the system
+# driving a deploy using Fabric and Salt.  (These are not
+# the requirements for a deployed project to run,
+# those are in production.txt.)
+
 PyYAML==3.11
 Fabric==1.10.2
 # Required by Fabric

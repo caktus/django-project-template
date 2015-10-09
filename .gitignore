@@ -17,3 +17,4 @@ conf/pillar/*/deploy
 node_modules
 */static/js/bundle.js
 */static/css
+.vaultpassword

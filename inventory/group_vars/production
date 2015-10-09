@@ -1,0 +1,9 @@
+---
+# inventory/group_vars/production
+# These are variables common across production servers
+domain: project.example.com
+
+# FIXME: Update to the correct project repo
+repo:
+  url: git@github.com:CHANGEME/CHANGEME.git
+  branch: master

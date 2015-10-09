@@ -1,0 +1,9 @@
+---
+# inventory/group_vars/staging
+# These are variables common across staging servers
+domain: project-staging.example.com
+
+# FIXME: Update to the correct project repo
+repo:
+  url: git@github.com:CHANGEME/CHANGEME.git
+  branch: master
