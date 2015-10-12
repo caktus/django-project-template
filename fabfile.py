@@ -139,7 +139,6 @@ def setup_master():
         # install salt master if it's not there already, or restart to pick up config changes
         install_salt(master=True, restart=True, version=SALT_VERSION)
     generate_gpg_key()
-    fetch_gpg_key()
 
 
 @task
@@ -307,6 +306,7 @@ def fetch_gpg_key():
 def encrypt(*args, **kwargs):
     """Encrypt a secret value for a given environment."""
     require('environment')
+    fetch_gpg_key()
     # Convert ASCII key to binary
     temp_key = '/tmp/tmp.key'
     with hide('running', 'stdout', 'stderr'):
