@@ -16,12 +16,10 @@ base:
   'roles:web':
     - match: grain
     - project.web.app
-    - project.newrelic_webmon
   'roles:worker':
     - match: grain
     - project.worker.default
     - project.worker.beat
-    - project.newrelic_webmon
   'roles:balancer':
     - match: grain
     - project.web.balancer
