@@ -7,10 +7,10 @@ these changes and how it may impact your project either now or in the future.
 Motivation for the Changes
 --------------------------
 
-A new Salt version 2015.5 was recently released with some deprecations as well as backwards
-incompatible changes. The project template has also been slow to adapt to changes needed for Ubuntu
-14.04. Recent deployment failures also pointed to a need for more control and stability around the
-versions of Salt and the related states used to provision our servers.
+A new Salt version 2015.5 was released with some deprecations as well as backwards incompatible
+changes. The project template has also been slow to adapt to changes needed for Ubuntu 14.04. Recent
+deployment failures also pointed to a need for more control and stability around the versions of
+Salt and the related states used to provision our servers.
 
 What Changed
 ------------
@@ -18,7 +18,7 @@ What Changed
 Postgres
 ~~~~~~~~
 Related to Ubuntu updates, we've made Postgres 9.3 the default version. This is the version which
-comes with Ubuntu 9.3. It is configurable with the `postgres_version` pillar. If you are using an
+comes with Ubuntu 14.04. It is configurable with the ``postgres_version`` pillar. If you are using an
 older version of Ubuntu/Postgres you should set this to the version you are currently using.
 Changing this version will install new packages but it won't magically migrate data for you.
 
@@ -47,7 +47,7 @@ commands for setting up a master/minion are the same but behind the scenes they 
 particular git tag rather than the latest from the PPA. This give us more control on the version
 used so that we can get faster access to bug fixes or work around bad versions. It also ensures that
 we can have the same versions running in production and staging, and that we can test upgrades prior
-to hitting production. The version of Salt installed is controlled by `SALT_VERSION` string in the
+to hitting production. The version of Salt installed is controlled by ``SALT_VERSION`` string in the
 fabfile.
 
 Margarita
@@ -73,11 +73,11 @@ We've added simpler support for NewRelic, documented in the margarita README.
 
 Dotenv
 ~~~~~~
-We started using a project called `django-dotenv` which allows environment variables to be set in a
-`.env` file in the project root, and then be loaded by whichever processes need it (manage.py,
+We started using a project called ``django-dotenv`` which allows environment variables to be set in a
+``.env`` file in the project root, and then be loaded by whichever processes need it (manage.py,
 wsgi.py, celery.py, etc.).
 
-All of these changes (and any future changes) are documented in CHANGES.rst in the margarita repo.
+All of these changes (and any future changes) are documented in ``CHANGES.rst`` in the margarita repo.
 
 How To Update a Project
 -----------------------
@@ -89,13 +89,13 @@ procedures on Vagrant and ask for help liberally!
 If you are on margarita >= 1.0.4
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-You should be able to update `margarita_version` to the latest version and follow any
+You should be able to update ``margarita_version`` to the latest version and follow any
 deprecation/upgrade notes in margarita's CHANGES.rst file. At the time of this writing, you'd need
 to do the following:
 
-* find any locations in your codebase where you were using `ALLOWED_HOSTS` from the environment and
-  change it to use `DOMAIN` instead.
-* Install `django-dotenv` and add code to manage.py, wsgi.py and celery.py to load it
+* find any locations in your codebase where you were using ``ALLOWED_HOSTS`` from the environment and
+  change it to use ``DOMAIN`` instead.
+* Install ``django-dotenv`` and add code to manage.py, wsgi.py and celery.py to load it
 
 After accomplishing those those things, you should be able to deploy and you're all set.
 
@@ -105,7 +105,7 @@ If you are on margarita > 1.0.0 but < 1.0.4
 Your project template contains many states which have now been moved to the margarita repo. Follow
 the directions above, but you'll also have to do a couple more steps. At a minimum, you need to:
 
-* Remove `conf/salt/project/venv.sls`. This contains a state `python-pkgs` which conflicts with a
+* Remove ``conf/salt/project/venv.sls``. This contains a state ``python-pkgs`` which conflicts with a
   margarita state. Normally the project template would override margarita, but in this case, the
   statefile also specifically loads the ``python`` state, which resides in margarita and contains
   the conflicting state, so salt sees both states and complains.
@@ -119,8 +119,8 @@ instead.
 
 If that is all successful, you still have some work to do. You are on the latest margarita, but are
 not really using all of it yet, because your states are overriding the margarita ones. If you
-haven't made any significant changes, you should be able to delete everything in your `conf/salt`
-directory except for `top.sls` and `margarita.sls`. If you *have* made any changes, then you'll have
+haven't made any significant changes, you should be able to delete everything in your ``conf/salt``
+directory except for ``top.sls`` and ``margarita.sls``. If you *have* made any changes, then you'll have
 to manually ensure that any changes that you made are either already reflected in margarita, or kept
 in your own state tree.
 
@@ -147,10 +147,11 @@ contains changes to allow us to pick which Salt version we want to use), require
 
 Changes to the conf directory include the following.
 
-* conf/salt/salt/init.sls, conf/salt/salt/master.sls, and conf/salt/salt/minion.sls should be removed
-* Any require statements for configure_utf-8.sh should be removed.
-* conf/salt/margarita.sls should be changed to match the version in the current project template.
-* conf/salt/top.sls should remove any references to the salt.minion states.
+* ``conf/salt/salt/init.sls``, ``conf/salt/salt/master.sls``, and ``conf/salt/salt/minion.sls``
+  should be removed
+* Any require statements for ``configure_utf-8.sh`` should be removed.
+* ``conf/salt/margarita.sls`` should be changed to match the version in the current project template.
+* ``conf/salt/top.sls`` should remove any references to the salt.minion states.
 
 Once you've done those things, you'll need to follow the steps outlined above for upgrading from a
 version of margarita < 1.0.4.
