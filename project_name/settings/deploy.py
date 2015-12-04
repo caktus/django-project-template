@@ -6,6 +6,8 @@ os.environ.setdefault('BROKER_HOST', '127.0.0.1:5672')
 
 ENVIRONMENT = os.environ['ENVIRONMENT']
 
+SECRET_KEY = os.environ['SECRET_KEY']
+
 DEBUG = False
 
 DATABASES['default']['NAME'] = '{{ project_name }}_%s' % ENVIRONMENT.lower()
