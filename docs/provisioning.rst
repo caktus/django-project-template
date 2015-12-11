@@ -200,7 +200,7 @@ Environment Variables
 ------------------------
 
 Other environment variables which need to be configured but aren't secret can be added
-to the ``env`` dictionary in ``conf/pillar/<environment>.sls`` without encryption.
+to the ``env`` dictionary in ``conf/pillar/<environment>.sls`` without encryption::
 
   # Additional public environment variables to set for the project
   env:
@@ -236,7 +236,7 @@ as a root user. This is to install the Salt Minion which will connect to the Mas
 to complete the provisioning. To setup a minion you call the Fabric command::
 
     fab <environment> setup_minion:<roles> -H <ip-of-new-server> -u <root-user>
-    fab staging setup_minion:web,balancer,db-master,cache -H  33.33.33.10 -u root
+    fab staging setup_minion:salt-master,web,balancer,db-master,cache -H  33.33.33.10 -u root
 
 The available roles are ``salt-master``, ``web``, ``worker``, ``balancer``, ``db-master``,
 ``queue`` and ``cache``. If you are running everything on a single server you need to enable
@@ -284,7 +284,7 @@ As with other passwords this should be encrypted before it is added::
     # Encrypt admin/abc123 for the staging environment
     fab staging encrypt:admin=abc123
 
-This would be added in ``conf/pillar/<environment>.sls`` under ``http_auth``:
+This would be added in ``conf/pillar/<environment>.sls`` under ``http_auth``::
 
     http_auth:
       "admin": |-
