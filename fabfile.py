@@ -170,9 +170,14 @@ def setup_minion(*roles):
             abort('%s is not a valid server role for this project.' % r)
     # Master hostname/IP without the SSH port
     master_host = env.master.split(':')[0]
+    # add 'salt:' to beginning of each message to ease filtering
+    log_fmt = 'salt: %(asctime)s,%(msecs)03.0f [%(name)-17s][%(levelname)-8s] %(message)s'
     config = {
         'master': 'localhost' if master_host == env.host.split(':')[0] else master_host,
         'output': 'mixed',
+        'log_level': DEFAULT_SALT_LOGLEVEL,
+        'log_file': 'file:///dev/log',
+        'log_fmt_logfile': log_fmt,
         'grains': {
             'environment': env.environment,
             'roles': list(roles),
