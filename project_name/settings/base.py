@@ -192,3 +192,6 @@ STATICFILES_FINDERS = (
 COMPRESS_PRECOMPILERS = (
     ('text/less', 'lessc {infile} {outfile}'),
 )
+
+# If using Celery, tell it to obey our logging configuration.
+CELERYD_HIJACK_ROOT_LOGGER = False
