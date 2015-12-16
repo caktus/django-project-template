@@ -43,6 +43,22 @@ SESSION_COOKIE_HTTPONLY = True
 
 ALLOWED_HOSTS = [os.environ['DOMAIN']]
 
+# Use template caching on deployed servers
+for backend in TEMPLATES:
+    if backend['BACKEND'] == 'django.template.backends.django.DjangoTemplates':
+        default_loaders = ['django.template.loaders.filesystem.Loader']
+        if backend.get('APP_DIRS', False):
+            default_loaders.append('django.template.loaders.app_directories.Loader')
+            # Django gets annoyed if you both set APP_DIRS True and specify your own loaders
+            backend['APP_DIRS'] = False
+        loaders = backend['OPTIONS'].get('loaders', default_loaders)
+        for loader in loaders:
+            if len(loader) == 2 and loader[0] == 'django.template.loaders.cached.Loader':
+                # We're already caching our templates
+                break
+        else:
+            backend['OPTIONS']['loaders'] = [('django.template.loaders.cached.Loader', loaders)]
+
 # Uncomment if using celery worker configuration
 # CELERY_SEND_TASK_ERROR_EMAILS = True
 # BROKER_URL = 'amqp://{{ project_name }}_%(ENVIRONMENT)s:%(BROKER_PASSWORD)s@%(BROKER_HOST)s/{{ project_name }}_%(ENVIRONMENT)s' % os.environ  # noqa
