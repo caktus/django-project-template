@@ -10,6 +10,7 @@ from fabric.contrib import files, project
 from fabric.utils import abort
 
 DEFAULT_SALT_LOGLEVEL = 'info'
+DEFAULT_SALT_LOGFMT = '%(asctime)s,%(msecs)03.0f [%(name)-17s][%(levelname)-8s] %(message)s'
 SALT_VERSION = '2015.5.5'
 PROJECT_ROOT = os.path.dirname(__file__)
 CONF_ROOT = os.path.join(PROJECT_ROOT, 'conf')
@@ -134,8 +135,12 @@ def setup_master():
         sudo('apt-get update -qq')
         sudo('apt-get install python-pip git-core python-git python-gnupg haveged -qq -y')
         sudo('mkdir -p /etc/salt/')
-        put(local_path='conf/master.conf',
-            remote_path='/etc/salt/master', use_sudo=True)
+        files.upload_template(
+            filename='conf/master.tmpl', destination='/etc/salt/master',
+            context={'loglevel': DEFAULT_SALT_LOGLEVEL,
+                     'logfmt': 'salt-master: ' + DEFAULT_SALT_LOGFMT},
+            use_jinja=False, use_sudo=True, backup=True
+        )
         # install salt master if it's not there already, or restart to pick up config changes
         install_salt(master=True, restart=True, version=SALT_VERSION)
     generate_gpg_key()
@@ -170,9 +175,14 @@ def setup_minion(*roles):
             abort('%s is not a valid server role for this project.' % r)
     # Master hostname/IP without the SSH port
     master_host = env.master.split(':')[0]
+    # add 'salt-minion:' to beginning of each message to ease filtering
+    logfmt = 'salt-minion: ' + DEFAULT_SALT_LOGFMT
     config = {
         'master': 'localhost' if master_host == env.host.split(':')[0] else master_host,
         'output': 'mixed',
+        'log_level': DEFAULT_SALT_LOGLEVEL,
+        'log_file': 'file:///dev/log',
+        'log_fmt_logfile': logfmt,
         'grains': {
             'environment': env.environment,
             'roles': list(roles),
