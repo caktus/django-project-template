@@ -1,9 +1,6 @@
 psycopg2==2.6.1
 Pillow==2.9.0
 Django==1.8.4
-django_compressor==1.5
-# Required by django-compressor
-django-appconf==1.0.1
 six==1.9.0
 
 BeautifulSoup4==4.4.0
