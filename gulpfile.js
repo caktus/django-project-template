@@ -109,7 +109,7 @@ var cssTask = function (options) {
           }));
       };
       run();
-      gulp.watch(options.src, run);
+      gulp.watch(options.watch, run);
     } else {
       gulp.src(options.src)
         .pipe(concat('site.less'))
@@ -132,6 +132,7 @@ function rebuild(options) {
   cssTask({
     development: options.development,
     src: './{{ project_name }}/static/less/site.less',
+    watch: './{{ project_name }}/static/less/**/*.less',
     dest: './{{ project_name }}/static/css/'
   });
 }
