@@ -7,6 +7,7 @@ To start a new project with this template::
     django-admin.py startproject \
       --template=https://github.com/caktus/django-project-template/zipball/master \
       --extension=py,rst,yml \
+      --name=Makefile,gulpfile.js
       <project_name>
 
 {% endif %}
@@ -39,7 +40,8 @@ necessary requirements::
     # Check that you have python3.4 installed
     $ which python3.4
     $ mkvirtualenv {{ project_name }} -p `which python3.4`
-    ({{ project_name }})$ $VIRTUAL_ENV/bin/pip install -r $PWD/requirements/dev.txt
+    ({{ project_name }})$ pip install -r requirements/dev.txt
+    ({{ project_name }})$ npm install
 
 Next, we'll set up our local environment variables. We use `django-dotenv
 <https://github.com/jpadilla/django-dotenv>`_ to help with this. It reads environment variables

@@ -1,5 +1,4 @@
-# TODO: Replace with project name
-PROJECT_NAME = project_name
+PROJECT_NAME = {{ project_name }}
 STATIC_LIBS_DIR = ./$(PROJECT_NAME)/static/libs
 
 LESS_VERSION = 2.1.0
@@ -30,8 +29,8 @@ lint: lint-py lint-js
 $(STATIC_LIBS_DIR):
 	mkdir -p $@
 
-$(STATIC_LIBS_DIR)/less.js: $(STATIC_LIBS_DIR)
-	wget https://cdnjs.cloudflare.com/ajax/libs/less.js/$(LESS_VERSION)/less.js -O $@
+# $(STATIC_LIBS_DIR)/less.js: $(STATIC_LIBS_DIR)
+# 	wget https://cdnjs.cloudflare.com/ajax/libs/less.js/$(LESS_VERSION)/less.js -O $@
 
 LIBS := $(STATIC_LIBS_DIR)/less.js
 
@@ -40,18 +39,18 @@ $(STATIC_LIBS_DIR)/modernizr.js: $(STATIC_LIBS_DIR)
 
 LIBS += $(STATIC_LIBS_DIR)/modernizr.js
 
-$(STATIC_LIBS_DIR)/jquery.js: $(STATIC_LIBS_DIR)
-	wget https://cdnjs.cloudflare.com/ajax/libs/jquery/$(JQUERY_VERSION)/jquery.js -O $@
-
-LIBS += $(STATIC_LIBS_DIR)/jquery.js
-
-$(STATIC_LIBS_DIR)/bootstrap: $(STATIC_LIBS_DIR)
-	wget https://github.com/twbs/bootstrap/releases/download/v${BOOTSTRAP_VERSION}/bootstrap-${BOOTSTRAP_VERSION}-dist.zip -O bootstrap.zip
-	unzip bootstrap.zip
-	mv dist $@
-	rm bootstrap.zip
-
-LIBS += $(STATIC_LIBS_DIR)/bootstrap
+# $(STATIC_LIBS_DIR)/jquery.js: $(STATIC_LIBS_DIR)
+# 	wget https://cdnjs.cloudflare.com/ajax/libs/jquery/$(JQUERY_VERSION)/jquery.js -O $@
+#
+# LIBS += $(STATIC_LIBS_DIR)/jquery.js
+#
+# $(STATIC_LIBS_DIR)/bootstrap: $(STATIC_LIBS_DIR)
+# 	wget https://github.com/twbs/bootstrap/releases/download/v${BOOTSTRAP_VERSION}/bootstrap-${BOOTSTRAP_VERSION}-dist.zip -O bootstrap.zip
+# 	unzip bootstrap.zip
+# 	mv dist $@
+# 	rm bootstrap.zip
+#
+# LIBS += $(STATIC_LIBS_DIR)/bootstrap
 
 update-static-libs: $(LIBS)
 
