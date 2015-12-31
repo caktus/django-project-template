@@ -70,7 +70,7 @@ must either create a new virtualenv for the deployment::
     ({{ project_name }}-deploy)$ pip install -r requirements/deploy.txt
 
 or install the deploy requirements
-globally.::
+globally::
 
     $ sudo pip install -r requirements/deploy.txt
 
