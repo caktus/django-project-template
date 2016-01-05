@@ -15,5 +15,5 @@ conf/pillar/*/deploy
 *.priv
 .env
 node_modules
-rescue_id/static/js/bundle.js
-rescue_id/static/css
+*/static/js/bundle.js
+*/static/css
