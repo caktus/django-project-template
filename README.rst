@@ -60,9 +60,9 @@ You should now be able to run the development server::
 
     ({{ project_name }})$ npm run dev
 
-Or, on a custom port::
+Or, on a custom port and address::
 
-    ({{ project_name }})$ npm run dev -- --port=8020
+    ({{ project_name }})$ npm run dev -- --address=0.0.0.0 --port=8020
 
 Any changes made to Python, Javascript or Less files will be detected and rebuilt transparently
 in the background.
