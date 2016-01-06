@@ -59,13 +59,13 @@ pullmessages:
 	tx pull -af
 
 setup:
-	mkvirtualenv {{ project_name }} -p `which python3.4`
-	pip install -r requirements/dev.txt
+	virtualenv -p `which python3.4` {{ project_name }}
+	~/.virtualenv/dpttest/bin/pip install -r requirements/dev.txt
 	npm install
 	cp {{ project_name }}/settings/local.example.py {{ project_name }}/settings/local.py
 	echo "DJANGO_SETTINGS_MODULE={{ project_name }}.settings.local" > .env
 	createdb -E UTF-8 {{ project_name }}
-	python manage.py migrate
+	~/.virtualenv/dpttest/bin/python manage.py migrate
 
 
 .PHONY: default test lint lint-py lint-js generate-secret makemessages \

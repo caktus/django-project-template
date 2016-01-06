@@ -34,6 +34,16 @@ First clone the repository from Github and switch to the new directory::
     $ git clone git@github.com:[ORGANIZATION]/{{ project_name }}.git
     $ cd {{ project_name }}
 
+To setup your local environment you can use the quickstart make target `setup`, which will
+install both Python and Javascript dependencies (via pip and npm) into a virtualenv named
+"{{ project_name }}", configure a local django settings file, and create a database via
+Postgres named "{{ project_name }}" with all migrations run::
+
+    $ make setup
+
+If you require a non-standard setup, you can walk through the manual setup steps below making
+adjustments as necessary to your needs.
+
 To setup your local environment you should create a virtualenv and install the
 necessary requirements::
 
@@ -56,7 +66,10 @@ Create the Postgres database and run the initial migrate::
     ({{ project_name }})$ createdb -E UTF-8 {{ project_name }}
     ({{ project_name }})$ python manage.py migrate
 
-You should now be able to run the development server::
+Development
+-----------
+
+You should be able to run the development server via the configured `dev` script::
 
     ({{ project_name }})$ npm run dev
 
@@ -64,12 +77,12 @@ Or, on a custom port and address::
 
     ({{ project_name }})$ npm run dev -- --address=0.0.0.0 --port=8020
 
-Any changes made to Python, Javascript or Less files will be detected and rebuilt transparently
-in the background.
+Any changes made to Python, Javascript or Less files will be detected and rebuilt transparently as
+long as the development server is running.
 
 
 Deployment
-------------------------
+----------
 
 The deployment of requires Fabric but Fabric does not yet support Python 3. You
 must either create a new virtualenv for the deployment::
