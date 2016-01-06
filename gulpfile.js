@@ -15,6 +15,7 @@ var less = require('gulp-less');
 var glob = require('glob');
 var path = require('path');
 var livereload = require('gulp-livereload');
+var modernizr = require('gulp-modernizr');
 
 var spawn = require('child_process').spawn;
 var argv = require('yargs')
@@ -26,7 +27,23 @@ var argv = require('yargs')
 var dependencies = [
 ];
 
+function modernizrTask(options) {
+  if (!options.development || !fileExists(options.dest + "/modernizr.js")) {
+    gulp.src('./js/*.js')
+      .pipe(modernizr())
+      .pipe(uglify())
+      .pipe(gulp.dest(options.dest))
+  }
+}
+gulp.task('modernizr', modernizrTask);
+
 var browserifyTask = function (options) {
+
+  modernizrTask({
+    src: options.src,
+    dest: options.dest + "../libs",
+    development: options.development,
+  });
 
   // Our app bundler
   var appBundler = browserify({
