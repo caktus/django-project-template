@@ -1,1 +1,1 @@
-import './site.js'
+import './csrf_ajax.js'

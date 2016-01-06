@@ -119,9 +119,9 @@ var cssTask = function (options) {
         console.log('Building CSS bundle');
         gulp.src(options.src)
           .pipe(gulpif(options.development, livereload()))
-          .pipe(concat('site.less'))
+          .pipe(concat('index.less'))
           .pipe(less(lessOpts))
-          .pipe(rename('site.css'))
+          .pipe(rename('bundle.css'))
           .pipe(gulp.dest(options.dest))
           .pipe(notify(function () {
             console.log('CSS bundle built in ' + (Date.now() - start) + 'ms');
@@ -131,9 +131,9 @@ var cssTask = function (options) {
       gulp.watch(options.watch, run);
     } else {
       gulp.src(options.src)
-        .pipe(concat('site.less'))
+        .pipe(concat('index.less'))
         .pipe(less(lessOpts))
-        .pipe(rename('site.css'))
+        .pipe(rename('bundle.css'))
         .pipe(cssmin())
         .pipe(gulp.dest(options.dest));
     }
@@ -150,7 +150,7 @@ function rebuild(options) {
 
   cssTask({
     development: options.development,
-    src: './{{ project_name }}/static/less/site.less',
+    src: './{{ project_name }}/static/less/index.less',
     watch: './{{ project_name }}/static/less/**/*.less',
     dest: './{{ project_name }}/static/css/'
   });
