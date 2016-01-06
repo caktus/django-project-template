@@ -16,6 +16,7 @@ var glob = require('glob');
 var path = require('path');
 var livereload = require('gulp-livereload');
 var modernizr = require('gulp-modernizr');
+var fileExists = require('file-exists');
 
 var spawn = require('child_process').spawn;
 var argv = require('yargs')
@@ -29,7 +30,7 @@ var dependencies = [
 
 function modernizrTask(options) {
   if (!options.development || !fileExists(options.dest + "/modernizr.js")) {
-    gulp.src('./js/*.js')
+    gulp.src(options.src)
       .pipe(modernizr())
       .pipe(uglify())
       .pipe(gulp.dest(options.dest))
