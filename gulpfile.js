@@ -21,6 +21,7 @@ var fileExists = require('file-exists');
 var spawn = require('child_process').spawn;
 var argv = require('yargs')
   .default('port', 8000)
+  .default('address', 'localhost')
   .argv;
 
 // External dependencies you do not want to rebundle while developing,
@@ -163,8 +164,8 @@ gulp.task('default', function (cb) {
     development: true,
   });
 
-  console.log("Starting Django runserver http://localhost:$PORT/".replace('$PORT', argv.port));
-  var args = ["manage.py", "runserver", argv.port];
+  console.log("Starting Django runserver http://"+argv.address+":"+argv.port+"/");
+  var args = ["manage.py", "runserver", argv.address+":"+argv.port];
   var runserver = spawn("python", args, {
     stdio: "inherit",
   });
