@@ -19,6 +19,7 @@ project. To begin you should have the following applications installed on your
 local development system:
 
 - Python >= 3.4
+- Node >= 4.2
 - `pip <http://www.pip-installer.org/>`_ >= 1.5
 - `virtualenv <http://www.virtualenv.org/>`_ >= 1.10
 - `virtualenvwrapper <http://pypi.python.org/pypi/virtualenvwrapper>`_ >= 3.0
@@ -40,6 +41,7 @@ install both Python and Javascript dependencies (via pip and npm) into a virtual
 Postgres named "{{ project_name }}" with all migrations run::
 
     $ make setup
+    $ workon {{ project_name }}
 
 If you require a non-standard setup, you can walk through the manual setup steps below making
 adjustments as necessary to your needs.

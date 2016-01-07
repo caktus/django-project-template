@@ -3,6 +3,9 @@
   "version": "0.0.0",
   "description": "The {{ project_name|title }} Project",
   "main": "",
+  "engines" : {
+    "node" : ">=4.2 <4.3"
+  }
   "directories": {
     "doc": "docs"
   },
