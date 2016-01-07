@@ -59,13 +59,13 @@ pullmessages:
 	tx pull -af
 
 setup:
-	virtualenv -p `which python3.4` $(WORKON_HOME){{ project_name }}
-	$(WORKON_HOME){{ project_name }}/bin/pip install -r requirements/dev.txt
+	virtualenv -p `which python3.4` $(WORKON_HOME)/{{ project_name }}
+	$(WORKON_HOME)/{{ project_name }}/bin/pip install -r requirements/dev.txt
 	npm install
 	cp {{ project_name }}/settings/local.example.py {{ project_name }}/settings/local.py
 	echo "DJANGO_SETTINGS_MODULE={{ project_name }}.settings.local" > .env
 	createdb -E UTF-8 {{ project_name }}
-	$(WORKON_HOME){{ project_name }}/bin/python manage.py migrate
+	$(WORKON_HOME)/{{ project_name }}/bin/python manage.py migrate
 	@echo
 	@echo "The {{ project_name }} project is now setup on your machine."
 	@echo "Run the following commands to activate the virtual environment and run the"
