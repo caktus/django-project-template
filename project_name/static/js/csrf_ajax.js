@@ -4,7 +4,7 @@ import jQuery from 'jquery';
 (function ($) {
 
     // CSRF helper functions taken directly from Django docs
-    function (method) {
+    function csrfSafeMethod(method) {
         // these HTTP methods do not require CSRF protection
         return (/^(GET|HEAD|OPTIONS|TRACE)$/i.test(method));
     }
