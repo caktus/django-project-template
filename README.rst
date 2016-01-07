@@ -19,12 +19,22 @@ project. To begin you should have the following applications installed on your
 local development system:
 
 - Python >= 3.4
-- Node >= 4.2
+- NodeJS >= 4.2
 - `pip <http://www.pip-installer.org/>`_ >= 1.5
 - `virtualenv <http://www.virtualenv.org/>`_ >= 1.10
 - `virtualenvwrapper <http://pypi.python.org/pypi/virtualenvwrapper>`_ >= 3.0
 - Postgres >= 9.3
 - git >= 1.7
+
+A note on NodeJS 4.2 for Ubuntu users: this LTS release may not be available through the
+Ubuntu repository, but you can configure a PPA from which it may be installed::
+
+    curl -sL https://deb.nodesource.com/setup_4.x | sudo -E bash -
+    sudo apt-get install -y nodejs
+
+You may also follow the manual instructions if you wish to configure the PPA yourself:
+
+    https://github.com/nodesource/distributions#manual-installation
 
 
 Getting Started
