@@ -7,6 +7,7 @@ base:
     - locale.utf8
     - newrelic_sysmon
     - project.devs
+    - unattended_upgrades
   'environment:local':
     - match: grain
     - vagrant.user
