@@ -48,7 +48,7 @@ def vagrant():
     ssh_config_output = local('vagrant ssh-config', capture=True)
     ssh_config = dict(line.split() for line in ssh_config_output.splitlines())
     env.master = '{HostName}:{Port}'.format(**ssh_config)
-    env.key_filename = ssh_config['IdentityFile']
+    env.key_filename = ssh_config['IdentityFile'].strip('"')
     initialize_env()
 
 
