@@ -1,11 +1,5 @@
-# TODO: Replace with project name
-PROJECT_NAME = project_name
+PROJECT_NAME = {{ project_name }}
 STATIC_LIBS_DIR = ./$(PROJECT_NAME)/static/libs
-
-LESS_VERSION = 2.1.0
-MODERNIZR_VERSION = 2.8.3
-JQUERY_VERSION = 1.11.2
-BOOTSTRAP_VERSION = 3.3.1
 
 default: lint test
 
@@ -29,29 +23,6 @@ lint: lint-py lint-js
 
 $(STATIC_LIBS_DIR):
 	mkdir -p $@
-
-$(STATIC_LIBS_DIR)/less.js: $(STATIC_LIBS_DIR)
-	wget https://cdnjs.cloudflare.com/ajax/libs/less.js/$(LESS_VERSION)/less.js -O $@
-
-LIBS := $(STATIC_LIBS_DIR)/less.js
-
-$(STATIC_LIBS_DIR)/modernizr.js: $(STATIC_LIBS_DIR)
-	wget https://cdnjs.cloudflare.com/ajax/libs/modernizr/$(MODERNIZR_VERSION)/modernizr.js -O $@
-
-LIBS += $(STATIC_LIBS_DIR)/modernizr.js
-
-$(STATIC_LIBS_DIR)/jquery.js: $(STATIC_LIBS_DIR)
-	wget https://cdnjs.cloudflare.com/ajax/libs/jquery/$(JQUERY_VERSION)/jquery.js -O $@
-
-LIBS += $(STATIC_LIBS_DIR)/jquery.js
-
-$(STATIC_LIBS_DIR)/bootstrap: $(STATIC_LIBS_DIR)
-	wget https://github.com/twbs/bootstrap/releases/download/v${BOOTSTRAP_VERSION}/bootstrap-${BOOTSTRAP_VERSION}-dist.zip -O bootstrap.zip
-	unzip bootstrap.zip
-	mv dist $@
-	rm bootstrap.zip
-
-LIBS += $(STATIC_LIBS_DIR)/bootstrap
 
 update-static-libs: $(LIBS)
 
@@ -86,6 +57,22 @@ pushmessages:
 pullmessages:
 	# Pull the latest Arabic PO file from Transifex
 	tx pull -af
+
+setup:
+	virtualenv -p `which python3.4` $(WORKON_HOME)/{{ project_name }}
+	$(WORKON_HOME)/{{ project_name }}/bin/pip install -r requirements/dev.txt
+	npm install
+	cp {{ project_name }}/settings/local.example.py {{ project_name }}/settings/local.py
+	echo "DJANGO_SETTINGS_MODULE={{ project_name }}.settings.local" > .env
+	createdb -E UTF-8 {{ project_name }}
+	$(WORKON_HOME)/{{ project_name }}/bin/python manage.py migrate
+	@echo
+	@echo "The {{ project_name }} project is now setup on your machine."
+	@echo "Run the following commands to activate the virtual environment and run the"
+	@echo "development server:"
+	@echo
+	@echo "	workon {{ project_name }}"
+	@echo "	npm run dev"
 
 
 .PHONY: default test lint lint-py lint-js generate-secret makemessages \

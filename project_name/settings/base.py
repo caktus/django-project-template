@@ -33,8 +33,6 @@ INSTALLED_APPS = [
     'django.contrib.admin',
     'django.contrib.humanize',
     'django.contrib.sitemaps',
-    # External apps
-    'compressor',
 ]
 
 MIDDLEWARE_CLASSES = [
@@ -178,19 +176,6 @@ STATIC_URL = '/static/'
 # Additional locations of static files
 STATICFILES_DIRS = (
     os.path.join(BASE_DIR, 'static'),
-)
-
-# List of finder classes that know how to find static files in
-# various locations.
-STATICFILES_FINDERS = (
-    'django.contrib.staticfiles.finders.FileSystemFinder',
-    'django.contrib.staticfiles.finders.AppDirectoriesFinder',
-    'compressor.finders.CompressorFinder',
-)
-
-# Application settings
-COMPRESS_PRECOMPILERS = (
-    ('text/less', 'lessc {infile} {outfile}'),
 )
 
 # If using Celery, tell it to obey our logging configuration.

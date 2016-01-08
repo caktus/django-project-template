@@ -29,9 +29,9 @@ cluster. As such we've removed that state and references to it in your project s
 
 NodeJS
 ~~~~~~
-We've also updated how NodeJS/NPM is installed. These were previously using the chris-lea PPA which
-has now been deprecated. Ubuntu's versions are relatively up to date and we are now using the NPM
-and node packages provided by them.
+We've also updated how NodeJS/NPM is installed. These were previously using the Ubuntu packages,
+which previously kept up to date but fell behind when NodeJS released multiple major versions in
+quick succession, including integration of newer NPM releases.
 
 Nginx
 ~~~~~

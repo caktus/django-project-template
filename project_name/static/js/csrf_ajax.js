@@ -1,26 +1,4 @@
-/* global jQuery */
-// Avoid `console` errors in browsers that lack a console.
-(function () {
-    var method;
-    var noop = function () {};
-    var methods = [
-        'assert', 'clear', 'count', 'debug', 'dir', 'dirxml', 'error',
-        'exception', 'group', 'groupCollapsed', 'groupEnd', 'info', 'log',
-        'markTimeline', 'profile', 'profileEnd', 'table', 'time', 'timeEnd',
-        'timeline', 'timelineEnd', 'timeStamp', 'trace', 'warn'
-    ];
-    var length = methods.length;
-    var console = (window.console = window.console || {});
-
-    while (length--) {
-        method = methods[length];
-
-        // Only stub undefined methods.
-        if (!console[method]) {
-            console[method] = noop;
-        }
-    }
-}());
+import jQuery from 'jquery';
 
 // Place any jQuery/helper plugins in here.
 (function ($) {
@@ -30,7 +8,7 @@
         // these HTTP methods do not require CSRF protection
         return (/^(GET|HEAD|OPTIONS|TRACE)$/i.test(method));
     }
-    
+
     function getCookie(name) {
         var cookieValue = null;
         if (document.cookie && document.cookie !== '') {
@@ -47,7 +25,7 @@
         }
         return cookieValue;
     }
-    
+
     // Setup jQuery ajax calls to handle CSRF
     $.ajaxPrefilter(function (settings, originalOptions, xhr) {
         var csrftoken;
