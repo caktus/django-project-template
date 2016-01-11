@@ -75,7 +75,7 @@ setup:
 	@echo "	npm run dev"
 
 update:
-	$(WORKON_HOME)/{{ project_name }}/bin/pip install -r requirements/dev.txt
+	$(WORKON_HOME)/{{ project_name }}/bin/pip install -U -r requirements/dev.txt
 	npm install
 	npm update
 
