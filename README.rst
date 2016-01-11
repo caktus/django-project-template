@@ -83,6 +83,12 @@ Create the Postgres database and run the initial migrate::
     ({{ project_name }})$ createdb -E UTF-8 {{ project_name }}
     ({{ project_name }})$ python manage.py migrate
 
+If you want to use `Travis <http://travis-ci.org>`_ to test your project,
+rename ``project.travis.yml`` to ``.travis.yml``, overwriting the ``.travis.yml``
+that currently exists.  (That one is for testing the template itself.)::
+
+    ({{ project_name }})$ mv project.travis.yml .travis.yml
+
 Development
 -----------
 
