@@ -74,6 +74,11 @@ setup:
 	@echo "	workon {{ project_name }}"
 	@echo "	npm run dev"
 
+update:
+	$(WORKON_HOME)/{{ project_name }}/bin/pip install -r requirements/dev.txt
+	npm install
+	npm update
+
 
 .PHONY: default test lint lint-py lint-js generate-secret makemessages \
 		pushmessages pullmessages compilemessages
