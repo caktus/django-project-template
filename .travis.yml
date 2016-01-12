@@ -19,7 +19,7 @@ addons:
 
 # In general, cache things where they are. The only cached directory
 # we can't do that for is node_modules because it doesn't exist until
-# after we run 'start_project', so after that we symlink to the cached
+# after we run 'startproject', so after that we symlink to the cached
 # directory.
 cache:
   directories:
