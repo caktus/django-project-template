@@ -1,3 +1,11 @@
+#
+# IMPORTANT NOTE: This .travis.yml file is intended for
+# testing the project template itself. If you want to
+# test a project created from the project template,
+# please rename "project.travis.yml" to ".travis.yml",
+# overwriting this file.  "make setup" will do this
+# for you.
+
 language: python
 
 sudo: false
@@ -9,32 +17,34 @@ python:
 addons:
   postgresql: "9.3"
 
+# In general, cache things where they are. The only cached directory
+# we can't do that for is node_modules because it doesn't exist until
+# after we run 'start_project', so after that we symlink to the cached
+# directory.
 cache:
   directories:
     - $HOME/.cache/pip
+    - $HOME/.npm
+    - $HOME/.nvm
+    - $HOME/.cache/node_modules
+    - $HOME/.cache/venvs
 
 env:
-  - DJANGO_SETTINGS_MODULE="{{ project_name }}.settings.dev"
+  - WORKON_HOME=$HOME/.cache/venvs
 
 install:
-  - pip install -U pip
-  - pip install -U -r requirements/dev.txt
-
-before_script:
-  - createdb -E UTF-8 {{ project_name }} -U postgres -O $USER
-  # Uncomment for PostGIS support
-  # - psql service_info -c "CREATE EXTENSION postgis;" -U postgres
+  - pip install -U pip wheel
+  - pip install -U 'Django<1.9'
+  - mkdir -p $WORKON_HOME
+  - nvm install 4.2
+  - nvm use 4.2
 
 script:
-  - python manage.py makemigrations --dry-run | grep 'No changes detected' || (echo 'There are changes which require migrations.' && exit 1)
-  - coverage run manage.py test
-  - coverage report -m --fail-under 80
-  - flake8 .
+  - django-admin.py startproject --template=https://github.com/caktus/django-project-template/zipball/${TRAVIS_BRANCH} --extension=py,rst,yml --name=Makefile,gulpfile.js,package.json test_template
+  - cd test_template
+  - ln -s $HOME/.cache/node_modules node_modules
+  - make setup
+  - $WORKON_HOME/test_template/bin/python manage.py test --noinput
 
-notifications:
-  hipchat:
-    rooms:
-      secure: 'FIXME: replace with "travis encrypt <api_token@room_id> --add notifications.hipchat.rooms"'
-    template:
-      - '%{repository}#%{build_number} (%{branch} - %{commit} : %{author}): %{message} (<a href="%{build_url}">Details</a>/<a href="%{compare_url}">Change view</a>)'
-    format: html
+before_cache:
+  - rm -f $HOME/.cache/pip/log/debug.log
