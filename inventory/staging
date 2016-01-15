@@ -11,7 +11,12 @@
 
 # EDIT THIS!
 
-
+# List all the servers in a group named for the environment,
+# so we can apply common variables to all of them.
+# This is also a good place to add variables to tell ansible
+# how to connect to each host, e.g.
+#  host1 ansible_ssh_host=ansible0.cakt.us ansible_ssh_user=ubuntu
+[staging]
 web1 ansible_ssh_host=192.168.0.1
 web2 ansible_ssh_host=192.168.0.2
 db1 ansible_ssh_host=192.168.1.1

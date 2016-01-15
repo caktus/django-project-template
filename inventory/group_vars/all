@@ -12,3 +12,5 @@ users:
 
 app_minions: "{{ groups['web'] | union(groups['worker']) }}"
 ansible_sudo: true
+
+db_host: localhost

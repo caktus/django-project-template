@@ -4,5 +4,5 @@
 
 # NOTE that ansible is still not ready for Python 3.
 
-ansible==1.9.3
+ansible==2.0.0.2
 git+https://github.com/caktus/tequila@master#egg=tequila
