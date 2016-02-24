@@ -31,6 +31,14 @@ CACHES = {
     }
 }
 
+EMAIL_HOST = os.environ.get('EMAIL_HOST', 'localhost')
+EMAIL_PORT = os.environ.get('EMAIL_PORT', 25)
+EMAIL_HOST_USER = os.environ.get('EMAIL_HOST_USER', '')
+EMAIL_HOST_PASSWORD = os.environ.get('EMAIL_HOST_PASSWORD', '')
+EMAIL_USE_TLS = os.environ.get('EMAIL_USE_TLS', False)
+EMAIL_USE_SSL = os.environ.get('EMAIL_USE_SSL', False)
+# use TLS or SSL, not both:
+assert not (EMAIL_USE_TLS and EMAIL_USE_SSL)
 EMAIL_SUBJECT_PREFIX = '[{{ project_name|title }} %s] ' % ENVIRONMENT.title()
 DEFAULT_FROM_EMAIL = 'noreply@%(DOMAIN)s' % os.environ
 SERVER_EMAIL = DEFAULT_FROM_EMAIL
