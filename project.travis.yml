@@ -25,7 +25,7 @@ before_script:
   # Uncomment for Requires.IO pushes of develop and master merges (not pull-request builds)
   # Requires the $REQUIRES_IO_TOKEN environment variable defined at Travis CI for this project
   # See developer documentation section on depdency tracking for more information.
-  # - if [ "$TRAVIS_PULL_REQUEST" == "false" ] ; then requires.io update-branch -t $REQUIRES_IO_TOKEN -r rescueid -n $TRAVIS_BRANCH . ; fi
+  # - if [ "$TRAVIS_PULL_REQUEST" == "false" ] ; then requires.io update-branch -t $REQUIRES_IO_TOKEN -r rescueid -n $(echo $TRAVIS_BRANCH | sed "s|/|__|g") . ; fi
   # Uncomment for PostGIS support
   # - psql service_info -c "CREATE EXTENSION postgis;" -U postgres
 
