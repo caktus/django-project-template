@@ -54,7 +54,7 @@ def vagrant():
 
 def initialize_env():
     """Build some common variables into the env dictionary."""
-    env.gpg_key = os.path.join(CONF_ROOT, '{}.pub.gpg'.format(env.environment))
+    env.gpg_key = os.path.join(CONF_ROOT, 'keys/{}.pub.gpg'.format(env.environment))
 
 
 def get_salt_version(command):
@@ -295,7 +295,7 @@ def generate_gpg_key():
         if not files.exists(os.path.join(gpg_home, 'secring.gpg'), use_sudo=True):
             sudo('mkdir -p {}'.format(gpg_home))
             files.upload_template(
-                filename='conf/gpg.tmpl', destination=gpg_file,
+                filename='conf/keys/gpg.tmpl', destination=gpg_file,
                 context={'environment': env.environment},
                 use_jinja=False, use_sudo=False, backup=True)
             sudo('gpg --gen-key --homedir {} --batch {}'.format(gpg_home, gpg_file))
