@@ -34,7 +34,7 @@ function modernizrTask(options) {
     gulp.src(options.src)
       .pipe(modernizr())
       .pipe(uglify())
-      .pipe(gulp.dest(options.dest))
+      .pipe(gulp.dest(options.dest));
   }
 }
 gulp.task('modernizr', modernizrTask);
@@ -107,7 +107,7 @@ var browserifyTask = function (options) {
         console.log('VENDORS bundle built in ' + (Date.now() - start) + 'ms');
       }));
   }
-}
+};
 
 var cssTask = function (options) {
     var lessOpts = {
@@ -137,7 +137,7 @@ var cssTask = function (options) {
         .pipe(cssmin())
         .pipe(gulp.dest(options.dest));
     }
-}
+};
 
 function rebuild(options) {
   var options = options || {};
@@ -182,5 +182,18 @@ gulp.task('default', function (cb) {
 gulp.task('deploy', function() {
   rebuild({
     development: false,
-  })
+  });
+});
+
+gulp.task('test', function () {
+  require('babel-core/register');
+
+  return gulp.src('./{{ project_name }}/static/js/test/**/*.spec.js?(x)', {read: false})
+    .pipe(mocha({
+      reporter: 'nyan',
+      require: [
+        './{{ project_name }}/static/js/test/util/dom.js'
+      ]
+    }))
+  ;
 });

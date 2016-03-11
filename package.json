@@ -3,14 +3,14 @@
   "version": "0.0.0",
   "description": "The {{ project_name|title }} Project",
   "main": "",
-  "engines" : {
-    "node" : ">=4.2 <4.3"
+  "engines": {
+    "node": ">=4.2 <4.3"
   },
   "directories": {
     "doc": "docs"
   },
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
+    "test": "./node_modules/.bin/gulp test",
     "build": "./node_modules/.bin/gulp deploy",
     "dev": "./node_modules/.bin/gulp"
   },
@@ -26,6 +26,7 @@
   "homepage": "https://github.com/[ORGANIZATION]/{{ project_name }}#readme",
   "dependencies": {},
   "devDependencies": {
+    "babel-core": "^6.6.0",
     "babel-preset-es2015": "^6.1.18",
     "babelify": "^7.2.0",
     "bootstrap": "^3.3.6",
@@ -40,14 +41,17 @@
     "gulp-jasmine2-phantomjs": "^0.1.1",
     "gulp-less": "^3.0.5",
     "gulp-livereload": "^2.1.1",
-    "gulp-notify": "^1.4.2",
+    "gulp-mocha": "^2.2.0",
     "gulp-modernizr": "0.0.0",
+    "gulp-notify": "^1.4.2",
     "gulp-rename": "^1.2.2",
     "gulp-streamify": "0.0.5",
     "gulp-uglify": "^0.3.1",
     "gulp-util": "^3.0.0",
     "jquery": "^2.1",
     "less": "^2.5.3",
+    "mocha": "^2.4.5",
+    "node-jsdom": "^3.1.5",
     "vinyl-source-stream": "^0.1.1",
     "watchify": "^2.1.1",
     "yargs": "^3.31.0"
