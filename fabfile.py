@@ -157,7 +157,7 @@ def sync():
         salt_root = CONF_ROOT if CONF_ROOT.endswith('/') else CONF_ROOT + '/'
         project.rsync_project(
             local_dir=salt_root, remote_dir='/tmp/salt', delete=True)
-        sudo('rm -rf /srv/salt /srv/pillar')
+        sudo('rm -rf /srv/*')
         sudo('mv /tmp/salt/* /srv/')
         sudo('rm -rf /tmp/salt/')
         execute(margarita)
