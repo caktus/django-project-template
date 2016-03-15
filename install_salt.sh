@@ -3994,8 +3994,8 @@ install_freebsd_git_deps() {
         [ ! -f $file ] && continue
         echodebug "Patching ${file}"
         sed -in -e "s|/etc/salt|${_SALT_ETC_DIR}|" \
-                -e "s|/srv/salt|${_SALT_ETC_DIR}/states|" \
-                -e "s|/srv/pillar|${_SALT_ETC_DIR}/pillar|" ${file}
+                -e "s|/srv/project/salt|${_SALT_ETC_DIR}/states|" \
+                -e "s|/srv/project/pillar|${_SALT_ETC_DIR}/pillar|" ${file}
     done
     if [ ! -f salt/syspaths.py ]; then
         # We still can't provide the system paths, salt 0.16.x
@@ -4008,8 +4008,8 @@ install_freebsd_git_deps() {
             [ ! -f $file ] && continue
             echodebug "Patching ${file}"
             sed -in -e "s|/etc/salt|${_SALT_ETC_DIR}|" \
-                    -e "s|/srv/salt|${_SALT_ETC_DIR}/states|" \
-                    -e "s|/srv/pillar|${_SALT_ETC_DIR}/pillar|" ${file}
+                    -e "s|/srv/project/salt|${_SALT_ETC_DIR}/states|" \
+                    -e "s|/srv/project/pillar|${_SALT_ETC_DIR}/pillar|" ${file}
         done
     fi
     echodebug "Finished patching"
@@ -4054,7 +4054,7 @@ install_freebsd_git() {
             --salt-config-dir="${_SALT_ETC_DIR}" \
             --salt-cache-dir=/var/cache/salt \
             --salt-sock-dir=/var/run/salt \
-            --salt-srv-root-dir=/srv \
+            --salt-srv-root-dir=/srv/project \
             --salt-base-file-roots-dir="${_SALT_ETC_DIR}/states" \
             --salt-base-pillar-roots-dir="${_SALT_ETC_DIR}/pillar" \
             --salt-base-master-roots-dir="${_SALT_ETC_DIR}/salt-master" \
