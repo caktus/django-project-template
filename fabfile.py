@@ -1,3 +1,4 @@
+import json
 import os
 import re
 import tempfile
@@ -231,10 +232,14 @@ def add_role(name):
 
 
 @task
-def salt(cmd, target="'*'", loglevel=DEFAULT_SALT_LOGLEVEL):
+def salt(salt_cmd, target="'*'", loglevel=DEFAULT_SALT_LOGLEVEL, pillar=None):
     """Run arbitrary salt commands."""
     with settings(warn_only=True, host_string=env.master):
-        result = sudo("salt {0} -l{1} {2} ".format(target, loglevel, cmd))
+        json_pillar = json.dumps(pillar or {})
+        command = "salt {target} -l{loglevel} {cmd} pillar='{pillar}'"
+        command = command.format(
+            cmd=salt_cmd, target=target, loglevel=loglevel, pillar=json_pillar)
+        result = sudo(command)
     return result
 
 
@@ -252,10 +257,10 @@ def margarita():
 
 
 @task
-def highstate(target="'*'", loglevel=DEFAULT_SALT_LOGLEVEL):
+def highstate(target="'*'", loglevel=DEFAULT_SALT_LOGLEVEL, pillar=None):
     """Run highstate on master."""
     print("This can take a long time without output, be patient")
-    salt('state.highstate', target, loglevel)
+    salt('state.highstate', target, loglevel, pillar)
 
 
 @task
@@ -276,13 +281,14 @@ def delete_key(name):
 
 
 @task
-def deploy(loglevel=DEFAULT_SALT_LOGLEVEL):
+def deploy(branch=None, loglevel=DEFAULT_SALT_LOGLEVEL):
     """Deploy to a given environment by pushing the latest states and executing the highstate."""
     require('environment')
     sync()
+    pillar = {'branch': branch} if branch else None
     target = "-G 'environment:{0}'".format(env.environment)
     salt('saltutil.sync_all', target, loglevel)
-    highstate(target)
+    highstate(target, pillar=pillar)
 
 
 @task
