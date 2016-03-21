@@ -5,9 +5,9 @@ python_version: 3.4
 
 less_version: 2.1.0
 
-postgres_version: 9.3
-
 margarita_version: 1.7.0
+
+postgres_version: 9.3
 
 # FIXME: Update to the correct project repo
 repo:

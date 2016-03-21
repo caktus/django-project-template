@@ -7,6 +7,8 @@ domain: example.com
 
 branch: master
 
+requirements_file: requirements/production.txt
+
 # Addtional public environment variables to set for the project
 env:
   FOO: BAR
