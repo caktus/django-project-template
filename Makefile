@@ -55,7 +55,7 @@ pushmessages:
 	tx push -s
 
 pullmessages:
-	# Pull the latest Arabic PO file from Transifex
+	# Pull the latest translated PO files from Transifex
 	tx pull -af
 
 setup:
@@ -82,8 +82,11 @@ update:
 	npm install
 	npm update
 
+# Build documentation
+html:
+	cd docs && make html
 
 .PHONY: default test lint lint-py lint-js generate-secret makemessages \
-		pushmessages pullmessages compilemessages
+		pushmessages pullmessages compilemessages html
 
 .PRECIOUS: conf/%.pub.ssh

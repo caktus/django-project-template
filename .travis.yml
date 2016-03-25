@@ -45,6 +45,7 @@ script:
   - ln -s $HOME/.cache/node_modules node_modules
   - make setup
   - $WORKON_HOME/test_template/bin/python manage.py test --noinput
+  - make html
 
 before_cache:
   - rm -f $HOME/.cache/pip/log/debug.log
