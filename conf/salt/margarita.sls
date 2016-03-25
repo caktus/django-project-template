@@ -7,7 +7,7 @@ clone_repo:
      - name: git clone https://github.com/caktus/margarita.git margarita
      - user: root
      - unless: test -e /srv/margarita/.git
-     - cwd: /srv/project
+     - cwd: /srv/
      - requires:
        - pkg: git-install
 
