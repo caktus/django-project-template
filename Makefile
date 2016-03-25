@@ -62,6 +62,7 @@ setup:
 	virtualenv -p `which python3.4` $(WORKON_HOME)/{{ project_name }}
 	$(WORKON_HOME)/{{ project_name }}/bin/pip install -U pip wheel
 	$(WORKON_HOME)/{{ project_name }}/bin/pip install -Ur requirements/dev.txt
+	$(WORKON_HOME)/{{ project_name }}/bin/pip freeze
 	npm install
 	npm update
 	cp {{ project_name }}/settings/local.example.py {{ project_name }}/settings/local.py
