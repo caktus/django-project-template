@@ -3,7 +3,7 @@ language: python
 sudo: false
 
 python:
-  - "3.4"
+  - "3.5"
 
 # Match postgresql version to that in conf/pillar/project.sls
 addons:
