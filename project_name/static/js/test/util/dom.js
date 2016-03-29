@@ -1,6 +1,15 @@
-// See:
-// * http://jaketrent.com/post/testing-react-with-jsdom/
-// * http://reactjsnews.com/testing-in-react/
+/**
+ * @module dom.js
+ *
+ * This script sets up the `document` global value to be a jsdom dummy DOM.
+ * This makes it possible to test DOM interactions without a browser.
+ * It must be imported by Mocha before running DOM-dependent tests.
+ * This module is imported for its side effects and does not export any values.
+ *
+ * For more info, see:
+ * http://jaketrent.com/post/testing-react-with-jsdom/
+ * http://reactjsnews.com/testing-in-react/
+ */
 
 import { jsdom } from 'node-jsdom';
 
