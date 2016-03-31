@@ -11,7 +11,7 @@ you've run ``vagrant up``. The box will be installed if you don't have it alread
 
     vagrant up
 
-The general provision workflow is the same as in the previous :doc:`provisioning guide </provisioning>`
+The general provision workflow is the same as in the previous :doc:`provisioning guide <provisioning>`
 so here are notes of the Vagrant specifics.
 
 

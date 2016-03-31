@@ -10,7 +10,7 @@ states are managed in a `common repo <https://github.com/caktus/margarita>`_ and
 states specific to this project are contained within the ``conf`` directory at the root
 of the repository.
 
-For more information see the :doc:`provisioning guide </provisioning>`.
+For more information see the :doc:`provisioning guide <provisioning>`.
 
 
 Layout

@@ -379,6 +379,6 @@ match the domain for which the certificate is going to be deployed (i.e example.
 
 This signing request (.csr) will be handed off to a trusted Certificate Authority (CA) such as
 StartSSL, NameCheap, GoDaddy, etc. to purchase the signed certificate. The contents of
-the *.key file will be added to the ``ssl_key`` pillar and the signed certificate
+the ``*.key`` file will be added to the ``ssl_key`` pillar and the signed certificate
 from the CA will be added to the ``ssl_cert`` pillar. These should be encrypted using
 the same proceedure as with the private SSH deploy key.

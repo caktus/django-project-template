@@ -55,13 +55,14 @@ pushmessages:
 	tx push -s
 
 pullmessages:
-	# Pull the latest Arabic PO file from Transifex
+	# Pull the latest translated PO files from Transifex
 	tx pull -af
 
 setup:
 	virtualenv -p `which python3.5` $(WORKON_HOME)/{{ project_name }}
 	$(WORKON_HOME)/{{ project_name }}/bin/pip install -U pip wheel
 	$(WORKON_HOME)/{{ project_name }}/bin/pip install -Ur requirements/dev.txt
+	$(WORKON_HOME)/{{ project_name }}/bin/pip freeze
 	npm install
 	npm update
 	cp {{ project_name }}/settings/local.example.py {{ project_name }}/settings/local.py
@@ -82,8 +83,11 @@ update:
 	npm install
 	npm update
 
+# Build documentation
+docs:
+	cd docs && make html
 
 .PHONY: default test lint lint-py lint-js generate-secret makemessages \
-		pushmessages pullmessages compilemessages
+		pushmessages pullmessages compilemessages docs
 
 .PRECIOUS: conf/%.pub.ssh

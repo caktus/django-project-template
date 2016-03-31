@@ -4,6 +4,7 @@ from .base import *  # noqa
 os.environ.setdefault('CACHE_HOST', '127.0.0.1:11211')
 os.environ.setdefault('BROKER_HOST', '127.0.0.1:5672')
 
+#: deploy environment - e.g. "staging" or "production"
 ENVIRONMENT = os.environ['ENVIRONMENT']
 
 SECRET_KEY = os.environ['SECRET_KEY']
