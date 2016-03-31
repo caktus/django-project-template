@@ -34,7 +34,7 @@ script:
   - coverage run manage.py test
   - coverage report -m --fail-under 80
   - flake8 .
-  - make html
+  - make docs
 
 notifications:
   hipchat:
