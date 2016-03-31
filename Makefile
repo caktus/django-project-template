@@ -84,10 +84,10 @@ update:
 	npm update
 
 # Build documentation
-html:
+docs:
 	cd docs && make html
 
 .PHONY: default test lint lint-py lint-js generate-secret makemessages \
-		pushmessages pullmessages compilemessages html
+		pushmessages pullmessages compilemessages docs
 
 .PRECIOUS: conf/%.pub.ssh
