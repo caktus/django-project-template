@@ -202,8 +202,7 @@ gulp.task('test', function () {
       gulp
         .src('./{{ project_name }}/static/js/test/**/*.spec.js?(x)', {read: false})
         .pipe(mocha({
-          reporter: 'nyan'
-          , require: [
+          require: [
             'jsdom-global/register'
           ]
         }))
