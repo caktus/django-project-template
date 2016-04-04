@@ -189,10 +189,10 @@ gulp.task('deploy', function() {
   });
 });
 
-gulp.task('coverage', function () {
+gulp.task('test', function () {
   require('babel-core/register');
   return gulp
-    .src('./{{ project_name }}/static/js/src/**/*.js?(x)')
+    .src('./{{ project_name }}/static/js/app/**/*.js?(x)')
     .pipe(istanbul({
       instrumenter: isparta.Instrumenter
       , includeUntested: true
