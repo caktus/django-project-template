@@ -1,0 +1,15 @@
+---
+- src: https://github.com/caktus/tequila-common
+  version: master
+
+- src: https://github.com/caktus/tequila-nginx
+  version: master
+
+- src: https://github.com/caktus/tequila-django
+  version: master
+
+- src: https://github.com/caktus/tequila-postgresql
+  version: master
+
+- src: https://github.com/caktus/tequila-rabbitmq
+  version: master
