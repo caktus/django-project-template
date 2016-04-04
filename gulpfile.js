@@ -192,7 +192,7 @@ gulp.task('deploy', function() {
 gulp.task('test', function () {
   require('babel-core/register');
   return gulp
-    .src('./{{ project_name }}/static/js/app/**/*.js?(x)')
+    .src('./{{ project_name }}/static/js/app/**/*.js')
     .pipe(istanbul({
       instrumenter: isparta.Instrumenter
       , includeUntested: true
@@ -200,7 +200,7 @@ gulp.task('test', function () {
     .pipe(istanbul.hookRequire())
     .on('finish', function () {
       gulp
-        .src('./{{ project_name }}/static/js/test/**/*.spec.js?(x)', {read: false})
+        .src('./{{ project_name }}/static/js/test/**/*.spec.js', {read: false})
         .pipe(mocha({
           require: [
             'jsdom-global/register'
