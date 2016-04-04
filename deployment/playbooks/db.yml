@@ -1,0 +1,5 @@
+---
+- hosts: db
+  roles:
+    - tequila-common
+    - tequila-postgresql

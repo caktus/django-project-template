@@ -1,0 +1,6 @@
+---
+- hosts: web
+  roles:
+    - tequila-common
+    - tequila-nginx
+    - tequila-django

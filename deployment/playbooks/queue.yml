@@ -1,0 +1,5 @@
+---
+- hosts: queue
+  roles:
+    - tequila-common
+    - tequila-rabbitmq

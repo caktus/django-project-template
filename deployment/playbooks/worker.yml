@@ -1,0 +1,5 @@
+---
+- hosts: worker
+  roles:
+    - tequila-common
+    - tequila-django

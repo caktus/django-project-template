@@ -1,0 +1,9 @@
+---
+# file: tequila/deploy.yml
+#
+# This playbook will deploy an entire environment
+#
+- include: db.yml
+- include: web.yml
+- include: queue.yml
+- include: worker.yml
