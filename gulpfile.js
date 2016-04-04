@@ -17,6 +17,10 @@ var path = require('path');
 var livereload = require('gulp-livereload');
 var modernizr = require('gulp-modernizr');
 var fileExists = require('file-exists');
+var mocha = require('gulp-mocha');
+var istanbul = require('gulp-istanbul');
+var isparta = require('isparta');
+var coverageEnforcer = require('gulp-istanbul-enforcer');
 
 var spawn = require('child_process').spawn;
 var argv = require('yargs')
@@ -185,15 +189,47 @@ gulp.task('deploy', function() {
   });
 });
 
-gulp.task('test', function () {
+gulp.task('coverage', function () {
   require('babel-core/register');
-
-  return gulp.src('./{{ project_name }}/static/js/test/**/*.spec.js?(x)', {read: false})
-    .pipe(mocha({
-      reporter: 'nyan',
-      require: [
-        './{{ project_name }}/static/js/test/util/dom.js'
-      ]
+  return gulp
+    .src('./{{ project_name }}/static/js/src/**/*.js?(x)')
+    .pipe(istanbul({
+      instrumenter: isparta.Instrumenter
+      , includeUntested: true
     }))
+    .pipe(istanbul.hookRequire())
+    .on('finish', function () {
+      gulp
+        .src('./{{ project_name }}/static/js/test/**/*.spec.js?(x)', {read: false})
+        .pipe(mocha({
+          reporter: 'nyan'
+          , require: [
+            'jsdom-global/register'
+          ]
+        }))
+        .pipe(istanbul.writeReports({
+          dir: './coverage/'
+          , reportOpts: {
+            dir: './coverage/'
+          }
+          , reporters: [
+            'text'
+            , 'text-summary'
+            , 'json'
+            , 'html'
+          ]
+        }))
+        .pipe(coverageEnforcer({
+          thresholds: {
+            statements: 80
+            , branches: 50
+            , lines: 80
+            , functions: 50
+          }
+          , coverageDirectory: './coverage/'
+          , rootDirectory: ''
+        }))
+      ;
+    })
   ;
 });
