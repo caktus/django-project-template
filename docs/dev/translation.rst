@@ -73,8 +73,9 @@ a developer should update the messages on Transifex as follows:
      git commit -m "Updated messages" locale/en/LC_MESSAGES/*.po
      git push
 
-#. Push the updated source file to `Transifex
-   <http://support.transifex.com/customer/portal/articles/996211-pushing-new-translations>`_::
+#. `Push
+   <http://support.transifex.com/customer/portal/articles/996211-pushing-new-translations>`_
+   the updated source file to Transifex::
 
      make pushmessages
 
@@ -90,8 +91,8 @@ translation files on the develop branch as follows:
      git checkout develop
      git pull
 
-#. Pull the updated .po files from `Transifex
-   <http://support.transifex.com/customer/portal/articles/996157-getting-translations>`_::
+#. `Pull <http://support.transifex.com/customer/portal/articles/996157-getting-translations>`_
+   the updated .po files from Transifex::
 
      make pullmessages
 
