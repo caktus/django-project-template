@@ -12,6 +12,10 @@ addons:
 cache:
   directories:
     - $HOME/.cache/pip
+    - $HOME/.npm
+    - $HOME/.nvm
+    - $HOME/.cache/node_modules
+    - $HOME/.cache/venvs
 
 env:
   - DJANGO_SETTINGS_MODULE="{{ project_name }}.settings.dev"
@@ -19,6 +23,9 @@ env:
 install:
   - pip install -U pip
   - pip install -U -r requirements/dev.txt
+  - nvm install 4.2
+  - nvm use 4.2
+  - npm install
 
 before_script:
   - createdb -E UTF-8 {{ project_name }} -U postgres -O $USER
@@ -35,6 +42,7 @@ script:
   - coverage report -m --fail-under 80
   - flake8 .
   - make docs
+  - npm test
 
 notifications:
   hipchat:
