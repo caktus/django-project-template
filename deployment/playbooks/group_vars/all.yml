@@ -4,16 +4,25 @@
 # Variables that are common for all deploys of this project
 #
 project_name: {{ project_name }}
-python_version: 3.4
-# pg_version: 9.4
 
-users:
-  - { name: 'vagrant', public_key: [] }
-  - { name: 'devuser1', public_key: ['ssh-rsa longkeystring== devuser1@example.com'] }
+# python_version: 3.4  # default is 2.7
+less_version: 2.1.0
+# pg_version: 9.4  # default is 9.3
 
 {% verbatim %}
 app_minions: "{{ groups['web'] | union(groups['worker']) }}"
 {% endverbatim %}
 ansible_sudo: true
 
-db_host: localhost
+## Uncomment and edit to override the default directory paths
+{% verbatim %}
+# root_dir: "/var/www/{{ project_name }}"
+# log_dir: "{{ root_dir }}/log"
+# ssl_dir: "{{ root_dir }}/ssl"
+# source_dir: "{{ root_dir }}/src"
+# venv_dir: "{{ root_dir }}/env"
+# public_dir: "{{ root_dir }}/public"
+# static_dir: "{{ public_dir }}/static"
+# media_dir: "{{ public_dir }}/media"
+# ssh_dir: "/home/{{ project_name }}/.ssh"
+{% endverbatim %}

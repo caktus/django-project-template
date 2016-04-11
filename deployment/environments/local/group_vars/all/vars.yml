@@ -1,2 +1,5 @@
 ---
 env_name: 'local'
+
+## This variable is a required value.  Edit.
+domain: local.example.com

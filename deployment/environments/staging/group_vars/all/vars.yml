@@ -1,2 +1,5 @@
 ---
 env_name: 'staging'
+
+## This variable is a required value.  Edit.
+domain: staging.example.com
