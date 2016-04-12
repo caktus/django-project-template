@@ -170,7 +170,10 @@ gulp.task('default', function (cb) {
 
   console.log("Starting Django runserver http://"+argv.address+":"+argv.port+"/");
   var args = ["manage.py", "runserver", argv.address+":"+argv.port];
-  var runserver = spawn("python", args, {
+  // Newer versions of npm mess with the PATH, sometimes putting /usr/bin at the front,
+  // so make sure we invoke the python from our virtual env explicitly.
+  var python = process.env['VIRTUAL_ENV'] + '/bin/python';
+  var runserver = spawn(python, args, {
     stdio: "inherit",
   });
   runserver.on('close', function(code) {
