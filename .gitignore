@@ -7,6 +7,7 @@
 *.orig
 *.DS_Store
 .coverage
+coverage
 .vagrant
 */settings/local.py
 public/static/
