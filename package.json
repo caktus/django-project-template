@@ -26,24 +26,24 @@
   "homepage": "https://github.com/[ORGANIZATION]/{{ project_name }}#readme",
   "dependencies": {},
   "devDependencies": {
-    "@caktus/gulp-tasks": "^0.0.0",
+    "@caktus/gulp-tasks": "^0.0.4",
     "bootstrap": "^3.3.6",
     "flux": "^2.1.1",
     "glob": "^6.0.1",
     "gulp": "^3.8.9",
+    "babelify": "^7.2.0",
     "immutable": "^3.7.6",
-    "isparta": "^4.0.0",
     "jquery": "^2.1",
     "jsdom": "^8.3.0",
     "jsdom-global": "^1.7.0",
+    "less": "^2.6.1",
     "mocha": "^2.4.5",
     "mocha-jsdom": "^1.1.0",
     "react": "^0.14.7",
     "react-addons-test-utils": "^0.14.7",
     "react-dom": "^0.14.7",
     "react-functional": "^1.2.0",
-    "sinon": "^1.17.3",
-    "vinyl-source-stream": "^0.1.1"
+    "sinon": "^1.17.3"
   },
   "browserify": {
     "transform": [
