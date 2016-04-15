@@ -1,3 +1,3 @@
-var tasks = require('@caktus/gulp-tasks')(require('gulp'), {
+require('@caktus/gulp-tasks')(require('gulp'), {
     project_name: "{{ project_name }}",
 });
