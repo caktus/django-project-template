@@ -17,6 +17,6 @@ conf/pillar/*/deploy
 .env
 node_modules
 */static/js/bundle.js
-*/static/js/vendor.js
+*/static/js/vendors.js
 */static/libs/modernizr.js
 */static/css
