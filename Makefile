@@ -31,14 +31,14 @@ generate-secret: length = 32
 generate-secret:
 	@strings /dev/urandom | grep -o '[[:alnum:]]' | head -n $(length) | tr -d '\n'; echo
 
-conf/%.pub.ssh:
+conf/keys/%.pub.ssh:
 	# Generate SSH deploy key for a given environment
 	ssh-keygen -t rsa -b 4096 -f $*.priv -C "$*@${PROJECT_NAME}"
 	@mv $*.priv.pub $@
 
-staging-deploy-key: conf/staging.pub.ssh
+staging-deploy-key: conf/keys/staging.pub.ssh
 
-production-deploy-key: conf/production.pub.ssh
+production-deploy-key: conf/keys/production.pub.ssh
 
 # Translation helpers
 makemessages:
@@ -86,4 +86,4 @@ update:
 .PHONY: default test lint lint-py lint-js generate-secret makemessages \
 		pushmessages pullmessages compilemessages
 
-.PRECIOUS: conf/%.pub.ssh
+.PRECIOUS: conf/keys/%.pub.ssh
