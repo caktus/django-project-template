@@ -235,10 +235,10 @@ def add_role(name):
 def salt(salt_cmd, target="'*'", loglevel=DEFAULT_SALT_LOGLEVEL, pillar=None):
     """Run arbitrary salt commands."""
     with settings(warn_only=True, host_string=env.master):
-        json_pillar = json.dumps(pillar or {})
-        command = "salt {target} -l{loglevel} {cmd} pillar='{pillar}'"
-        command = command.format(
-            cmd=salt_cmd, target=target, loglevel=loglevel, pillar=json_pillar)
+        command = "salt {target} -l{loglevel} {cmd}"
+        if pillar:
+            command += " pillar='{}'".format(json.dumps(pillar))
+        command = command.format(cmd=salt_cmd, target=target, loglevel=loglevel)
         result = sudo(command)
     return result
 
