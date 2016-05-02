@@ -8,7 +8,7 @@ Overview
 {{ project_name|title }} is deployed on the following stack.
 
 - OS: Ubuntu 14.04 LTS
-- Python: 3.4
+- Python: 3.5
 - Database: Postgres 9.3
 - Application Server: Gunicorn
 - Frontend Server: Nginx
@@ -73,7 +73,7 @@ to this::
       branch: master
 
 You also need to set ``project_name`` and ``python_version`` in ``conf/pillar/project.sls``.
-The project template is set up for 3.4 by default. If you want to use 2.7, you will need to change ``python_version`` and make a few changes to requirements. In ``requirements/production.txt``, change python3-memcached to python-memcached.
+The project template is set up for 3.5 by default. If you want to use 2.7, you will need to change ``python_version`` and make a few changes to requirements. In ``requirements/production.txt``, change python3-memcached to python-memcached.
 
 For the environment you want to setup you will need to set the ``domain`` in
 ``conf/pillar/<environment>.sls``.
@@ -379,6 +379,6 @@ match the domain for which the certificate is going to be deployed (i.e example.
 
 This signing request (.csr) will be handed off to a trusted Certificate Authority (CA) such as
 StartSSL, NameCheap, GoDaddy, etc. to purchase the signed certificate. The contents of
-the *.key file will be added to the ``ssl_key`` pillar and the signed certificate
+the ``*.key`` file will be added to the ``ssl_key`` pillar and the signed certificate
 from the CA will be added to the ``ssl_cert`` pillar. These should be encrypted using
 the same proceedure as with the private SSH deploy key.

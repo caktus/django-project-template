@@ -7,6 +7,7 @@
 *.orig
 *.DS_Store
 .coverage
+coverage
 .vagrant
 */settings/local.py
 public/static/
@@ -16,4 +17,6 @@ conf/pillar/*/deploy
 .env
 node_modules
 */static/js/bundle.js
+*/static/js/vendors.js
+*/static/libs/modernizr.js
 */static/css

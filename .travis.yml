@@ -11,7 +11,7 @@ language: python
 sudo: false
 
 python:
-  - "3.4"
+  - "3.5"
 
 # Match postgresql version to that in conf/pillar/project.sls
 addons:
@@ -45,6 +45,8 @@ script:
   - ln -s $HOME/.cache/node_modules node_modules
   - make setup
   - $WORKON_HOME/test_template/bin/python manage.py test --noinput
+  - . $WORKON_HOME/test_template/bin/activate
+  - make docs
 
 before_cache:
   - rm -f $HOME/.cache/pip/log/debug.log

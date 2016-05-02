@@ -17,6 +17,10 @@ var path = require('path');
 var livereload = require('gulp-livereload');
 var modernizr = require('gulp-modernizr');
 var fileExists = require('file-exists');
+var mocha = require('gulp-mocha');
+var istanbul = require('gulp-istanbul');
+var isparta = require('isparta');
+var coverageEnforcer = require('gulp-istanbul-enforcer');
 
 var spawn = require('child_process').spawn;
 var argv = require('yargs')
@@ -34,7 +38,7 @@ function modernizrTask(options) {
     gulp.src(options.src)
       .pipe(modernizr())
       .pipe(uglify())
-      .pipe(gulp.dest(options.dest))
+      .pipe(gulp.dest(options.dest));
   }
 }
 gulp.task('modernizr', modernizrTask);
@@ -107,7 +111,7 @@ var browserifyTask = function (options) {
         console.log('VENDORS bundle built in ' + (Date.now() - start) + 'ms');
       }));
   }
-}
+};
 
 var cssTask = function (options) {
     var lessOpts = {
@@ -137,7 +141,7 @@ var cssTask = function (options) {
         .pipe(cssmin())
         .pipe(gulp.dest(options.dest));
     }
-}
+};
 
 function rebuild(options) {
   var options = options || {};
@@ -166,7 +170,10 @@ gulp.task('default', function (cb) {
 
   console.log("Starting Django runserver http://"+argv.address+":"+argv.port+"/");
   var args = ["manage.py", "runserver", argv.address+":"+argv.port];
-  var runserver = spawn("python", args, {
+  // Newer versions of npm mess with the PATH, sometimes putting /usr/bin at the front,
+  // so make sure we invoke the python from our virtual env explicitly.
+  var python = process.env['VIRTUAL_ENV'] + '/bin/python';
+  var runserver = spawn(python, args, {
     stdio: "inherit",
   });
   runserver.on('close', function(code) {
@@ -182,5 +189,49 @@ gulp.task('default', function (cb) {
 gulp.task('deploy', function() {
   rebuild({
     development: false,
-  })
+  });
+});
+
+gulp.task('test', function () {
+  require('babel-core/register');
+  return gulp
+    .src('./{{ project_name }}/static/js/app/**/*.js')
+    .pipe(istanbul({
+      instrumenter: isparta.Instrumenter
+      , includeUntested: true
+    }))
+    .pipe(istanbul.hookRequire())
+    .on('finish', function () {
+      gulp
+        .src('./{{ project_name }}/static/js/test/**/test_*.js', {read: false})
+        .pipe(mocha({
+          require: [
+            'jsdom-global/register'
+          ]
+        }))
+        .pipe(istanbul.writeReports({
+          dir: './coverage/'
+          , reportOpts: {
+            dir: './coverage/'
+          }
+          , reporters: [
+            'text'
+            , 'text-summary'
+            , 'json'
+            , 'html'
+          ]
+        }))
+        .pipe(coverageEnforcer({
+          thresholds: {
+            statements: 80
+            , branches: 50
+            , lines: 80
+            , functions: 50
+          }
+          , coverageDirectory: './coverage/'
+          , rootDirectory: ''
+        }))
+      ;
+    })
+  ;
 });
