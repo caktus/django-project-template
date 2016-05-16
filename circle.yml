@@ -1,0 +1,17 @@
+machine:
+  python:
+    version: 3.5.0
+  environment:
+    DJANGO_SETTINGS_MODULE: {{ project_name }}.settings.dev
+dependencies:
+  override:
+    - pip install -U pip
+    - pip install -r requirements/dev.txt
+    - nvm install 4.2
+    - nvm use 4.2
+    - npm install
+    - npm install -g jshint
+test:
+  override:
+    - make -k
+    - make docs
