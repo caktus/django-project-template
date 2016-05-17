@@ -6,8 +6,11 @@ default: lint test
 test:
 	# Run all tests and report coverage
 	# Requires coverage
+	python manage.py makemigrations --dry-run | grep 'No changes detected' || \
+		(echo 'There are changes which require migrations.' && exit 1)
 	coverage run manage.py test
 	coverage report -m --fail-under 80
+	npm test
 
 lint-py:
 	# Check for Python formatting issues
