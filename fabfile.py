@@ -344,9 +344,9 @@ def encrypt(*args, **kwargs):
 def hostnames_for_role(role):
     with hide('running', 'stdout'):
         result = salt(
-            cmd='test.ping --output=yaml',
+            cmd='grains.item fqdn --output=yaml',
             target='-G "roles:%s"' % role)
-    return yaml.safe_load(result.stdout).keys()
+    return [v['fqdn'] for v in yaml.safe_load(result.stdout).values()]
 
 
 def get_project_name():
