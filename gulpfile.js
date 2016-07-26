@@ -143,10 +143,9 @@ var cssTask = function () {
     var lessOpts = {
       relativeUrls: true,
     };
-    var start = new Date();
     if (options.development) {
       var run = function () {
-        start = Date.now();
+        var start = Date.now();
         console.log('Building CSS bundle');
         return gulp.src(options.css.src)
           .pipe(gulpif(options.development, livereload()))
@@ -166,32 +165,10 @@ var cssTask = function () {
         .pipe(less(lessOpts))
         .pipe(rename('bundle.css'))
         .pipe(cssmin())
-        .pipe(gulp.dest(options.css.dest))
-        .pipe(notify(function () {
-          console.log('CSS bundle built in ' + (Date.now() - start) + 'ms');
-        }));
+        .pipe(gulp.dest(options.css.dest));
     }
 };
 gulp.task('css', cssTask);
-
-gulp.task('rebuild', ['css', 'browserify'])
-
-function rebuild(options) {
-  var options = options || {};
-
-  browserifyTask({
-    development: options.development,
-    src: './{{ project_name }}/static/js/index.js',
-    dest: './{{ project_name }}/static/js/'
-  });
-
-  cssTask({
-    development: options.development,
-    src: './{{ project_name }}/static/less/index.less',
-    watch: './{{ project_name }}/static/less/**/*.less',
-    dest: './{{ project_name }}/static/css/'
-  });
-}
 
 gulp.task('rebuild', ['css', 'browserify'])
 
