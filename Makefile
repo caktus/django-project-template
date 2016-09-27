@@ -15,7 +15,7 @@ test:
 lint-py:
 	# Check for Python formatting issues
 	# Requires flake8
-	flake8 .
+	$(WORKON_HOME)/{{ project_name }}/bin/flake8 .
 
 lint-js:
 	# Check JS for any problems
