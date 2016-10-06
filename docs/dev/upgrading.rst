@@ -1,12 +1,12 @@
 Upgrading to the project template
 =================================
 
-The project template represents our standard deployment and provisioning
-setup for new projects. When we are taking over maintenance of a project
-or otherwise handling infrastructure upgrades for an existing project,
-we often want to port that project's deployment setup over to our
-project template's setup in order to make deployment and provisioning
-consistent with other projects.
+The project template represents our standard setup for new projects. When we
+are taking over maintenance of a project or otherwise handling infrastructure
+upgrades for an existing project, we often want to port that project's
+deployment setup over to our project template's setup in order to make
+deployment and provisioning consistent with other projects and to take
+advantage of our build process tooling.
 
 This document gives an overview of the components that need to be pulled
 over from the project template in order to make that happen.
@@ -18,15 +18,15 @@ Porting over to the project template involves copying a lot of files.
 
 The easiest way to prepare these files for copying is to start a new
 project using the project template with the same name as the target
-project. This will be called the "DPT base" in these docs.
+project. This will be called the **DPT base** in these docs.
 
 Provisioning and deployment
 ---------------------------
 
-The main interest in the project template is arguably its tools for
+The main reason the project template is useful is arguably its tools for
 provisioning and deploying to servers. This section identifies the files
 that need to be copied and configuration that needs to be done to take
-advantage of these tools.
+advantage of these.
 
 Files and requirements
 ~~~~~~~~~~~~~~~~~~~~~~
@@ -130,9 +130,24 @@ base wholesale and tinker with them as necessary:
 -  ``.eslintrc``: the `ESLint <http://eslint.org/>`__ configuration file
    that specifies the style your JS should conform to.
 
+You will want to make adjustments to your ``.gitignore`` file to take into
+account the various outputs of the build processes, Node dependencies, and so
+on. Add at least these (changing the specific file names as necessary for
+your project setup):
+
+::
+
+   node_modules
+   */static/js/bundle.js
+   */static/js/vendors.js
+   */static/libs/modernizr.js
+   */static/css
+
 All interesting front-end build configuration will take place in
 ``gulpfile.js``. This includes changing the ``options`` object's
 properties to suit your project's directory structure.
+
+
 
 The tasks included in the ``gulpfile.js`` make some assumptions, spelled
 out below.
