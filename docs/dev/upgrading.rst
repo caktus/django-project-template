@@ -1,0 +1,174 @@
+Upgrading to the project template
+=================================
+
+The project template represents our standard deployment and provisioning
+setup for new projects. When we are taking over maintenance of a project
+or otherwise handling infrastructure upgrades for an existing project,
+we often want to port that project's deployment setup over to our
+project template's setup in order to make deployment and provisioning
+consistent with other projects.
+
+This document gives an overview of the components that need to be pulled
+over from the project template in order to make that happen.
+
+Getting started
+---------------
+
+Porting over to the project template involves copying a lot of files.
+
+The easiest way to prepare these files for copying is to start a new
+project using the project template with the same name as the target
+project. This will be called the "DPT base" in these docs.
+
+Provisioning and deployment
+---------------------------
+
+The main interest in the project template is arguably its tools for
+provisioning and deploying to servers. This section identifies the files
+that need to be copied and configuration that needs to be done to take
+advantage of these tools.
+
+Files and requirements
+~~~~~~~~~~~~~~~~~~~~~~
+
+Copy over the following files from the DPT base:
+
+-  ``fabfile.py``: the Fabric script used to automate provisioning and
+   deployment
+-  ``install_salt.sh``: used by Fabric when setting up the Salt master
+   during provisioning
+-  ``Makefile``: used for generating secrets
+-  ``conf/`` (entire directory): the Salt states and Pillar variables
+   used to provision and deploy
+
+Requirements files must also be adjusted to accommodate this deployment
+setup. Look through ``requirements/deploy.txt`` in your DPT base and
+ensure that its contents are all included in a requirement file in your
+target project:
+
+::
+
+    PyYAML==3.11
+    Fabric==1.10.2
+    # Required by Fabric
+    paramiko==1.15.2
+    pycrypto==2.6.1
+    ecdsa==0.13
+
+    newrelic
+
+With these files in place and requirements installed, assuming that your
+project is 100% compliant with the baseline dependencies found in the
+DPT base, you should be able to follow the instructions in the
+django-project-template provisioning documentation to set up a server.
+
+Be sure to also add ``.priv`` to your ``.gitignore`` so that private
+keys generated during the provisioning process are not accidentally
+tracked.
+
+Salt states and Margarita
+~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Assuming your project is not 100% compliant with the baseline
+dependencies found in the DPT base, most of the modifications you will
+want to make will happen in the ``conf/salt/`` directory of your
+project.
+
+By default, projects will pull in Salt states from
+`Margarita <https://github.com/caktus/margarita>`__. This includes the
+core app state ``project/web/app.sls``, which handles critical tasks
+like setting up Gunicorn, preparing static assets, and running
+migrations.
+
+**Warning**: ensure that you are using a branch of Margarita that is
+appropriate for the server you're deploying to. If your server has
+Ubuntu 16.04, make sure to use the ``xenial`` branch of Margarita, which
+you can set in ``conf/pillar/project.sls``:
+
+::
+
+    margarita_version: origin/xenial
+
+If you want to override any Margarita states, you will need to create a
+Salt state in your project whose location matches up with the Margarita
+state's location in the tree. For example, to replace Margarita's
+``project/web/app.sls``, create a file
+``conf/salt/project/web/app.sls``. You will need to copy over all the
+content of the Margarita state that you *do* want to keep, alongside
+your own additions.
+
+Examples of deviations from Margarita that you might want to implement:
+
+-  Your project uses Compass instead of Less. The ``less`` command in
+   ``app.sls`` is therefore not needed, and instead you require a
+   Compass command and its dependencies.
+-  Your project uses MySQL instead of Postgres. The ``db/init.sls`` will
+   need to be replaced with something MySQL-appropriate, and a
+   configuration file will have to be included as well.
+
+Front end components & npm build process
+----------------------------------------
+
+Especially for projects with nontrivial JS and styling requirements
+(e.g. CSS preprocessors), it is also useful to install the project
+template's Node-based front-end build and deploy setup.
+
+The easiest way to do this is to simply copy these files from the DPT
+base wholesale and tinker with them as necessary:
+
+-  ``package.json``: the NPM package file, which contains front-end
+   development dependencies and information about the project. Once this
+   is in your project, you can run ``npm install`` to install all
+   dependencies.
+-  ``gulpfile.js``: the build file for our
+   `Gulp <http://gulpjs.com/>`__-based built process. This is set up
+   with a number of useful tasks. Once this is in place, you can run
+   ``npm run dev`` to start a dev server that will auto-recompile your
+   front-end code.
+-  ``.babelrc``: the `Babel <https://babeljs.io/>`__ configuration file
+   that specifies how your JS will be preprocessed.
+-  ``.eslintrc``: the `ESLint <http://eslint.org/>`__ configuration file
+   that specifies the style your JS should conform to.
+
+All interesting front-end build configuration will take place in
+``gulpfile.js``. This includes changing the ``options`` object's
+properties to suit your project's directory structure.
+
+The tasks included in the ``gulpfile.js`` make some assumptions, spelled
+out below.
+
+JS task
+~~~~~~~
+
+In the ``browserify`` task, your JavaScript code will be preprocessed
+and bundled into a single (minified) file. This bundle will be created
+from an entry point JS file given by ``options.src`` and that file's
+(recursive) dependencies.
+
+The preprocessing that your code is subjected to is specified in
+``.babelrc``. By default, this includes the ``es2015`` preset, which
+allows you to use ECMAScript 2015, and the ``transform-react-jsx``
+plugin, which lets you use
+`JSX <https://facebook.github.io/react/docs/jsx-in-depth.html>`__ syntax
+with your `React <https://facebook.github.io/react/index.html>`__ code.
+The latter is included because we have begun to standardize on React for
+front-end development.
+
+The definition of ``browserifyTask`` specifies that the input to the
+bundling process is ``index.js`` and the output is ``bundle.js``. Either
+of these values can be changed, and the destination dir for the bundle
+can be changed in ``options.dest``.
+
+Less task
+~~~~~~~~~
+
+Our project template assumes that you are using
+`Less <http://lesscss.org/>`__ as your CSS preprocessor. As with JS,
+your Less will be compiled and bundled into a single file, starting with
+the entry point given by ``options.css.src`` and that file's
+dependencies.
+
+One annoying "gotcha" with this setup is that the auto-rebuilding task
+does not notice changes to your Less code that happen because you have
+switched branches with git. In that situation, you will need to restart
+your ``npm run dev`` process to force recompilation of your CSS.
