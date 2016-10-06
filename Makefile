@@ -15,12 +15,12 @@ test:
 lint-py:
 	# Check for Python formatting issues
 	# Requires flake8
-	flake8 .
+	$(WORKON_HOME)/{{ project_name }}/bin/flake8 .
 
 lint-js:
 	# Check JS for any problems
 	# Requires jshint
-	find -name "*.js" -not -path "${STATIC_LIBS_DIR}*" -print0 | xargs -0 jshint
+	./node_modules/.bin/eslint -c .eslintrc "${STATIC_LIBS_DIR}*" --ext js,jsx
 
 lint: lint-py lint-js
 
