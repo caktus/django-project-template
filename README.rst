@@ -20,6 +20,7 @@ local development system:
 
 - Python >= 3.5
 - NodeJS >= 4.2
+- npm >= 2.14.7
 - `pip <http://www.pip-installer.org/>`_ >= 1.5
 - `virtualenv <http://www.virtualenv.org/>`_ >= 1.10
 - `virtualenvwrapper <http://pypi.python.org/pypi/virtualenvwrapper>`_ >= 3.0
