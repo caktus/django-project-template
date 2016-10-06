@@ -1,7 +1,8 @@
 Upgrading to the project template
 =================================
 
-The project template represents our standard setup for new projects. When we
+The project template represents our standard setup for new projects, as well as
+our standard suite of build tools for local development. When we
 are taking over maintenance of a project or otherwise handling infrastructure
 upgrades for an existing project, we often want to port that project's
 deployment setup over to our project template's setup in order to make
@@ -100,7 +101,7 @@ your own additions.
 Examples of deviations from Margarita that you might want to implement:
 
 -  Your project uses Compass instead of Less. The ``less`` command in
-   ``app.sls`` is therefore not needed, and instead you require a
+   ``app.sls`` is therefore not needed, and instead you will need to add a
    Compass command and its dependencies.
 -  Your project uses MySQL instead of Postgres. The ``db/init.sls`` will
    need to be replaced with something MySQL-appropriate, and a
@@ -146,8 +147,6 @@ your project setup):
 All interesting front-end build configuration will take place in
 ``gulpfile.js``. This includes changing the ``options`` object's
 properties to suit your project's directory structure.
-
-
 
 The tasks included in the ``gulpfile.js`` make some assumptions, spelled
 out below.
