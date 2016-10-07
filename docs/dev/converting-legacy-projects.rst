@@ -136,6 +136,9 @@ If you want to add optional states to existing roles, ``top.sls`` is also
 where you would do that. For example, if adding Paper Trail to a project, you
 will want to add ``forward_logs`` to some role (most likely ``'*'``).
 
+Configuration, variables, and secrets
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
 Front end components & npm build process
 ----------------------------------------
 
