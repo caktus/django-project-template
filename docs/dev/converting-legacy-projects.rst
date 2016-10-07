@@ -1,4 +1,4 @@
-Upgrading to the project template
+Converting legacy projects to the project template
 =================================
 
 The project template represents our standard setup for new projects, as well as
@@ -6,8 +6,7 @@ our standard suite of build tools for local development. When we
 are taking over maintenance of a project or otherwise handling infrastructure
 upgrades for an existing project, we often want to port that project's
 deployment setup over to our project template's setup in order to make
-deployment and provisioning consistent with other projects and to take
-advantage of our build process tooling.
+it consistent with our other projects.
 
 This document gives an overview of the components that need to be pulled
 over from the project template in order to make that happen.
@@ -106,6 +105,36 @@ Examples of deviations from Margarita that you might want to implement:
 -  Your project uses MySQL instead of Postgres. The ``db/init.sls`` will
    need to be replaced with something MySQL-appropriate, and a
    configuration file will have to be included as well.
+
+Working with roles
+~~~~~~~~~~~~~~~~~~
+
+When provisioning a server, you will need to set it up for various roles.
+These roles, and the Salt states associated with them, are specified in
+``conf/salt/top.sls``. This is the file that you must modify to prune away
+unneeded states or to add new roles.
+
+For example, if your project uses Solr, you will want to add a Solr-related
+role to ``top.sls``, something like this:
+
+::
+
+   'roles:solr':
+     - match: grain
+     - solr.project
+
+Once you add a role, you will need to update ``fabfile.py`` by adding a new
+entry to the ``VALID_ROLES`` variable:
+
+::
+   VALID_ROLES = (
+       #  ...
+       'solr',
+   )
+
+If you want to add optional states to existing roles, ``top.sls`` is also
+where you would do that. For example, if adding Paper Trail to a project, you
+will want to add ``forward_logs`` to some role (most likely ``'*'``).
 
 Front end components & npm build process
 ----------------------------------------
