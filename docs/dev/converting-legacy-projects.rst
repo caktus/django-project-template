@@ -34,12 +34,17 @@ Files and requirements
 Copy over the following files from the DPT base:
 
 -  ``fabfile.py``: the Fabric script used to automate provisioning and
-   deployment
+   deployment.
 -  ``install_salt.sh``: used by Fabric when setting up the Salt master
-   during provisioning
--  ``Makefile``: used for generating secrets
+   during provisioning. If this file is not located in the same dir
+   as ``fabfile.py``, provisioning will fail with a cryptic error message.
+-  ``Makefile``: used for generating certain secrets (among other things not
+   related to provisioning and deployment). This includes running
+   ``make generate-secret`` to create a ``SECRET_KEY`` and running
+   ``make <env>-deploy-key`` to produce a keypair for the environment you
+   are provisioning.
 -  ``conf/`` (entire directory): the Salt states and Pillar variables
-   used to provision and deploy
+   used to provision and deploy. See below for details.
 
 Requirements files must also be adjusted to accommodate this deployment
 setup. Look through ``requirements/deploy.txt`` in your DPT base and
