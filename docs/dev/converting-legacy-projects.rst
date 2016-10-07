@@ -144,6 +144,39 @@ will want to add ``forward_logs`` to some role (most likely ``'*'``).
 Configuration, variables, and secrets
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
+As you add, remove, or change states or roles, you will probably need to change
+some associated configuration values.
+
+Many of these are located in ``conf/pillar/*.sls``. In particular, ``project.sls``
+defines a number of values that will be used by Salt during provisioning and
+deployment.
+
+For example, the base ``project.sls`` set a ``less_version`` variable used
+for specifying the version of the Less compiler to use. If you are using Compass
+instead, you will want to set a ``compass_version`` variable and use it in
+the appropriate Salt state (e.g. ``app.sls``) like so:
+
+::
+
+   compass:
+     cmd.run:
+       - name: gem install compass --version '{{ pillar["compass_version"] }}'
+       - user: root
+       - unless: 'which compass & compass --version | grep {{ pillar["compass_version"] }}'
+       - require:
+         - pkg: ruby-dev
+
+Various interesting Salt states are activated by the inclusion of settings in
+``project.sls``. For example, to enable [Letsencrypt](https://letsencrypt.org/)
+on your project, you need to set ``letsencrypt`` to ``true`` and include a
+``admin_email`` value:
+
+::
+
+   letsencrypt: true
+
+   admin_email: <project>-team@caktusgroup.com
+
 Front end components & npm build process
 ----------------------------------------
 
