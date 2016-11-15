@@ -28,6 +28,7 @@ install:
   - npm install
 
 before_script:
+  - createdb -E UTF-8 {{ project_name }} -U postgres -O `whoami`
   # Uncomment for Requires.IO pushes of develop and master merges (not pull-request builds)
   # Requires the $REQUIRES_IO_TOKEN environment variable defined at Travis CI for this project
   # See developer documentation section on depdency tracking for more information.
