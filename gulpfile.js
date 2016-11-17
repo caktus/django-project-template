@@ -271,6 +271,11 @@ gulp.task('test', function () {
           , coverageDirectory: './coverage/'
           , rootDirectory: ''
         }))
+        .on('error', function(err) {
+          gutil.log(gutil.colors.red(err.message));
+          // end this stream
+          this.emit('end');
+        })
       ;
     })
   ;
