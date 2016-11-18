@@ -249,6 +249,11 @@ gulp.task('test', function () {
             'jsdom-global/register'
           ]
         }))
+        .on('error', function(err) {
+          gutil.log(gutil.colors.red(err.message));
+          // end this stream
+          this.emit('end');
+        })
         .pipe(istanbul.writeReports({
           dir: './coverage/'
           , reportOpts: {
