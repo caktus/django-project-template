@@ -7,4 +7,5 @@ less_version: 2.1.0
 
 postgres_version: 9.3
 
-margarita_version: 1.6.6
+# TODO: update once a margarita tag has been created
+margarita_version: origin/xenial

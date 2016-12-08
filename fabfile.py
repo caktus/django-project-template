@@ -11,7 +11,7 @@ from fabric.utils import abort
 
 DEFAULT_SALT_LOGLEVEL = 'info'
 DEFAULT_SALT_LOGFMT = '%(asctime)s,%(msecs)03.0f [%(name)-17s][%(levelname)-8s] %(message)s'
-SALT_VERSION = '2015.5.8'
+SALT_VERSION = '2016.3.2'
 PROJECT_ROOT = os.path.dirname(__file__)
 CONF_ROOT = os.path.join(PROJECT_ROOT, 'conf')
 
@@ -43,7 +43,7 @@ def production():
 @task
 def vagrant():
     env.environment = 'local'
-    env.user = 'vagrant'
+    env.user = 'ubuntu'
     # convert vagrant's ssh-config output to a dictionary
     ssh_config_output = local('vagrant ssh-config', capture=True)
     ssh_config = dict(line.split() for line in ssh_config_output.splitlines())
