@@ -11,7 +11,7 @@ from fabric.utils import abort
 
 DEFAULT_SALT_LOGLEVEL = 'info'
 DEFAULT_SALT_LOGFMT = '%(asctime)s,%(msecs)03.0f [%(name)-17s][%(levelname)-8s] %(message)s'
-SALT_VERSION = '2015.5.8'
+SALT_VERSION = '2016.3.4'
 PROJECT_ROOT = os.path.dirname(__file__)
 CONF_ROOT = os.path.join(PROJECT_ROOT, 'conf')
 
@@ -188,7 +188,10 @@ def setup_minion(*roles):
             'roles': list(roles),
         },
         'mine_functions': {
-            'network.interfaces': []
+            'network.interfaces': [],
+            'network.default_route': {
+                'family': 'inet',
+            },
         },
     }
     _, path = tempfile.mkstemp()
