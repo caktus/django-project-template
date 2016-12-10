@@ -6,8 +6,9 @@ Starting the VM
 ------------------------
 
 You can test the provisioning/deployment using `Vagrant <http://vagrantup.com/>`_. This requires
-Vagrant 1.7+. The Vagrantfile is configured to install the Salt Master and Minion inside the VM once
-you've run ``vagrant up``. The box will be installed if you don't have it already.::
+Vagrant 1.8.7+ and `VirtualBox <https://www.virtualbox.org/wiki/Testbuilds>`_ version 5 with a
+revision number greater than or equal to 112195. The box will be installed if you don't have it
+already.::
 
     vagrant up
 
@@ -23,7 +24,7 @@ be checked into version control because it can only be used on the developer's l
 finalize the provisioning you simply need to run::
 
     fab vagrant setup_master
-    fab vagrant setup_minion:salt-master,db-master,cache,web,balancer -H 127.0.0.1:2222
+    fab vagrant setup_minion:salt-master,db-master,cache,web,balancer -H 33.33.33.10
     fab vagrant deploy
 
 The above command will setup Vagrant to run the full stack. If you want to test only a subset
