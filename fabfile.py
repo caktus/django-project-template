@@ -43,12 +43,12 @@ def production():
 @task
 def vagrant():
     env.environment = 'local'
+    env.user = 'vagrant'
     env.master = '33.33.33.10'
     # convert vagrant's ssh-config output to a dictionary
     ssh_config_output = local('vagrant ssh-config', capture=True)
     ssh_config = dict(line.split() for line in ssh_config_output.splitlines())
     env.key_filename = ssh_config['IdentityFile'].strip('"')
-    env.user = ssh_config['User']
     initialize_env()
 
 
@@ -127,34 +127,10 @@ def install_salt(version, master=False, minion=False, restart=True):
     return False
 
 
-def vbox_version_is_ok():
-    """
-    Return True if installed VirtualBox will work for us.
-    See https://bugs.launchpad.net/cloud-images/+bug/1616794
-
-    Version should be a string like 5.0.31r112195.
-    We need major version 5, and revision must be >= 112195.
-    """
-    GOOD_VBOX_MAJOR_VERSION = '5'
-    GOOD_VBOX_REVISION = 112195
-    vbox_version = local('vboxmanage --version', capture=True)
-    if vbox_version and vbox_version.startswith(GOOD_VBOX_MAJOR_VERSION):
-        if 'r' in vbox_version:
-            revision = int(vbox_version.split('r')[1])
-            if revision >= GOOD_VBOX_REVISION:
-                return True
-    return False
-
-
 @task
 def setup_master():
     """Provision master with salt-master."""
     require('environment')
-    if env.environment == 'local':
-        if not vbox_version_is_ok():
-            abort('Update VirtualBox to version 5.0 or 5.1, revision >= 112195. '
-                  'Instructions: https://www.virtualbox.org/wiki/Testbuilds')
-
     with settings(host_string=env.master):
         sudo('apt-get update -qq')
         sudo('apt-get install python-pip git-core python-git python-gnupg haveged -qq -y')
@@ -260,11 +236,8 @@ def add_role(name):
 @task
 def salt(cmd, target="'*'", loglevel=DEFAULT_SALT_LOGLEVEL):
     """Run arbitrary salt commands."""
-    pillar = ''
-    if env.environment == 'local':
-        pillar = "pillar='{}'".format({'vagrant_user': env.user})
     with settings(warn_only=True, host_string=env.master):
-        result = sudo('salt {0} -l{1} {2} {3}'.format(target, loglevel, cmd, pillar))
+        result = sudo("salt {0} -l{1} {2} ".format(target, loglevel, cmd))
     return result
 
 

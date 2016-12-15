@@ -6,9 +6,8 @@ Starting the VM
 ------------------------
 
 You can test the provisioning/deployment using `Vagrant <http://vagrantup.com/>`_. This requires
-Vagrant 1.8.7+ and `VirtualBox <https://www.virtualbox.org/wiki/Testbuilds>`_ version 5 with a
-revision number greater than or equal to 112195. The box will be installed if you don't have it
-already.::
+Vagrant 1.8.7+ and VirtualBox (``apt-get install virtualbox``). The box will be installed if you
+don't have it already.::
 
     vagrant up
 
