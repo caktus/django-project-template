@@ -70,14 +70,16 @@ With the VM fully provisioned and deployed, you can access the VM at the IP addr
 ``Vagrantfile``, which is 33.33.33.10 by default. Since the Nginx configuration will only listen for the domain name in
 ``conf/pillar/local.sls``, you will need to modify your ``/etc/hosts`` configuration to view it
 at one of those IP addresses. I recommend 33.33.33.10, otherwise the ports in the localhost URL cause
-the CSRF middleware to complain ``REASON_BAD_REFERER`` when testing over SSL. You will need to add::
+the CSRF middleware to complain ``REASON_BAD_REFERER`` when testing over SSL. You also need to
+assign the name ``ubuntu`` to that IP address, since our fabfile uses that hostname to connect, when
+running management commands. You will need to add::
 
-    33.33.33.10 <domain>
+    33.33.33.10 <domain> ubuntu
 
 where ``<domain>`` matches the domain in ``conf/pillar/local.sls``. For example, let's use
 dev.example.com::
 
-    33.33.33.10 dev.example.com
+    33.33.33.10 dev.example.com ubuntu
 
 In your browser you can now view https://dev.example.com and see the VM running the full web stack.
 
