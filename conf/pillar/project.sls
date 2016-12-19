@@ -7,4 +7,4 @@ less_version: 2.1.0
 
 postgres_version: 9.3
 
-margarita_version: origin/fix-vagrant-username
+margarita_version: 2.1.0
