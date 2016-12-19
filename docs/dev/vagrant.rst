@@ -1,6 +1,17 @@
 Vagrant Testing
 ========================
 
+Quickstart
+------------------------
+
+Here is a one-liner to delete any existing vagrant VM, rebuild it and deploy our code to it. It
+takes about 20-30 minutes on my box. See below for further explanations on what these commands do::
+
+  vagrant destroy && \
+    vagrant up && \
+    fab vagrant setup_master && \
+    fab vagrant setup_minion:salt-master,db-master,cache,web,balancer -H 33.33.33.10 && \
+    fab vagrant deploy
 
 Starting the VM
 ------------------------
