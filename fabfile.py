@@ -138,7 +138,7 @@ def setup_master():
             try:
                 sudo('echo is SSH working?')
             except NetworkError as e:
-                print(e + "but let's try again")
+                print(e.message + ", but let's try again")
         sudo('apt-get update -qq')
         sudo('apt-get install python-pip git-core python-git python-gnupg haveged -qq -y')
         sudo('mkdir -p /etc/salt/')

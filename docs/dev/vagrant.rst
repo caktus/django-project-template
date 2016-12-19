@@ -4,10 +4,12 @@ Vagrant Testing
 Quickstart
 ------------------------
 
-Here is a one-liner to delete any existing vagrant VM, rebuild it and deploy our code to it. It
-takes about 20-30 minutes on my box. See below for further explanations on what these commands do::
+Here is a one-liner to set your ``project_name``, delete any existing vagrant VM, rebuild it and
+deploy our code to it. It takes about 20-30 minutes on my box. See below for further explanations on
+what these commands do::
 
-  vagrant destroy && \
+  sed -i 's/project_name: example/project_name: {{ project_name }}/g' conf/pillar/project.sls && \
+    vagrant destroy && \
     vagrant up && \
     fab vagrant setup_master && \
     fab vagrant setup_minion:salt-master,db-master,cache,web,balancer -H 33.33.33.10 && \
@@ -29,9 +31,10 @@ so here are notes of the Vagrant specifics.
 Provisioning the VM
 ------------------------
 
-Set your environment variables and secrets in ``conf/pillar/local.sls``. It is OK for this to
-be checked into version control because it can only be used on the developer's local machine. To
-finalize the provisioning you simply need to run::
+The only variable that absolutely must be set is ``project_name`` in ``conf/pillar/project.sls``.
+This should be set to ``{{ project_name}}``. Set other environment variables and secrets in
+``conf/pillar/local.sls``. It is OK for this to be checked into version control because it can only
+be used on the developer's local machine. To finalize the provisioning run::
 
     fab vagrant setup_master
     fab vagrant setup_minion:salt-master,db-master,cache,web,balancer -H 33.33.33.10
