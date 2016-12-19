@@ -7,6 +7,7 @@ import yaml
 
 from fabric.api import env, execute, get, hide, local, put, require, run, settings, sudo, task
 from fabric.contrib import files, project
+from fabric.exceptions import NetworkError
 from fabric.utils import abort
 
 DEFAULT_SALT_LOGLEVEL = 'info'
@@ -44,10 +45,10 @@ def production():
 def vagrant():
     env.environment = 'local'
     env.user = 'vagrant'
+    env.master = '33.33.33.10'
     # convert vagrant's ssh-config output to a dictionary
     ssh_config_output = local('vagrant ssh-config', capture=True)
     ssh_config = dict(line.split() for line in ssh_config_output.splitlines())
-    env.master = '{HostName}:{Port}'.format(**ssh_config)
     env.key_filename = ssh_config['IdentityFile'].strip('"')
     initialize_env()
 
@@ -132,6 +133,12 @@ def setup_master():
     """Provision master with salt-master."""
     require('environment')
     with settings(host_string=env.master):
+        if env.environment == 'local':
+            # First SSH connection to vagrant box often fails. So catch and retry
+            try:
+                sudo('echo is SSH working?')
+            except NetworkError as e:
+                print(e.message + ", but let's try again")
         sudo('apt-get update -qq')
         sudo('apt-get install python-pip git-core python-git python-gnupg haveged -qq -y')
         sudo('mkdir -p /etc/salt/')
