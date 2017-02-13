@@ -5,7 +5,7 @@ python_version: 3.5
 
 less_version: 2.1.0
 
-margarita_version: 2.1.1
+margarita_version: 2.2.0
 
 postgres_version: 9.3
 
