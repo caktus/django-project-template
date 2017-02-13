@@ -16,7 +16,10 @@ var glob = require('glob');
 var path = require('path');
 var livereload = require('gulp-livereload');
 var modernizr = require('gulp-modernizr');
-var fileExists = require('file-exists');
+var mocha = require('gulp-mocha');
+var istanbul = require('gulp-istanbul');
+var isparta = require('isparta');
+var coverageEnforcer = require('gulp-istanbul-enforcer');
 
 var spawn = require('child_process').spawn;
 var argv = require('yargs')
@@ -29,23 +32,49 @@ var argv = require('yargs')
 var dependencies = [
 ];
 
-function modernizrTask(options) {
-  if (!options.development || !fileExists(options.dest + "/modernizr.js")) {
-    gulp.src(options.src)
-      .pipe(modernizr())
-      .pipe(uglify())
-      .pipe(gulp.dest(options.dest))
-  }
+var options = {
+  src: './{{ project_name }}/static/js/index.js',
+  dest: './{{ project_name }}/static/js/',
+
+  modernizr: {
+    src: './{{ project_name }}/static/js/index.js',
+    dest: './{{ project_name }}/static/libs/',
+  },
+
+  css: {
+    src: './{{ project_name }}/static/less/index.less',
+    watch: './{{ project_name }}/static/less/**/*.less',
+    dest: './{{ project_name }}/static/css/'
+  },
+  development: false
 }
-gulp.task('modernizr', modernizrTask);
 
-var browserifyTask = function (options) {
+if (argv._ && argv._[0] === 'deploy') {
+  options.development = false
+} else {
+  options.development = true
+}
 
-  modernizrTask({
-    src: options.src,
-    dest: options.dest + "../libs",
-    development: options.development,
-  });
+if (options.development) {
+  console.log("Building for development")
+  delete process.env['NODE_ENV'];
+  // Be more verbose for developers
+  gulp.onAll(function (e) {
+    console.log(e);
+  })
+} else {
+  console.log("Building for production")
+  process.env['NODE_ENV'] = 'production';
+}
+
+gulp.task('modernizr', function() {
+  return gulp.src(options.modernizr.src)
+        .pipe(modernizr())
+        .pipe(gulpif(!options.development, streamify(uglify())))
+        .pipe(gulp.dest(options.modernizr.dest))
+})
+
+var browserifyTask = function () {
 
   // Our app bundler
   var appBundler = browserify({
@@ -64,25 +93,23 @@ var browserifyTask = function (options) {
   var rebundle = function () {
     var start = Date.now();
     console.log('Building APP bundle');
-    appBundler.bundle()
-      .on('error', gutil.log)
-      .pipe(source('index.js'))
-      .pipe(gulpif(!options.development, streamify(uglify())))
-      .pipe(rename('bundle.js'))
-      .pipe(gulp.dest(options.dest))
-      .pipe(gulpif(options.development, livereload()))
-      .pipe(notify(function () {
-        console.log('APP bundle built in ' + (Date.now() - start) + 'ms');
-      }));
+    return appBundler.bundle()
+        .on('error', gutil.log)
+        .pipe(source('index.js'))
+        .pipe(gulpif(!options.development, streamify(uglify())))
+        .pipe(rename('bundle.js'))
+        .pipe(gulp.dest(options.dest))
+        .pipe(gulpif(options.development, livereload()))
+        .pipe(notify(function () {
+          console.log('APP bundle built in ' + (Date.now() - start) + 'ms');
+        }));
   };
 
   // Fire up Watchify when developing
   if (options.development) {
-    appBundler = watchify(appBundler);
-    appBundler.on('update', rebundle);
+    var watcher = watchify(appBundler);
+    watcher.on('update', rebundle);
   }
-
-  rebundle();
 
   // We create a separate bundle for our dependencies as they
   // should not rebundle on file changes. This only happens when
@@ -107,66 +134,51 @@ var browserifyTask = function (options) {
         console.log('VENDORS bundle built in ' + (Date.now() - start) + 'ms');
       }));
   }
-}
 
-var cssTask = function (options) {
+  return rebundle();
+};
+gulp.task('browserify', ['modernizr'], browserifyTask);
+
+var cssTask = function () {
     var lessOpts = {
       relativeUrls: true,
     };
     if (options.development) {
       var run = function () {
-        var start = new Date();
+        var start = Date.now();
         console.log('Building CSS bundle');
-        gulp.src(options.src)
+        return gulp.src(options.css.src)
           .pipe(gulpif(options.development, livereload()))
           .pipe(concat('index.less'))
           .pipe(less(lessOpts))
           .pipe(rename('bundle.css'))
-          .pipe(gulp.dest(options.dest))
+          .pipe(gulp.dest(options.css.dest))
           .pipe(notify(function () {
             console.log('CSS bundle built in ' + (Date.now() - start) + 'ms');
           }));
       };
-      run();
-      gulp.watch(options.watch, run);
+      gulp.watch(options.css.watch, run);
+      return run();
     } else {
-      gulp.src(options.src)
+      return gulp.src(options.css.src)
         .pipe(concat('index.less'))
         .pipe(less(lessOpts))
         .pipe(rename('bundle.css'))
         .pipe(cssmin())
-        .pipe(gulp.dest(options.dest));
+        .pipe(gulp.dest(options.css.dest));
     }
-}
+};
+gulp.task('css', cssTask);
 
-function rebuild(options) {
-  var options = options || {};
+gulp.task('rebuild', ['css', 'browserify'])
 
-  browserifyTask({
-    development: options.development,
-    src: './{{ project_name }}/static/js/index.js',
-    dest: './{{ project_name }}/static/js/'
-  });
-
-  cssTask({
-    development: options.development,
-    src: './{{ project_name }}/static/less/index.less',
-    watch: './{{ project_name }}/static/less/**/*.less',
-    dest: './{{ project_name }}/static/css/'
-  });
-}
-
-// Starts our development workflow
-gulp.task('default', function (cb) {
-  livereload.listen();
-
-  rebuild({
-    development: true,
-  });
-
+function start_dev_server(done) {
   console.log("Starting Django runserver http://"+argv.address+":"+argv.port+"/");
   var args = ["manage.py", "runserver", argv.address+":"+argv.port];
-  var runserver = spawn("python", args, {
+  // Newer versions of npm mess with the PATH, sometimes putting /usr/bin at the front,
+  // so make sure we invoke the python from our virtual env explicitly.
+  var python = process.env['VIRTUAL_ENV'] + '/bin/python';
+  var runserver = spawn(python, args, {
     stdio: "inherit",
   });
   runserver.on('close', function(code) {
@@ -176,11 +188,58 @@ gulp.task('default', function (cb) {
       console.log('Django runserver exited normally.');
     }
   });
+  done();
+}
+gulp.task('start_dev_server', ['rebuild'], start_dev_server)
 
+// Starts our development workflow
+gulp.task('default', ['start_dev_server'], function (done) {
+  livereload.listen();
+  done();
 });
 
-gulp.task('deploy', function() {
-  rebuild({
-    development: false,
-  })
+gulp.task('deploy', ['rebuild']);
+
+gulp.task('test', function () {
+  require('babel-core/register');
+  return gulp
+    .src('./{{ project_name }}/static/js/app/**/*.js')
+    .pipe(istanbul({
+      instrumenter: isparta.Instrumenter
+      , includeUntested: true
+    }))
+    .pipe(istanbul.hookRequire())
+    .on('finish', function () {
+      gulp
+        .src('./{{ project_name }}/static/js/test/**/test_*.js', {read: false})
+        .pipe(mocha({
+          require: [
+            'jsdom-global/register'
+          ]
+        }))
+        .pipe(istanbul.writeReports({
+          dir: './coverage/'
+          , reportOpts: {
+            dir: './coverage/'
+          }
+          , reporters: [
+            'text'
+            , 'text-summary'
+            , 'json'
+            , 'html'
+          ]
+        }))
+        .pipe(coverageEnforcer({
+          thresholds: {
+            statements: 80
+            , branches: 50
+            , lines: 80
+            , functions: 50
+          }
+          , coverageDirectory: './coverage/'
+          , rootDirectory: ''
+        }))
+      ;
+    })
+  ;
 });

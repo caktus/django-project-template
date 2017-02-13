@@ -6,18 +6,21 @@ default: lint test
 test:
 	# Run all tests and report coverage
 	# Requires coverage
+	python manage.py makemigrations --dry-run | grep 'No changes detected' || \
+		(echo 'There are changes which require migrations.' && exit 1)
 	coverage run manage.py test
 	coverage report -m --fail-under 80
+	npm test
 
 lint-py:
 	# Check for Python formatting issues
 	# Requires flake8
-	flake8 .
+	$(WORKON_HOME)/{{ project_name }}/bin/flake8 .
 
 lint-js:
 	# Check JS for any problems
 	# Requires jshint
-	find -name "*.js" -not -path "${STATIC_LIBS_DIR}*" -print0 | xargs -0 jshint
+	./node_modules/.bin/eslint -c .eslintrc "${STATIC_LIBS_DIR}*" --ext js,jsx
 
 lint: lint-py lint-js
 
@@ -55,13 +58,14 @@ pushmessages:
 	tx push -s
 
 pullmessages:
-	# Pull the latest Arabic PO file from Transifex
+	# Pull the latest translated PO files from Transifex
 	tx pull -af
 
 setup:
-	virtualenv -p `which python3.4` $(WORKON_HOME)/{{ project_name }}
+	virtualenv -p `which python3.5` $(WORKON_HOME)/{{ project_name }}
 	$(WORKON_HOME)/{{ project_name }}/bin/pip install -U pip wheel
 	$(WORKON_HOME)/{{ project_name }}/bin/pip install -Ur requirements/dev.txt
+	$(WORKON_HOME)/{{ project_name }}/bin/pip freeze
 	npm install
 	npm update
 	cp {{ project_name }}/settings/local.example.py {{ project_name }}/settings/local.py
@@ -82,8 +86,11 @@ update:
 	npm install
 	npm update
 
+# Build documentation
+docs:
+	cd docs && make html
 
 .PHONY: default test lint lint-py lint-js generate-secret makemessages \
-		pushmessages pullmessages compilemessages
+		pushmessages pullmessages compilemessages docs
 
 .PRECIOUS: conf/keys/%.pub.ssh

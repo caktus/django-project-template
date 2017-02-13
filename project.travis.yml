@@ -3,7 +3,7 @@ language: python
 sudo: false
 
 python:
-  - "3.4"
+  - "3.5"
 
 # Match postgresql version to that in conf/pillar/project.sls
 addons:
@@ -12,6 +12,10 @@ addons:
 cache:
   directories:
     - $HOME/.cache/pip
+    - $HOME/.npm
+    - $HOME/.nvm
+    - $HOME/.cache/node_modules
+    - $HOME/.cache/venvs
 
 env:
   - DJANGO_SETTINGS_MODULE="{{ project_name }}.settings.dev"
@@ -19,9 +23,12 @@ env:
 install:
   - pip install -U pip
   - pip install -U -r requirements/dev.txt
+  - nvm install 4.2
+  - nvm use 4.2
+  - npm install
 
 before_script:
-  - createdb -E UTF-8 {{ project_name }} -U postgres -O $USER
+  - createdb --encoding=UTF-8 {{ project_name }} --username=postgres --owner=`whoami`
   # Uncomment for Requires.IO pushes of develop and master merges (not pull-request builds)
   # Requires the $REQUIRES_IO_TOKEN environment variable defined at Travis CI for this project
   # See developer documentation section on depdency tracking for more information.
@@ -34,6 +41,8 @@ script:
   - coverage run manage.py test
   - coverage report -m --fail-under 80
   - flake8 .
+  - make docs
+  - npm test
 
 notifications:
   hipchat:

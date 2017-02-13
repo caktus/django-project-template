@@ -4,6 +4,7 @@ from .base import *  # noqa
 os.environ.setdefault('CACHE_HOST', '127.0.0.1:11211')
 os.environ.setdefault('BROKER_HOST', '127.0.0.1:5672')
 
+#: deploy environment - e.g. "staging" or "production"
 ENVIRONMENT = os.environ['ENVIRONMENT']
 
 SECRET_KEY = os.environ['SECRET_KEY']
@@ -48,6 +49,8 @@ EMAIL_PORT = os.environ.get('EMAIL_PORT', default_smtp_port)
 EMAIL_SUBJECT_PREFIX = '[{{ project_name|title }} %s] ' % ENVIRONMENT.title()
 DEFAULT_FROM_EMAIL = 'noreply@%(DOMAIN)s' % os.environ
 SERVER_EMAIL = DEFAULT_FROM_EMAIL
+
+CSRF_COOKIE_SECURE = True
 
 SESSION_COOKIE_SECURE = True
 
