@@ -4,5 +4,12 @@
   ],
   "plugins": [
     "transform-react-jsx"
-  ]
+  ],
+  "env": {
+    "test": {
+      "plugins": [
+        "rewire"
+      ]
+    }
+  }
 }

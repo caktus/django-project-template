@@ -8,11 +8,12 @@ import yaml
 
 from fabric.api import env, execute, get, hide, local, put, require, run, settings, sudo, task
 from fabric.contrib import files, project
+from fabric.exceptions import NetworkError
 from fabric.utils import abort
 
 DEFAULT_SALT_LOGLEVEL = 'info'
 DEFAULT_SALT_LOGFMT = '%(asctime)s,%(msecs)03.0f [%(name)-17s][%(levelname)-8s] %(message)s'
-SALT_VERSION = '2015.5.8'
+SALT_VERSION = '2016.3.4'
 PROJECT_ROOT = os.path.dirname(__file__)
 CONF_ROOT = os.path.join(PROJECT_ROOT, 'conf')
 
@@ -45,10 +46,10 @@ def production():
 def vagrant():
     env.environment = 'local'
     env.user = 'vagrant'
+    env.master = '33.33.33.10'
     # convert vagrant's ssh-config output to a dictionary
     ssh_config_output = local('vagrant ssh-config', capture=True)
     ssh_config = dict(line.split() for line in ssh_config_output.splitlines())
-    env.master = '{HostName}:{Port}'.format(**ssh_config)
     env.key_filename = ssh_config['IdentityFile'].strip('"')
     initialize_env()
 
@@ -133,6 +134,12 @@ def setup_master():
     """Provision master with salt-master."""
     require('environment')
     with settings(host_string=env.master):
+        if env.environment == 'local':
+            # First SSH connection to vagrant box often fails. So catch and retry
+            try:
+                sudo('echo is SSH working?')
+            except NetworkError as e:
+                print(e.message + ", but let's try again")
         sudo('apt-get update -qq')
         sudo('apt-get install python-pip git-core python-git python-gnupg haveged -qq -y')
         sudo('mkdir -p /etc/salt/')
@@ -158,7 +165,7 @@ def sync():
         salt_root = CONF_ROOT if CONF_ROOT.endswith('/') else CONF_ROOT + '/'
         project.rsync_project(
             local_dir=salt_root, remote_dir='/tmp/salt', delete=True)
-        sudo('rm -rf /srv/salt /srv/pillar')
+        sudo('rm -rf /srv/keys /srv/salt /srv/pillar')
         sudo('mv /tmp/salt/* /srv/')
         sudo('rm -rf /tmp/salt/')
         execute(margarita)
@@ -189,7 +196,10 @@ def setup_minion(*roles):
             'roles': list(roles),
         },
         'mine_functions': {
-            'network.interfaces': []
+            'network.interfaces': [],
+            'network.default_route': {
+                'family': 'inet',
+            },
         },
     }
     _, path = tempfile.mkstemp()
@@ -350,9 +360,9 @@ def encrypt(*args, **kwargs):
 def hostnames_for_role(role):
     with hide('running', 'stdout'):
         result = salt(
-            cmd='test.ping --output=yaml',
+            cmd='grains.item fqdn --output=yaml',
             target='-G "roles:%s"' % role)
-    return yaml.safe_load(result.stdout).keys()
+    return [v['fqdn'] for v in yaml.safe_load(result.stdout).values()]
 
 
 def get_project_name():
