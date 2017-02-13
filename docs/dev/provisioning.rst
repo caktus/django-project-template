@@ -48,7 +48,7 @@ at ``/srv/margarita``.
 
 As part of the master setup, a new GPG public/private key pair is generated. The private
 key remains on the master but the public version is exported and fetched back to the
-developer's machine. This will be put in ``conf/<environment>.pub.gpg``. This will
+developer's machine. This will be put in ``conf/keys/<environment>.pub.gpg``. This will
 be used by all developers to encrypt secrets for the environment and needs to be
 committed into the repo.
 
@@ -58,19 +58,17 @@ Pillar Setup
 
 Before your project can be deployed to a server, the code needs to be
 accessible in a git repository. Once that is done you should update
-``conf/pillar/<environment>.sls`` to set the repo and branch for the environment.
+``conf/pillar/project.sls`` to set the repo and branch for the environment.
 E.g., change this::
 
     # FIXME: Update to the correct project repo
     repo:
       url: git@github.com:CHANGEME/CHANGEME.git
-      branch: master
 
 to this::
 
     repo:
       url: git@github.com:account/reponame.git
-      branch: master
 
 You also need to set ``project_name`` and ``python_version`` in ``conf/pillar/project.sls``.
 The project template is set up for 3.5 by default. If you want to use 2.7, you will need to change ``python_version`` and make a few changes to requirements. In ``requirements/production.txt``, change python3-memcached to python-memcached.
@@ -94,7 +92,7 @@ Managing Secrets
 
 Secret information such as passwords and API keys must be encrypted before being added
 to the pillar files. As previously noted, provisioning the master for the environment
-generates a public GPG key which is added to repo under ``conf/<environment>.pub.gpg``
+generates a public GPG key which is added to repo under ``conf/keys/<environment>.pub.gpg``
 To encrypt a new secret using this key, you can use the ``encrypt`` fab command::
 
     # Example command
@@ -167,13 +165,13 @@ server like so::
     # Generating the staging deploy key
     make staging-deploy-key
 
-This will generate two files named ``<environment>.priv`` and ``conf/<environment>.pub.ssh``.
+This will generate two files named ``<environment>.priv`` and ``conf/keys/<environment>.pub.ssh``.
 The first file contains the private key and the second file contains the public
 key. The public key needs to be added to the "Deploy keys" in the GitHub repository.
 For more information, see the Github docs on managing deploy keys:
 https://help.github.com/articles/managing-deploy-keys
 
-The text in the private key file should be added to `conf/pillar/<environment>.sls``
+The text in the private key file should be added to ``conf/pillar/<environment>.sls``
 under the label `github_deploy_key` but it must be encrypted first. To encrypt
 the file you can use the same ``encrypt`` fab command as before passing the filename
 rather than a key/value pair::
@@ -220,9 +218,9 @@ Setup Checklist
 
 To summarize the steps above, you can use the following checklist
 
-- ``repo`` is set in ``conf/pillar/<environment>.sls``
-- Developer user names and SSH keys have been added to ``conf/pillar/devs.sls``
+- ``repo`` is set in ``conf/pillar/project.sls``
 - Project name has been set in ``conf/pillar/project.sls``
+- Developer user names and SSH keys have been added to ``conf/pillar/devs.sls``
 - Environment domain name has been set in ``conf/pillar/<environment>.sls``
 - Environment secrets including the deploy key have been set in ``conf/pillar/<environment>.sls``
 
