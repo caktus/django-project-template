@@ -226,8 +226,9 @@ Setup Checklist
 
 To summarize the steps above, you can use the following checklist
 
-- ``repo`` is set in ``conf/pillar/project.sls``
 - Project name has been set in ``conf/pillar/project.sls``
+- Git repository has been set in ``conf/pillar/project.sls`` (variable: ``repo.url``)
+- Branch name has been set in ``conf/pillar/<environment>.sls`` (variable: ``branch``)
 - Developer user names and SSH keys have been added to ``conf/pillar/devs.sls``
 - Environment domain name has been set in ``conf/pillar/<environment>.sls``
 - Environment secrets including the deploy key have been set in ``conf/pillar/<environment>.sls``
