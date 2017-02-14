@@ -70,6 +70,14 @@ to this::
     repo:
       url: git@github.com:account/reponame.git
 
+Our template defaults to using the ``master`` branch of the repo for production
+and the ``develop`` branch of the repo for staging. If you want to change that,
+change the ``branch`` variable in ``conf/pillar/<environment>.sls``. For
+example, to use branch ``my-branch`` for staging, you should edit
+``conf/pillar/staging.sls``::
+
+    branch: my-branch
+
 You also need to set ``project_name`` and ``python_version`` in ``conf/pillar/project.sls``.
 The project template is set up for 3.5 by default. If you want to use 2.7, you will need to change ``python_version`` and make a few changes to requirements. In ``requirements/production.txt``, change python3-memcached to python-memcached.
 

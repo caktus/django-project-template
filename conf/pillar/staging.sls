@@ -2,10 +2,10 @@
 
 environment: staging
 
-branch: develop
-
 # FIXME: Change to match staging domain name
 domain: staging.example.com
+
+branch: develop
 
 requirements_file: requirements/production.txt
 
