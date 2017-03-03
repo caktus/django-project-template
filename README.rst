@@ -37,12 +37,6 @@ You may also follow the manual instructions if you wish to configure the PPA you
 
     https://github.com/nodesource/distributions#manual-installation
 
-Django version
-------------------------
-
-The Django version configured in this template is conservative. If you want to
-use a newer version, edit ``requirements/base.txt``.
-
 Getting Started
 ------------------------
 
