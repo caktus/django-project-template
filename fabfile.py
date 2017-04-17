@@ -99,6 +99,11 @@ def install_salt(version, master=False, minion=False, restart=True):
             # Already installed - if Ubuntu package, uninstall current version first
             # because we're going to do a git install later
             sudo("apt-get remove salt-master -yq")
+        elif not install_minion and not files.exists("/etc/init/salt-minon.conf", use_sudo=True):
+            # setup_master() installs salt-minion, but not the salt-minion
+            # upstart service, so if the upstart file is missing, we still
+            # want to install the minion below
+            install_minion = True
         if restart and not install_master:
             sudo("service salt-master restart")
 
