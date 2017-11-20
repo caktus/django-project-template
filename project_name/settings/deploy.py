@@ -1,4 +1,7 @@
 # Settings for live deployed environments: vagrant, staging, production, etc
+import os
+import django
+
 from .base import *  # noqa
 
 os.environ.setdefault('CACHE_HOST', '127.0.0.1:11211')
@@ -7,17 +10,63 @@ os.environ.setdefault('BROKER_HOST', '127.0.0.1:5672')
 #: deploy environment - e.g. "staging" or "production"
 ENVIRONMENT = os.environ['ENVIRONMENT']
 
-SECRET_KEY = os.environ['SECRET_KEY']
 
 DEBUG = False
 
-DATABASES['default']['NAME'] = '{{ project_name }}_%s' % ENVIRONMENT.lower()
-DATABASES['default']['USER'] = '{{ project_name }}_%s' % ENVIRONMENT.lower()
-DATABASES['default']['HOST'] = os.environ.get('DB_HOST', '')
-DATABASES['default']['PORT'] = os.environ.get('DB_PORT', '')
-DATABASES['default']['PASSWORD'] = os.environ.get('DB_PASSWORD', '')
 
-WEBSERVER_ROOT = '/var/www/{{ project_name }}/'
+if 'MEDIA_ROOT' in os.environ:
+    MEDIA_ROOT = os.getenv('MEDIA_ROOT')
+
+
+if 'DATABASE_URL' in os.environ:
+    # Dokku
+    SECRET_KEY = os.environ['DJANGO_SECRET_KEY']
+
+    import dj_database_url
+    # Update database configuration with $DATABASE_URL.
+    db_from_env = dj_database_url.config(conn_max_age=500)
+    DATABASES['default'].update(db_from_env)
+
+    # Disable Django's own staticfiles handling in favour of WhiteNoise, for
+    # greater consistency between gunicorn and `./manage.py runserver`. See:
+    # http://whitenoise.evans.io/en/stable/django.html#using-whitenoise-in-development
+    INSTALLED_APPS.remove('django.contrib.staticfiles')
+    INSTALLED_APPS.extend([
+        'whitenoise.runserver_nostatic',
+        'django.contrib.staticfiles',
+    ])
+
+    if django.VERSION < (1, 10):
+        MIDDLEWARE_CLASSES.remove('django.middleware.security.SecurityMiddleware')
+        MIDDLEWARE_CLASSES = [
+            'django.middleware.security.SecurityMiddleware',
+            'whitenoise.middleware.WhiteNoiseMiddleware',
+        ] + MIDDLEWARE_CLASSES
+    else:
+        MIDDLEWARE.remove('django.middleware.security.SecurityMiddleware')
+        MIDDLEWARE = [
+            'django.middleware.security.SecurityMiddleware',
+            'whitenoise.middleware.WhiteNoiseMiddleware',
+        ] + MIDDLEWARE
+
+    # Allow all host headers (feel free to make this more specific)
+    ALLOWED_HOSTS = ['*']
+
+    # Simplified static file serving.
+    # https://warehouse.python.org/project/whitenoise/
+    STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
+
+    WEBSERVER_ROOT = os.path.join(PROJECT_ROOT, 'www')
+else:
+    SECRET_KEY = os.environ['SECRET_KEY']
+
+    DATABASES['default']['NAME'] = '{{ project_name }}_%s' % ENVIRONMENT.lower()
+    DATABASES['default']['USER'] = '{{ project_name }}_%s' % ENVIRONMENT.lower()
+    DATABASES['default']['HOST'] = os.environ.get('DB_HOST', '')
+    DATABASES['default']['PORT'] = os.environ.get('DB_PORT', '')
+    DATABASES['default']['PASSWORD'] = os.environ.get('DB_PASSWORD', '')
+
+    WEBSERVER_ROOT = '/var/www/{{ project_name }}/'
 
 PUBLIC_ROOT = os.path.join(WEBSERVER_ROOT, 'public')
 
@@ -83,3 +132,13 @@ for backend in TEMPLATES:
 if ENVIRONMENT.upper() == 'LOCAL':
     # Don't send emails from the Vagrant boxes
     EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+
+
+if 'DOKKU_NGINX_SSL_PORT' in os.environ:
+    # Dokku with SSL
+    # SECURE_SSL_REDIRECT = True
+    # Try HTTP Strict Transport Security (increase time if everything looks okay)
+    # SECURE_HSTS_SECONDS = 1800
+    # Honor the 'X-Forwarded-Proto' header for request.is_secure()
+    SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
+    SECURE_REDIRECT_EXEMPT = ['/.well-known']  # For Let's Encrypt

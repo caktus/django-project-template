@@ -1,3 +1,5 @@
+# These are the requirements for a virtualenv that can be used to run 'fabric' to do a deploy,
+# *NOT* the requirements for a server running this Django site.
 PyYAML==3.11
 Fabric==1.10.2
 # Required by Fabric
