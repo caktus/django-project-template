@@ -48,7 +48,7 @@ project. To begin you should have the following applications installed on your
 local development system:
 
 - Python >= 3.5
-- NodeJS >= 4.2
+- NodeJS >= 6.11
 - npm >= 2.14.7
 - `pip <http://www.pip-installer.org/>`_ >= 1.5
 - `virtualenv <http://www.virtualenv.org/>`_ >= 1.10
