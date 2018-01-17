@@ -1,4 +1,4 @@
-psycopg2==2.6.1
+psycopg2==2.7.3
 Pillow==2.9.0
 Django==1.8.8
 six==1.9.0
