@@ -12,3 +12,4 @@ Contents:
    translation
    updates
    vagrant
+   converting-legacy-projects
