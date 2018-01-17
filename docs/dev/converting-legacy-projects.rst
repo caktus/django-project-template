@@ -49,18 +49,7 @@ Copy over the following files from the DPT base:
 Requirements files must also be adjusted to accommodate this deployment
 setup. Look through ``requirements/deploy.txt`` in your DPT base and
 ensure that its contents are all included in a requirement file in your
-target project:
-
-::
-
-    PyYAML==3.11
-    Fabric==1.10.2
-    # Required by Fabric
-    paramiko==1.15.2
-    pycrypto==2.6.1
-    ecdsa==0.13
-
-    newrelic
+target project.
 
 With these files in place and requirements installed, assuming that your
 project is 100% compliant with the baseline dependencies found in the
@@ -84,15 +73,6 @@ By default, projects will pull in Salt states from
 core app state ``project/web/app.sls``, which handles critical tasks
 like setting up Gunicorn, preparing static assets, and running
 migrations.
-
-**Warning**: ensure that you are using a branch of Margarita that is
-appropriate for the server you're deploying to. If your server has
-Ubuntu 16.04, make sure to use the ``xenial`` branch of Margarita, which
-you can set in ``conf/pillar/project.sls``:
-
-::
-
-    margarita_version: origin/xenial
 
 If you want to override any Margarita states, you will need to create a
 Salt state in your project whose location matches up with the Margarita
@@ -166,7 +146,7 @@ the appropriate Salt state (e.g. ``app.sls``) like so:
        - require:
          - pkg: ruby-dev
 
-Various interesting Salt states are activated by the inclusion of settings in
+Various interesting Margarita states are activated by the inclusion of settings in
 ``project.sls``. For example, to enable [Letsencrypt](https://letsencrypt.org/)
 on your project, you need to set ``letsencrypt`` to ``true`` and include a
 ``admin_email`` value:
