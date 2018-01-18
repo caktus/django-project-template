@@ -36,8 +36,8 @@ install:
   - pip install -U pip wheel
   - pip install -U 'Django<1.9'
   - mkdir -p $WORKON_HOME
-  - nvm install 4.2
-  - nvm use 4.2
+  - nvm install 6.11
+  - nvm use 6.11
 
 script:
   - django-admin.py startproject --template=https://github.com/caktus/django-project-template/zipball/${TRAVIS_BRANCH} --extension=py,yml --name=Makefile,gulpfile.js,package.json test_template

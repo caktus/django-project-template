@@ -23,8 +23,8 @@ env:
 install:
   - pip install -U pip
   - pip install -U -r requirements/dev.txt
-  - nvm install 4.2
-  - nvm use 4.2
+  - nvm install 6.11
+  - nvm use 6.11
   - npm install
 
 before_script:
