@@ -40,7 +40,7 @@ install:
   - nvm use 6.11
 
 script:
-  - django-admin.py startproject --template=https://github.com/caktus/django-project-template/zipball/${TRAVIS_BRANCH} --extension=py,rst,yml --name=Makefile,gulpfile.js,package.json test_template
+  - django-admin.py startproject --template=https://github.com/caktus/django-project-template/zipball/${TRAVIS_BRANCH} --extension=py,yml --name=Makefile,gulpfile.js,package.json test_template
   - cd test_template
   - ln -s $HOME/.cache/node_modules node_modules
   - make setup

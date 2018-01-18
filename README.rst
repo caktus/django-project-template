@@ -7,8 +7,8 @@ To start a new project with this template::
 
     django-admin.py startproject \
       --template=https://github.com/caktus/django-project-template/zipball/master \
-      --extension=py,rst,yml \
-      --name=Makefile,gulpfile.js,package.json \
+      --extension=py,rst,yml,sh \
+      --name=Makefile,gulpfile.js,package.json,Procfile \
       <project_name>
 
 License
@@ -133,11 +133,16 @@ Or, on a custom port and address::
 Any changes made to Python, Javascript or Less files will be detected and rebuilt transparently as
 long as the development server is running.
 
-
 Deployment
 ----------
 
-The deployment of requires Fabric but Fabric does not yet support Python 3. You
+There are `different ways to deploy <http://caktus.github.io/developer-documentation/deploy-strategies.html>`_.
+Here are a couple of them that could be used for {{ project_name }}.
+
+Deployment with fabric
+......................
+
+Fabric does not yet support Python 3. You
 must either create a new virtualenv for the deployment::
 
     # Create a new virtualenv for the deployment
@@ -157,3 +162,9 @@ the ``deploy`` command::
 
 New requirements or migrations are detected by parsing the VCS changes and
 will be installed/run automatically.
+
+Deployment with Dokku
+.....................
+
+Alternatively, you can deploy the project using Dokku. See the
+`Caktus developer docs <http://caktus.github.io/developer-documentation/dokku.html>`_.
