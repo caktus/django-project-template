@@ -18,6 +18,12 @@ These services can configured to run together on a single machine or on differen
 `Supervisord <http://supervisord.org/>`_ manages the application server process.
 
 
+.. note::
+
+    Deploying using Dokku is an alternative to the information on this page.
+    See the README to get started.
+
+
 Salt Master
 ------------------------
 
@@ -321,8 +327,8 @@ Many Django projects make use of `Celery <http://celery.readthedocs.org/en/lates
 long running tasks outside of the request/response cycle. Enabling a worker makes use of `Django
 setup for Celery <http://celery.readthedocs.org/en/latest/django/first-steps-with-django.html>`_. As
 documented on that page, you need to create a new file in ``{{ project_name }}/celery.py`` and then
-modify ``{{ project_name }}/__init__.py`` to import that file. You'll also need to customize ``{{
-project_name}}/celery.py`` to import the environment variables from ``.env``. Add this (before the
+modify ``{{ project_name }}/__init__.py`` to import that file. You'll also need to customize
+``{{project_name}}/celery.py`` to import the environment variables from ``.env``. Add this (before the
 ``os.environ.setdefault`` call)::
 
     from . import load_env

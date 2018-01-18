@@ -24,8 +24,7 @@
     "url": "https://github.com/[ORGANIZATION]/{{ project_name }}/issues"
   },
   "homepage": "https://github.com/[ORGANIZATION]/{{ project_name }}#readme",
-  "dependencies": {},
-  "devDependencies": {
+  "dependencies": {
     "babel-core": "^6.6.0",
     "babel-eslint": "^6.0.4",
     "babel-plugin-rewire": "^1.0.0-rc-2",
