@@ -1,3 +1,4 @@
+import json
 import os
 import re
 import tempfile
@@ -7,11 +8,12 @@ import yaml
 
 from fabric.api import env, execute, get, hide, local, put, require, run, settings, sudo, task
 from fabric.contrib import files, project
+from fabric.exceptions import NetworkError
 from fabric.utils import abort
 
 DEFAULT_SALT_LOGLEVEL = 'info'
 DEFAULT_SALT_LOGFMT = '%(asctime)s,%(msecs)03.0f [%(name)-17s][%(levelname)-8s] %(message)s'
-SALT_VERSION = '2015.5.8'
+SALT_VERSION = '2016.3.4'
 PROJECT_ROOT = os.path.dirname(__file__)
 CONF_ROOT = os.path.join(PROJECT_ROOT, 'conf')
 
@@ -44,10 +46,10 @@ def production():
 def vagrant():
     env.environment = 'local'
     env.user = 'vagrant'
+    env.master = '33.33.33.10'
     # convert vagrant's ssh-config output to a dictionary
     ssh_config_output = local('vagrant ssh-config', capture=True)
     ssh_config = dict(line.split() for line in ssh_config_output.splitlines())
-    env.master = '{HostName}:{Port}'.format(**ssh_config)
     env.key_filename = ssh_config['IdentityFile'].strip('"')
     initialize_env()
 
@@ -132,6 +134,12 @@ def setup_master():
     """Provision master with salt-master."""
     require('environment')
     with settings(host_string=env.master):
+        if env.environment == 'local':
+            # First SSH connection to vagrant box often fails. So catch and retry
+            try:
+                sudo('echo is SSH working?')
+            except NetworkError as e:
+                print(e.message + ", but let's try again")
         sudo('apt-get update -qq')
         sudo('apt-get install python-pip git-core python-git python-gnupg haveged -qq -y')
         sudo('mkdir -p /etc/salt/')
@@ -188,7 +196,10 @@ def setup_minion(*roles):
             'roles': list(roles),
         },
         'mine_functions': {
-            'network.interfaces': []
+            'network.interfaces': [],
+            'network.default_route': {
+                'family': 'inet',
+            },
         },
     }
     _, path = tempfile.mkstemp()
@@ -231,10 +242,14 @@ def add_role(name):
 
 
 @task
-def salt(cmd, target="'*'", loglevel=DEFAULT_SALT_LOGLEVEL):
+def salt(salt_cmd, target="'*'", loglevel=DEFAULT_SALT_LOGLEVEL, pillar=None):
     """Run arbitrary salt commands."""
     with settings(warn_only=True, host_string=env.master):
-        result = sudo("salt {0} -l{1} {2} ".format(target, loglevel, cmd))
+        command = "salt {target} -l{loglevel} {cmd}"
+        if pillar:
+            command += " pillar='{}'".format(json.dumps(pillar))
+        command = command.format(cmd=salt_cmd, target=target, loglevel=loglevel)
+        result = sudo(command)
     return result
 
 
@@ -252,10 +267,10 @@ def margarita():
 
 
 @task
-def highstate(target="'*'", loglevel=DEFAULT_SALT_LOGLEVEL):
+def highstate(target="'*'", loglevel=DEFAULT_SALT_LOGLEVEL, pillar=None):
     """Run highstate on master."""
     print("This can take a long time without output, be patient")
-    salt('state.highstate', target, loglevel)
+    salt('state.highstate', target, loglevel, pillar)
 
 
 @task
@@ -276,13 +291,14 @@ def delete_key(name):
 
 
 @task
-def deploy(loglevel=DEFAULT_SALT_LOGLEVEL):
+def deploy(branch=None, loglevel=DEFAULT_SALT_LOGLEVEL):
     """Deploy to a given environment by pushing the latest states and executing the highstate."""
     require('environment')
     sync()
+    pillar = {'branch': branch} if branch else None
     target = "-G 'environment:{0}'".format(env.environment)
     salt('saltutil.sync_all', target, loglevel)
-    highstate(target)
+    highstate(target, pillar=pillar)
 
 
 @task
