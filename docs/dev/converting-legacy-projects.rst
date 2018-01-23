@@ -140,9 +140,9 @@ the appropriate Salt state (e.g. ``app.sls``) like so:
 
    compass:
      cmd.run:
-       - name: gem install compass --version '{{ pillar["compass_version"] }}'
+       - name: gem install compass --version {% verbatim %}'{{ pillar["compass_version"] }}'{% endverbatim %}
        - user: root
-       - unless: 'which compass & compass --version | grep {{ pillar["compass_version"] }}'
+       - unless: 'which compass & compass --version | grep {% verbatim %}'{{ pillar["compass_version"] }}'{% endverbatim %}
        - require:
          - pkg: ruby-dev
 
