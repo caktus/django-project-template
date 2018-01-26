@@ -33,12 +33,12 @@ var dependencies = [
 
 var options = {
   src: './{{ project_name }}/static/js/index.js',
-  dest: './{{ project_name }}/static/js/dist/',
+  dest: './{{ project_name }}/static/js',
 
   css: {
     src: './{{ project_name }}/static/stylus/index.styl',
     watch: './{{ project_name }}/static/stylus/**/*',
-    dest: './{{ project_name }}/static/css/dist'
+    dest: './{{ project_name }}/static/css'
   },
   development: false
 }
