@@ -49,17 +49,17 @@ local development system:
 
 - Python >= 3.5
 - NodeJS >= 6.11
-- npm >= 2.14.7
+- npm >= 3.10.10
 - `pip <http://www.pip-installer.org/>`_ >= 1.5
 - `virtualenv <http://www.virtualenv.org/>`_ >= 1.10
 - `virtualenvwrapper <http://pypi.python.org/pypi/virtualenvwrapper>`_ >= 3.0
 - Postgres >= 9.3
 - git >= 1.7
 
-A note on NodeJS 4.2 for Ubuntu users: this LTS release may not be available through the
+A note on NodeJS 6.x for Ubuntu users: this LTS release may not be available through the
 Ubuntu repository, but you can configure a PPA from which it may be installed::
 
-    curl -sL https://deb.nodesource.com/setup_4.x | sudo -E bash -
+    curl -sL https://deb.nodesource.com/setup_6.x | sudo -E bash -
     sudo apt-get install -y nodejs
 
 You may also follow the manual instructions if you wish to configure the PPA yourself:
