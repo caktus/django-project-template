@@ -4,7 +4,7 @@
   "description": "The {{ project_name|title }} Project",
   "main": "",
   "engines": {
-    "node": ">=4.2 <4.3"
+    "node": ">=6.11 <7"
   },
   "directories": {
     "doc": "docs"
