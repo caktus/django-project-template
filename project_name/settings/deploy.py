@@ -1,6 +1,5 @@
 # Settings for live deployed environments: vagrant, staging, production, etc
 import os
-import django
 
 from .base import *  # noqa
 
@@ -36,18 +35,11 @@ if 'DATABASE_URL' in os.environ:
         'django.contrib.staticfiles',
     ])
 
-    if django.VERSION < (1, 10):
-        MIDDLEWARE_CLASSES.remove('django.middleware.security.SecurityMiddleware')
-        MIDDLEWARE_CLASSES = [
-            'django.middleware.security.SecurityMiddleware',
-            'whitenoise.middleware.WhiteNoiseMiddleware',
-        ] + MIDDLEWARE_CLASSES
-    else:
-        MIDDLEWARE.remove('django.middleware.security.SecurityMiddleware')
-        MIDDLEWARE = [
-            'django.middleware.security.SecurityMiddleware',
-            'whitenoise.middleware.WhiteNoiseMiddleware',
-        ] + MIDDLEWARE
+    MIDDLEWARE.remove('django.middleware.security.SecurityMiddleware')
+    MIDDLEWARE = [
+        'django.middleware.security.SecurityMiddleware',
+        'whitenoise.middleware.WhiteNoiseMiddleware',
+    ] + MIDDLEWARE
 
     # Allow all host headers (feel free to make this more specific)
     ALLOWED_HOSTS = ['*']
