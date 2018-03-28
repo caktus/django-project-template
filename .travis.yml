@@ -17,11 +17,7 @@ python:
 addons:
   postgresql: "9.3"
 
-# In general, cache things where they are. The only cached directory
-# we can't do that for is node_modules because it doesn't exist until
-# after we run 'startproject', so after that we symlink to the cached
-# directory.
-cache:
+# In general, cache things where they are.
   directories:
     - $HOME/.cache/pip
     - $HOME/.npm
@@ -34,7 +30,7 @@ env:
 
 install:
   - pip install -U pip wheel
-  - pip install -U 'Django<1.9'
+  - pip install -U 'Django<2.0'
   - mkdir -p $WORKON_HOME
   - nvm install 6.11
   - nvm use 6.11
@@ -42,7 +38,6 @@ install:
 script:
   - django-admin.py startproject --template=https://github.com/caktus/django-project-template/zipball/${TRAVIS_BRANCH} --extension=py,yml --name=Makefile,gulpfile.js,package.json test_template
   - cd test_template
-  - ln -s $HOME/.cache/node_modules node_modules
   - make setup
   - make lint
   - $WORKON_HOME/test_template/bin/python manage.py test --noinput
