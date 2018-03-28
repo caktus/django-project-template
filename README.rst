@@ -1,4 +1,5 @@
 {% if False %}
+.. image:: https://requires.io/github/caktus/django-project-template/requirements.svg?branch=master
 
 Installation
 ------------

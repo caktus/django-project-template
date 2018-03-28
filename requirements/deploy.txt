@@ -1,9 +1,9 @@
 # These are the requirements for a virtualenv that can be used to run 'fabric' to do a deploy,
 # *NOT* the requirements for a server running this Django site.
-PyYAML==3.11
-Fabric==1.10.2
+PyYAML==3.12
+Fabric==1.14.0
 # Required by Fabric
-paramiko==1.15.2
+paramiko==2.4.1
 pycrypto==2.6.1
 ecdsa==0.13
 
