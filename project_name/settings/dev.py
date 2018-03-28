@@ -1,3 +1,5 @@
+# flake8: noqa
+import os
 import sys
 
 from {{ project_name }}.settings.base import *  # noqa

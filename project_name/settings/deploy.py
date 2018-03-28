@@ -1,3 +1,5 @@
+# flake8: noqa
+
 # Settings for live deployed environments: vagrant, staging, production, etc
 import os
 
