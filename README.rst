@@ -2,6 +2,8 @@
 
 .. image:: https://requires.io/github/caktus/django-project-template/requirements.svg?branch=master
 
+(See `our requires.io documentation <http://caktus.github.io/developer-documentation/services/dep-tracking.html#requires-io>`_).
+
 Installation
 ============
 
