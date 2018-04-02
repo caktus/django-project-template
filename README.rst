@@ -1,7 +1,11 @@
 {% if False %}
 
+.. image:: https://requires.io/github/caktus/django-project-template/requirements.svg?branch=master
+
+(See `our requires.io documentation <http://caktus.github.io/developer-documentation/services/dep-tracking.html#requires-io>`_).
+
 Installation
-------------
+============
 
 To start a new project with this template::
 
@@ -12,7 +16,7 @@ To start a new project with this template::
       <project_name>
 
 License
--------
+=======
 
 Copyright (c) 2017, Caktus Consulting Group, LLC
 

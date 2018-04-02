@@ -1,5 +1,5 @@
 Converting legacy projects to the project template
-=================================
+==================================================
 
 The project template represents our standard setup for new projects, as well as
 our standard suite of build tools for local development. When we
@@ -112,6 +112,7 @@ Once you add a role, you will need to update ``fabfile.py`` by adding a new
 entry to the ``VALID_ROLES`` variable:
 
 ::
+
    VALID_ROLES = (
        #  ...
        'solr',

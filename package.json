@@ -57,7 +57,7 @@
     "gulp-util": "^3.0.0",
     "immutable": "^3.7.6",
     "isparta": "^4.0.0",
-    "jquery": "^2.1",
+    "jquery": "^3.0.0",
     "jsdom": "^8.3.0",
     "jsdom-global": "^1.7.0",
     "less": "^2.5.3",

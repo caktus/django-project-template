@@ -1,6 +1,10 @@
 psycopg2==2.7.4
 Pillow==5.0.0
-Django==1.11.11
+# The comment on the next line tells requests.io to warn us if there's a newer
+# version of Django within the given range, but not for versions outside that
+# range. So if 1.11.12 gets released, we get warned. If 2.0.1 gets released,
+# we don't.
+Django==1.11.11  # rq.filter: >=1.11.11,<2.0
 six==1.11.0
 
 BeautifulSoup4==4.6.0
