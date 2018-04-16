@@ -44,6 +44,11 @@ THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 {% endif %}
 
+.. EDIT the below links to use the project's github repo path. Or just remove them.
+
+.. image:: https://requires.io/github/GITHUB_ORG/{{ project_name }}/requirements.svg?branch=master
+.. image:: https://requires.io/github/GITHUB_ORG/{{ project_name }}/requirements.svg?branch=develop
+
 {{ project_name|title }}
 ========================
 
