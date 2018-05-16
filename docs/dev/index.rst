@@ -7,9 +7,7 @@ Contents:
    :maxdepth: 2
 
    provisioning
-   server-setup
    settings
    translation
-   updates
    vagrant
    converting-legacy-projects
