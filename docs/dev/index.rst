@@ -7,7 +7,6 @@ Contents:
    :maxdepth: 2
 
    provisioning
-   server-setup
    settings
    translation
    updates
