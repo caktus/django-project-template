@@ -27,8 +27,6 @@ These services can configured to run together on a single machine or on differen
 Provisioning Options
 --------------------
 
-`Titles are targets, too`_.
-
 Caktus prefers one of two provisioning options for new projects, `Tequila`_ or `Dokku`_.
 
 Dokku is a good option for small projects, early projects in need of a staging machine,
