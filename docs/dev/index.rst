@@ -9,5 +9,3 @@ Contents:
    provisioning
    settings
    translation
-   vagrant
-   converting-legacy-projects
