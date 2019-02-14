@@ -182,7 +182,7 @@ STATICFILES_DIRS = (
 # If using Celery, tell it to obey our logging configuration.
 CELERYD_HIJACK_ROOT_LOGGER = False
 
-# https://docs.djangoproject.com/en/1.9/topics/auth/passwords/#password-validation
+# https://docs.djangoproject.com/en/{{ docs_version }}/topics/auth/passwords/#password-validation
 AUTH_PASSWORD_VALIDATORS = [
     {
         'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator',
@@ -205,3 +205,12 @@ SECURE_CONTENT_TYPE_NOSNIFF = True
 SECURE_BROWSER_XSS_FILTER = True
 CSRF_COOKIE_HTTPONLY = True
 X_FRAME_OPTIONS = 'DENY'
+
+# Use the argon2 password hasher (but maintain compatibility with older hashers). See:
+# https://docs.djangoproject.com/en/{{ docs_version }}/topics/auth/passwords/#using-argon2-with-django
+PASSWORD_HASHERS = [
+    'django.contrib.auth.hashers.Argon2PasswordHasher',
+    'django.contrib.auth.hashers.PBKDF2PasswordHasher',
+    'django.contrib.auth.hashers.PBKDF2SHA1PasswordHasher',
+    'django.contrib.auth.hashers.BCryptSHA256PasswordHasher',
+]

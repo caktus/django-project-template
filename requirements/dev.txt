@@ -11,7 +11,7 @@ pep8==1.7.1
 mccabe==0.6.1
 
 # For translation
-transifex-client==0.13.1
+transifex-client==0.13.6
 
 requires.io
 
