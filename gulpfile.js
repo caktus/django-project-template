@@ -8,8 +8,8 @@ var uglify = require('gulp-uglify');
 var streamify = require('gulp-streamify');
 var notify = require('gulp-notify');
 var concat = require('gulp-concat');
-var cssmin = require('gulp-cssmin');
-var gutil = require('gulp-util');
+var cleancss = require('gulp-clean-css');
+var log = require('fancy-log');
 var rename = require("gulp-rename");
 var less = require('gulp-less');
 var glob = require('glob');
@@ -58,10 +58,6 @@ if (argv._ && argv._[0] === 'deploy') {
 if (options.development) {
   console.log("Building for development")
   delete process.env['NODE_ENV'];
-  // Be more verbose for developers
-  gulp.onAll(function (e) {
-    console.log(e);
-  })
 } else {
   console.log("Building for production")
   process.env['NODE_ENV'] = 'production';
@@ -94,7 +90,7 @@ var browserifyTask = function () {
     var start = Date.now();
     console.log('Building APP bundle');
     return appBundler.bundle()
-        .on('error', gutil.log)
+        .on('error', log)
         .pipe(source('index.js'))
         .pipe(gulpif(!options.development, streamify(uglify())))
         .pipe(rename('bundle.js'))
@@ -126,7 +122,7 @@ var browserifyTask = function () {
     var start = new Date();
     console.log('Building VENDORS bundle');
     vendorsBundler.bundle()
-      .on('error', gutil.log)
+      .on('error', log)
       .pipe(source('vendors.js'))
       .pipe(gulpif(!options.development, streamify(uglify())))
       .pipe(gulp.dest(options.dest))
@@ -137,7 +133,7 @@ var browserifyTask = function () {
 
   return rebundle();
 };
-gulp.task('browserify', ['modernizr'], browserifyTask);
+gulp.task('browserify', gulp.series('modernizr', browserifyTask));
 
 var cssTask = function () {
     var lessOpts = {
@@ -164,13 +160,13 @@ var cssTask = function () {
         .pipe(concat('index.less'))
         .pipe(less(lessOpts))
         .pipe(rename('bundle.css'))
-        .pipe(cssmin())
+        .pipe(cleancss())
         .pipe(gulp.dest(options.css.dest));
     }
 };
 gulp.task('css', cssTask);
 
-gulp.task('rebuild', ['css', 'browserify'])
+gulp.task('rebuild', gulp.parallel('css', 'browserify'))
 
 function start_dev_server(done) {
   console.log("Starting Django runserver http://"+argv.address+":"+argv.port+"/");
@@ -190,20 +186,20 @@ function start_dev_server(done) {
   });
   done();
 }
-gulp.task('start_dev_server', ['rebuild'], start_dev_server)
+gulp.task('start_dev_server', gulp.series('rebuild', start_dev_server))
 
 // Starts our development workflow
-gulp.task('default', ['start_dev_server'], function (done) {
+gulp.task('default', gulp.series('start_dev_server', function (done) {
   livereload.listen();
   done();
-});
+}));
 
-gulp.task('deploy', ['rebuild']);
+gulp.task('deploy', gulp.series('rebuild'))
 
-gulp.task('test', function () {
+gulp.task('test', gulp.series(function () {
   require('babel-core/register');
   return gulp
-    .src('./{{ project_name }}/static/js/app/**/*.js')
+    .src('./wagtail_example/static/js/app/**/*.js')
     .pipe(istanbul({
       instrumenter: isparta.Instrumenter
       , includeUntested: true
@@ -211,7 +207,7 @@ gulp.task('test', function () {
     .pipe(istanbul.hookRequire())
     .on('finish', function () {
       gulp
-        .src('./{{ project_name }}/static/js/test/**/test_*.js', {read: false})
+        .src('./wagtail_example/static/js/test/**/test_*.js', {read: false})
         .pipe(mocha({
           require: [
             'jsdom-global/register'
@@ -242,4 +238,4 @@ gulp.task('test', function () {
       ;
     })
   ;
-});
+}));
