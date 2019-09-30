@@ -62,7 +62,7 @@ pullmessages:
 	tx pull -af
 
 setup:
-	virtualenv -p `which python3.5` $(WORKON_HOME)/{{ project_name }}
+	mkvirtualenv $(WORKON_HOME)/{{ project_name }} -p python3.5
 	$(WORKON_HOME)/{{ project_name }}/bin/pip install -U pip wheel
 	$(WORKON_HOME)/{{ project_name }}/bin/pip install -Ur requirements/dev.txt
 	$(WORKON_HOME)/{{ project_name }}/bin/pip freeze

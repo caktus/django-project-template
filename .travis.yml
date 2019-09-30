@@ -38,7 +38,6 @@ install:
 script:
   - django-admin.py startproject --template=https://github.com/caktus/django-project-template/zipball/${TRAVIS_BRANCH} --extension=py,yml --name=Makefile,gulpfile.js,package.json test_template
   - cd test_template
-  - ls # let's make sure test_template is being created
   - make setup
   - make lint
   - $WORKON_HOME/test_template/bin/python manage.py test --noinput
