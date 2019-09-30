@@ -3,9 +3,6 @@ django-debug-toolbar==1.9.1
 # Required by django-debug-toolbar
 sqlparse==0.2.4
 
-# Use binary version of psycopg2 in development
-psycopg2-binary==2.7.5
-
 coverage==4.5.1
 flake8==3.5.0
 # Required by flake8
@@ -14,7 +11,7 @@ pep8==1.7.1
 mccabe==0.6.1
 
 # For translation
-transifex-client>=0.13.1
+transifex-client==0.13.6
 
 requires.io
 

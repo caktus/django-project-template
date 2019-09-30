@@ -199,7 +199,7 @@ gulp.task('deploy', gulp.series('rebuild'))
 gulp.task('test', gulp.series(function () {
   require('babel-core/register');
   return gulp
-    .src('./wagtail_example/static/js/app/**/*.js')
+    .src('./{{ project_name }}/static/js/app/**/*.js')
     .pipe(istanbul({
       instrumenter: isparta.Instrumenter
       , includeUntested: true
