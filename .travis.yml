@@ -37,7 +37,7 @@ install:
 
 script:
   - django-admin.py startproject --template=https://github.com/caktus/django-project-template/zipball/${TRAVIS_BRANCH} --extension=py,yml --name=Makefile,gulpfile.js,package.json test_template
-  -echo ${TRAVIS_BRANCH}
+  - echo ${TRAVIS_BRANCH}
   - cd test_template
   - make setup
   - make lint
