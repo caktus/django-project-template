@@ -20,7 +20,10 @@ lint-py:
 lint-js:
 	# Check JS for any problems
 	# Requires jshint
+	pwd
+	ls -l
 	./node_modules/.bin/eslint -c .eslintrc "${STATIC_DIR}*" --ext js,jsx
+	./node_modules/.bin/eslint -c .eslintrc "${STATIC_DIR}/*" --ext js,jsx
 
 lint: lint-py lint-js
 
