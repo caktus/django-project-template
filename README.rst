@@ -57,23 +57,15 @@ project. To begin you should have the following applications installed on your
 local development system:
 
 - Python >= 3.7
-- NodeJS >= 6.11
-- npm >= 3.10.10
-- `pip <http://www.pip-installer.org/>`_ >= 1.5
+- NodeJS >= 10.16
+- `pip <http://www.pip-installer.org/>`_ >= 19
 - `virtualenv <http://www.virtualenv.org/>`_ >= 1.10
 - `virtualenvwrapper <http://pypi.python.org/pypi/virtualenvwrapper>`_ >= 3.0
 - Postgres >= 9.3
 - git >= 1.7
 
-A note on NodeJS 6.x for Ubuntu users: this LTS release may not be available through the
-Ubuntu repository, but you can configure a PPA from which it may be installed::
-
-    curl -sL https://deb.nodesource.com/setup_6.x | sudo -E bash -
-    sudo apt-get install -y nodejs
-
-You may also follow the manual instructions if you wish to configure the PPA yourself:
-
-    https://github.com/nodesource/distributions#manual-installation
+Installing the proper NodeJS versions for each of your projects can be difficult. It's probably best
+to `use nvm <https://github.com/nvm-sh/nvm>`_.
 
 Django version
 ------------------------
@@ -151,26 +143,12 @@ Here are a couple of them that could be used for {{ project_name }}.
 Deployment with fabric
 ......................
 
-Fabric does not yet support Python 3. You
-must either create a new virtualenv for the deployment::
-
-    # Create a new virtualenv for the deployment
-    $ mkvirtualenv {{ project_name }}-deploy -p `which python2.7`
-    ({{ project_name }}-deploy)$ pip install -r requirements/deploy.txt
-
-or install the deploy requirements
-globally::
-
-    $ sudo pip install -r requirements/deploy.txt
-
-
-You can deploy changes to a particular environment with
+Deployment is no longer fully set up in this template. You'll need to set up Tequila, and the
+current best way to do that is to copy the configuration from an existing project. Once that is
+done, and the servers have been provisioned, you can deploy changes to a particular environment with
 the ``deploy`` command::
 
     $ fab staging deploy
-
-New requirements or migrations are detected by parsing the VCS changes and
-will be installed/run automatically.
 
 Deployment with Dokku
 .....................
