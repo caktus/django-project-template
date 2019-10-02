@@ -18,12 +18,12 @@ services:
   - postgresql
 
 # In general, cache things where they are.
-  directories:
-    - $HOME/.cache/pip
-    - $HOME/.npm
-    - $HOME/.nvm
-    - $HOME/.cache/node_modules
-    - $HOME/.cache/venvs
+directories:
+  - $HOME/.cache/pip
+  - $HOME/.npm
+  - $HOME/.nvm
+  - $HOME/.cache/node_modules
+  - $HOME/.cache/venvs
 
 env:
   - WORKON_HOME=$HOME/.cache/venvs
