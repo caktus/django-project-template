@@ -14,8 +14,8 @@ python:
   - "3.5"
 
 # Match postgresql version to that in conf/pillar/project.sls
-addons:
-  postgresql: "9.3"
+services:
+  - postgresql
 
 # In general, cache things where they are.
   directories:
