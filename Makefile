@@ -1,10 +1,7 @@
 PROJECT_NAME = {{ project_name }}
-STATIC_LIBS_DIR = ./$(PROJECT_NAME)/static/libs
+STATIC_DIR = ./$(PROJECT_NAME)/static
 
 default: lint test
-
-$(STATIC_LIBS_DIR):
-	mkdir -p $@
 
 test:
 	# Run all tests and report coverage
@@ -20,14 +17,12 @@ lint-py:
 	# Requires flake8
 	$(WORKON_HOME)/{{ project_name }}/bin/flake8 .
 
-lint-js: $(STATIC_LIBS_DIR)
+lint-js:
 	# Check JS for any problems
 	# Requires jshint
-	./node_modules/.bin/eslint -c .eslintrc "${STATIC_LIBS_DIR}*" --ext js,jsx
+	./node_modules/.bin/eslint -c .eslintrc "${STATIC_DIR}*" --ext js,jsx
 
 lint: lint-py lint-js
-
-update-static-libs: $(LIBS)
 
 # Generate a random string of desired length
 generate-secret: length = 32
