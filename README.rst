@@ -56,7 +56,7 @@ Below you will find basic setup and deployment instructions for the {{ project_n
 project. To begin you should have the following applications installed on your
 local development system:
 
-- Python >= 3.5
+- Python >= 3.7
 - NodeJS >= 6.11
 - npm >= 3.10.10
 - `pip <http://www.pip-installer.org/>`_ >= 1.5
@@ -103,9 +103,9 @@ adjustments as necessary to your needs.
 To setup your local environment you should create a virtualenv and install the
 necessary requirements::
 
-    # Check that you have python3.5 installed
-    $ which python3.5
-    $ mkvirtualenv {{ project_name }} -p `which python3.5`
+    # Check that you have python3.7 installed
+    $ which python3.7
+    $ mkvirtualenv {{ project_name }} -p `which python3.7`
     ({{ project_name }})$ pip install -r requirements/dev.txt
     ({{ project_name }})$ npm install
 
