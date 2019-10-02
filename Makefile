@@ -3,6 +3,9 @@ STATIC_LIBS_DIR = ./$(PROJECT_NAME)/static/libs
 
 default: lint test
 
+$(STATIC_LIBS_DIR):
+	mkdir -p $@
+
 test:
 	# Run all tests and report coverage
 	# Requires coverage
@@ -17,15 +20,12 @@ lint-py:
 	# Requires flake8
 	$(WORKON_HOME)/{{ project_name }}/bin/flake8 .
 
-lint-js:
+lint-js: $(STATIC_LIBS_DIR)
 	# Check JS for any problems
 	# Requires jshint
 	./node_modules/.bin/eslint -c .eslintrc "${STATIC_LIBS_DIR}*" --ext js,jsx
 
 lint: lint-py lint-js
-
-$(STATIC_LIBS_DIR):
-	mkdir -p $@
 
 update-static-libs: $(LIBS)
 
