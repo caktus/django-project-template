@@ -11,19 +11,19 @@ language: python
 sudo: false
 
 python:
-  - "3.5"
+  - "3.7"
 
 # Match postgresql version to that in conf/pillar/project.sls
 services:
   - postgresql
 
 # In general, cache things where they are.
-  directories:
-    - $HOME/.cache/pip
-    - $HOME/.npm
-    - $HOME/.nvm
-    - $HOME/.cache/node_modules
-    - $HOME/.cache/venvs
+directories:
+  - $HOME/.cache/pip
+  - $HOME/.npm
+  - $HOME/.nvm
+  - $HOME/.cache/node_modules
+  - $HOME/.cache/venvs
 
 env:
   - WORKON_HOME=$HOME/.cache/venvs
@@ -37,7 +37,6 @@ install:
 
 script:
   - django-admin.py startproject --template=https://github.com/caktus/django-project-template/zipball/${TRAVIS_BRANCH} --extension=py,yml --name=Makefile,gulpfile.js,package.json test_template
-  - echo ${TRAVIS_BRANCH}
   - cd test_template
   - make setup
   - make lint
