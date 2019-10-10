@@ -207,7 +207,7 @@ gulp.task('test', gulp.series(function () {
     .pipe(istanbul.hookRequire())
     .on('finish', function () {
       gulp
-        .src('./wagtail_example/static/js/test/**/test_*.js', {read: false})
+        .src('./{{ project_name }}/static/js/test/**/test_*.js', {read: false})
         .pipe(mocha({
           require: [
             'jsdom-global/register'
