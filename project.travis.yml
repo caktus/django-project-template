@@ -3,11 +3,11 @@ language: python
 sudo: false
 
 python:
-  - "3.5"
+  - "3.7"
 
 # Match postgresql version to that in conf/pillar/project.sls
-addons:
-  postgresql: "9.3"
+services:
+  - postgresql
 
 cache:
   directories:
@@ -21,10 +21,10 @@ env:
   - DJANGO_SETTINGS_MODULE="{{ project_name }}.settings.dev"
 
 install:
-  - pip install -U pip
+  - pip install -U pip wheel
   - pip install -U -r requirements/dev.txt
-  - nvm install 6.11
-  - nvm use 6.11
+  - nvm install 10.16.0
+  - nvm use 10.16
   - npm install
 
 before_script:
@@ -43,11 +43,3 @@ script:
   - flake8 .
   - make docs
   - npm test
-
-notifications:
-  hipchat:
-    rooms:
-      secure: 'FIXME: replace with "travis encrypt <api_token@room_id> --add notifications.hipchat.rooms"'
-    template:
-      - '%{repository}#%{build_number} (%{branch} - %{commit} : %{author}): %{message} (<a href="%{build_url}">Details</a>/<a href="%{compare_url}">Change view</a>)'
-    format: html

@@ -7,8 +7,8 @@ Overview
 
 {{ project_name|title }} is deployed on the following stack.
 
-- OS: Ubuntu 14.04 LTS
-- Python: 3.5
+- OS: Ubuntu 18.04 LTS
+- Python: 3.7+
 - Database: Postgres 9.3
 - Application Server: Gunicorn
 - Frontend Server: Nginx
@@ -65,4 +65,3 @@ You can read about how to setup Tequila for a new project from
 `Tequila Project Setup <https://github.com/caktus/tequila/blob/master/docs/project_setup.rst>`
 documentation, which will walk you through adding Tequila to any Django project, including one
 created from this project template.
-

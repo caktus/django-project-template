@@ -1,5 +1,5 @@
 PROJECT_NAME = {{ project_name }}
-STATIC_LIBS_DIR = ./$(PROJECT_NAME)/static/libs
+STATIC_DIR = ./$(PROJECT_NAME)/static
 
 default: lint test
 
@@ -20,14 +20,9 @@ lint-py:
 lint-js:
 	# Check JS for any problems
 	# Requires jshint
-	./node_modules/.bin/eslint -c .eslintrc "${STATIC_LIBS_DIR}*" --ext js,jsx
+	./node_modules/.bin/eslint -c .eslintrc '${STATIC_DIR}' --ext js,jsx
 
 lint: lint-py lint-js
-
-$(STATIC_LIBS_DIR):
-	mkdir -p $@
-
-update-static-libs: $(LIBS)
 
 # Generate a random string of desired length
 generate-secret: length = 32
@@ -62,7 +57,7 @@ pullmessages:
 	tx pull -af
 
 setup:
-	virtualenv -p `which python3.5` $(WORKON_HOME)/{{ project_name }}
+	virtualenv -p `which python3.7` $(WORKON_HOME)/{{ project_name }}
 	$(WORKON_HOME)/{{ project_name }}/bin/pip install -U pip wheel
 	$(WORKON_HOME)/{{ project_name }}/bin/pip install -Ur requirements/dev.txt
 	$(WORKON_HOME)/{{ project_name }}/bin/pip freeze

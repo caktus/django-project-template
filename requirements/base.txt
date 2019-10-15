@@ -1,16 +1,15 @@
-psycopg2==2.7.4
-Pillow==5.0.0
 # The comment on the next line tells requests.io to warn us if there's a newer
 # version of Django within the given range, but not for versions outside that
 # range. So if 1.11.12 gets released, we get warned. If 2.0.1 gets released,
 # we don't.
-Django==1.11.11  # rq.filter: >=1.11.11,<2.0
-six==1.11.0
+Django==2.2.6  # rq.filter: >=2.2.7,<2.3
+# Required by Django
+sqlparse==0.3.0
+pytz
 
-BeautifulSoup4==4.6.0
-
-django-dotenv==1.4.2
 dealer==2.0.5
-
+django-dotenv==1.4.2
 dj-database-url==0.5.0
-whitenoise==3.3.1
+Pillow==6.1.0
+psycopg2-binary==2.8.3
+whitenoise==4.1.4
