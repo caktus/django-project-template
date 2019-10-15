@@ -137,16 +137,17 @@ long as the development server is running.
 Deployment
 ----------
 
-There are `different ways to deploy <http://caktus.github.io/developer-documentation/deploy-strategies.html>`_.
-Here are a couple of them that could be used for {{ project_name }}.
+There are different ways to deploy, and `this document <http://caktus.github.io/developer-documentation/deploy-strategies.html>`_ outlines a few of them that could be used for {{ project_name }}.
 
 Deployment with fabric
 ......................
 
-Deployment is no longer fully set up in this template. You'll need to set up Tequila, and the
-current best way to do that is to copy the configuration from an existing project. Once that is
-done, and the servers have been provisioned, you can deploy changes to a particular environment with
-the ``deploy`` command::
+We use a library called `fabric <http://www.fabfile.org/>`_ as a wrapper around a lot of our deployment
+functionality. However, deployment is no longer fully set up in this template, and instead you'll need
+to do something like set up `Tequila <https://github.com/caktus/tequila>`_ for your project. Currently,
+best way to do that is to copy the configuration from an existing project. Once that is done, and the
+servers have been provisioned, you can deploy changes to a particular environment with the ``deploy``
+command::
 
     $ fab staging deploy
 
