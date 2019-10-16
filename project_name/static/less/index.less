@@ -1,1 +1,54 @@
 /* Stylesheet Index. Import Less modules here. */
+.info-container {
+  color: teal;
+  text-align: center;
+  .header {
+    font-size: 3rem;
+    transform: skew(20deg);
+  }
+  .summary {
+    .welcome {
+      font-size: 1.3rem;
+    }
+    margin: 0 auto;
+    p {
+      font-size: 1.2rem;
+    }
+  }
+  img {
+    object-fit: fill;
+    height: 300px;
+    width: 300px;
+    border-radius: 12.5px;
+    box-shadow: 5px 5px 5px 5px rgba(255,0,0,0.2);
+  }
+  .emphasis {
+    color: brown;
+    padding: 2px 0.5rem;
+    border: 1px solid brown;
+    border-radius: 12.5px;
+  }
+  .helpful-links {
+    display: flex;
+    width: 100%;
+    flex-grow: 1;
+    flex-direction: row;
+    justify-content: space-evenly;
+    align-items: center;
+    li {
+      font-size: 2rem;
+      color: teal;
+      background-color: rgba(255, 255, 255,0.1);
+      list-style-type: none;
+      a:link, a:visited {
+        text-decoration: none;
+        color: brown;
+        cursor: pointer;
+      }
+      a:hover {
+        color: teal;
+        font-size: 2.2rem;
+      }
+    }
+  }
+}
