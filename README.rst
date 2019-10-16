@@ -7,10 +7,17 @@
 Installation
 ============
 
-To start a new project with this template::
+To start a new Django project with this template::
 
     django-admin.py startproject \
       --template=https://github.com/caktus/django-project-template/zipball/master \
+      --extension=py,rst,yml,sh,js \
+      --name=Makefile,gulpfile.js,package.json,Procfile \
+      <project_name>
+
+To start a new Wagtail project with this template::
+    django-admin.py startproject \
+      --template=https://github.com/caktus/django-project-template/zipball/wagtail \
       --extension=py,rst,yml,sh,js \
       --name=Makefile,gulpfile.js,package.json,Procfile \
       <project_name>
