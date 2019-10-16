@@ -1,0 +1,31 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content%}
+<div class="info-container">
+  <h1 class="header">Good Day Cakti!</h1>
+  <img
+    class="bootstrap-img"
+    src="{% static 'images/wagtail_bootstrap.jpg' %}"
+    alt="wagtail_bootstrap_img"
+  />
+  <div class="summary">
+    <p class="welcome">Welcome to your bootstrap of Wagtail.</p>
+    <p>The root for your Wagtail pages can be found on the <span class="emphasis">/pages/</span> endpoint. 
+      The project's root url, <span class="emphasis">/</span>, is available for the Vanilla Django 
+      applications you've come to know and love. 
+    </p>
+    <p>Below are some helpful links to get you started with the application,
+      and please note that you can find the wagtail admin on <span class="emphasis">/cms/</span> 
+      and the Django admin on <span class="emphasis">/admin/</span> endpoint.
+    </p>
+  </div>
+  <ul class="helpful-links">
+    <li><a href="http://docs.wagtail.io/en/v2.6.2/advanced_topics/settings.html" target="_blank">Configuration</a></li>
+    <li><a href="http://docs.wagtail.io/en/v2.6.2/topics/pages.html" target="_blank">Usage Guide</a></li>
+    <li><a href="https://www.accordbox.com/blog/wagtail-tutorials/" target="_blank">Tutorials</a></li>
+    <li><a href="https://docs.wagtail.io/en/v2.6.2/advanced_topics/deploying.html" target="_blank">Deployment</a></li>
+  </ul>
+</div>
+
+{% endblock %}

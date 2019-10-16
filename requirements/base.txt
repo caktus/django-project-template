@@ -7,9 +7,13 @@ Django==2.2.6  # rq.filter: >=2.2.7,<2.3
 sqlparse==0.3.0
 pytz
 
+# Wagtail Version compatible with Django version 2.0, 2.1, 2.2 
+wagtail==2.6.2
+
 dealer==2.0.5
 django-dotenv==1.4.2
 dj-database-url==0.5.0
 Pillow==6.1.0
 psycopg2-binary==2.8.3
 whitenoise==4.1.4
+
