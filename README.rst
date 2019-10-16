@@ -8,19 +8,22 @@ Installation
 ============
 
 To start a new Django project with this template::
-
-    django-admin.py startproject \
-      --template=https://github.com/caktus/django-project-template/zipball/master \
-      --extension=py,rst,yml,sh,js \
-      --name=Makefile,gulpfile.js,package.json,Procfile \
-      <project_name>
+    $ mkvirtualenv <project_name>
+    $ pip install Django
+    $ django-admin.py startproject \
+        --template=https://github.com/caktus/django-project-template/zipball/master \
+        --extension=py,rst,yml,sh,js \
+        --name=Makefile,gulpfile.js,package.json,Procfile \
+        <project_name>
 
 To start a new Wagtail project with this template::
-    django-admin.py startproject \
-      --template=https://github.com/caktus/django-project-template/zipball/wagtail \
-      --extension=py,rst,yml,sh,js \
-      --name=Makefile,gulpfile.js,package.json,Procfile \
-      <project_name>
+    $ mkvirtualenv <project_name>
+    $ pip install Django
+    $ django-admin.py startproject \
+        --template=https://github.com/caktus/django-project-template/zipball/wagtail \
+        --extension=py,rst,yml,sh,js \
+        --name=Makefile,gulpfile.js,package.json,Procfile \
+        <project_name>
 
 License
 =======
@@ -77,7 +80,7 @@ to `use nvm <https://github.com/nvm-sh/nvm>`_.
 Django version
 ------------------------
 
-The Django version configured in this template is conservative. If you want to
+The Django version configured in this template is 2.2.x. If you want to
 use a newer version, edit ``requirements/base.txt``.
 
 Getting Started
