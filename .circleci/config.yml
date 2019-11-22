@@ -1,0 +1,73 @@
+version: 2
+jobs:
+  build:
+    docker:
+      - image: circleci/python:3.7.5-node
+        environment:
+          DJANGO_SETTINGS_MODULE: {{ project_name }}.settings.dev
+          # CircleCI Postgres doesn't support SSL, so we need to disable it here
+          REQUIRE_SSL: "0"
+      - image: circleci/postgres:10.5
+        environment:
+          POSTGRES_USER: ubuntu
+          POSTGRES_DB: circle_test
+
+    steps:
+      - checkout
+
+      - run:
+          name: prepare requirements cache key
+          command: |
+            cd requirements
+            cat base.txt dev.txt > all.txt
+
+      - restore_cache:
+          name: restore pip cache
+          keys:
+          - v1-dependencies-{{ checksum "requirements/all.txt" }}
+          # If cache for exact version of `requirements/all.txt` is not present,
+          # then load any most recent one.
+          - v1-dependencies-
+
+      - run:
+          name: install requirements
+          command: |
+            python3.7 -m venv venv
+            . venv/bin/activate
+            pip install -r requirements/dev.txt
+
+      - save_cache:
+          name: save pip cache
+          paths:
+            - ./venv
+          key: v1-dependencies-{{ checksum "requirements/all.txt" }}
+
+      - restore_cache:
+          name: Restore npm cache
+          key: npm-v2-{{ checksum "package-lock.json" }}
+      - run:
+          name: install npm packages
+          command: |
+            npm install
+      - save_cache:
+          name: save npm cache
+          paths:
+            - ./node_modules
+          key: npm-v2-{{ checksum "package-lock.json" }}
+
+      - run:
+          # Do this so we can catch failures before we deploy. (This step
+          # is NOT actually needed for tests to be run.)
+          name: build the frontend bundle
+          command: |
+            npm run build
+
+      - run:
+          name: run tests
+          command: |
+            . venv/bin/activate
+            ./run_tests.sh
+
+      - store_artifacts:
+          path: test-reports
+          destination: test-reports
