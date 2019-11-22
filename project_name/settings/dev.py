@@ -34,3 +34,11 @@ if 'test' in sys.argv:
     )
 
     LOGGING['root']['handlers'] = []
+
+# CircleCI settings
+if "CI" in os.environ:
+    # Use CircleCI's default database
+    DATABASES["default"]["NAME"] = "circle_test"
+    DATABASES["default"]["USER"] = "ubuntu"
+    DATABASES["default"]["HOST"] = "127.0.0.1"
+    DATABASES["default"]["PORT"] = "5432"
