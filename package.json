@@ -54,6 +54,7 @@
     "gulp-notify": "^3.2.0",
     "gulp-rename": "^1.4.0",
     "gulp-streamify": "1.0.2",
+    "gulp-touch-fd": "github:funkedigital/gulp-touch-fd",
     "gulp-uglify": "^3.0.2",
     "immutable": "^3.8.2",
     "isparta": "^4.1.1",

@@ -20,7 +20,9 @@ var mocha = require('gulp-mocha');
 var istanbul = require('gulp-istanbul');
 var isparta = require('isparta');
 var coverageEnforcer = require('gulp-istanbul-enforcer');
-
+// Note: this touch only updates the modtime of an existing file, but will never
+// create an empty file (unlike the command-line "touch").
+var touch = require('gulp-touch-fd');
 var spawn = require('child_process').spawn;
 var argv = require('yargs')
   .default('port', 8000)
@@ -68,6 +70,7 @@ gulp.task('modernizr', function() {
         .pipe(modernizr())
         .pipe(gulpif(!options.development, streamify(uglify())))
         .pipe(gulp.dest(options.modernizr.dest))
+        .pipe(touch())
 })
 
 var browserifyTask = function () {
@@ -96,6 +99,7 @@ var browserifyTask = function () {
         .pipe(rename('bundle.js'))
         .pipe(gulp.dest(options.dest))
         .pipe(gulpif(options.development, livereload()))
+        .pipe(touch())
         .pipe(notify(function () {
           console.log('APP bundle built in ' + (Date.now() - start) + 'ms');
         }));
@@ -126,6 +130,7 @@ var browserifyTask = function () {
       .pipe(source('vendors.js'))
       .pipe(gulpif(!options.development, streamify(uglify())))
       .pipe(gulp.dest(options.dest))
+      .pipe(touch())
       .pipe(notify(function () {
         console.log('VENDORS bundle built in ' + (Date.now() - start) + 'ms');
       }));
@@ -149,6 +154,7 @@ var cssTask = function () {
           .pipe(less(lessOpts))
           .pipe(rename('bundle.css'))
           .pipe(gulp.dest(options.css.dest))
+          .pipe(touch())
           .pipe(notify(function () {
             console.log('CSS bundle built in ' + (Date.now() - start) + 'ms');
           }));
@@ -161,7 +167,8 @@ var cssTask = function () {
         .pipe(less(lessOpts))
         .pipe(rename('bundle.css'))
         .pipe(cleancss())
-        .pipe(gulp.dest(options.css.dest));
+        .pipe(gulp.dest(options.css.dest))
+        .pipe(touch())
     }
 };
 gulp.task('css', cssTask);
