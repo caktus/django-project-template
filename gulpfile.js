@@ -20,6 +20,8 @@ var mocha = require('gulp-mocha');
 var istanbul = require('gulp-istanbul');
 var isparta = require('isparta');
 var coverageEnforcer = require('gulp-istanbul-enforcer');
+// Note: this touch only updates the modtime of an existing file, but will never
+// create an empty file (unlike the command-line "touch").
 var touch = require('gulp-touch-fd');
 var spawn = require('child_process').spawn;
 var argv = require('yargs')
@@ -97,7 +99,7 @@ var browserifyTask = function () {
         .pipe(rename('bundle.js'))
         .pipe(gulp.dest(options.dest))
         .pipe(gulpif(options.development, livereload()))
-        .pipe(gulpif(!options.development, touch()))
+        .pipe(touch())
         .pipe(notify(function () {
           console.log('APP bundle built in ' + (Date.now() - start) + 'ms');
         }));
@@ -152,6 +154,7 @@ var cssTask = function () {
           .pipe(less(lessOpts))
           .pipe(rename('bundle.css'))
           .pipe(gulp.dest(options.css.dest))
+          .pipe(touch())
           .pipe(notify(function () {
             console.log('CSS bundle built in ' + (Date.now() - start) + 'ms');
           }));
