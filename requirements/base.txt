@@ -1,8 +1,8 @@
 # The comment on the next line tells requests.io to warn us if there's a newer
 # version of Django within the given range, but not for versions outside that
-# range. So if 1.11.12 gets released, we get warned. If 2.0.1 gets released,
+# range. So if 2.2.99 gets released, we get warned. If 3.0.1 gets released,
 # we don't.
-Django==2.2.10  # rq.filter: >=2.2.7,<2.3
+Django==2.2.13  # rq.filter: >=2.2.7,<2.3
 # Required by Django
 sqlparse==0.3.0
 pytz
