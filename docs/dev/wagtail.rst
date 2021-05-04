@@ -1,53 +1,12 @@
-{% if False %}
-
-.. image:: https://requires.io/github/caktus/django-project-template/requirements.svg?branch=master
-
-(See `our requires.io documentation <http://caktus.github.io/developer-documentation/services/dep-tracking.html#requires-io>`_).
-
 Installation
 ============
 
-To start a new project with this template::
-
-    django-admin.py startproject \
-      --template=https://github.com/caktus/django-project-template/zipball/master \
+To start a new Wagtail project with this template::
+  $ django-admin.py startproject \
+      --template=https://github.com/caktus/django-project-template/zipball/wagtail \
       --extension=py,rst,yml,sh,js \
       --name=Makefile,gulpfile.js,package.json,Procfile \
       <project_name>
-
-License
-=======
-
-Copyright (c) 2017, Caktus Consulting Group, LLC
-
-Redistribution and use in source and binary forms, with or without modification, are permitted
-provided that the following conditions are met:
-
-1. Redistributions of source code must retain the above copyright notice, this list of conditions
-   and the following disclaimer.
-
-2. Redistributions in binary form must reproduce the above copyright notice, this list of conditions
-   and the following disclaimer in the documentation and/or other materials provided with the
-   distribution.
-
-3. Neither the name of the copyright holder nor the names of its contributors may be used to endorse
-   or promote products derived from this software without specific prior written permission.
-
-THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR
-IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND
-FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR
-CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
-DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
-DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER
-IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF
-THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-
-{% endif %}
-
-.. EDIT the below links to use the project's github repo path. Or just remove them.
-
-.. image:: https://requires.io/github/GITHUB_ORG/{{ project_name }}/requirements.svg?branch=master
-.. image:: https://requires.io/github/GITHUB_ORG/{{ project_name }}/requirements.svg?branch=develop
 
 {{ project_name|title }}
 ========================
@@ -76,28 +35,19 @@ use a newer version, edit ``requirements/base.txt``.
 Getting Started
 ------------------------
 
-First clone the repository from Github and switch to the new directory::
-
-    $ git clone git@github.com:[ORGANIZATION]/{{ project_name }}.git
-    $ cd {{ project_name }}
-
-To setup your local environment you can use the quickstart make target `setup`, which will
-install both Python and Javascript dependencies (via pip and npm) into a virtualenv named
-"{{ project_name }}", configure a local django settings file, and create a database via
-Postgres named "{{ project_name }}" with all migrations run::
-
-    $ make setup
-    $ workon {{ project_name }}
-
-If you require a non-standard setup, you can walk through the manual setup steps below making
-adjustments as necessary to your needs.
-
-To setup your local environment you should create a virtualenv and install the
+To setup your local environment you should create a virtualenv, install a new wagtail project, and download the
 necessary requirements::
 
     # Check that you have python3.7 installed
     $ which python3.7
-    $ mkvirtualenv {{ project_name }} -p `which python3.7`
+    $ mkvirtualenv {{ project_name }} -p python3.7
+    ({{ project_name }})$ pip install Django===2.2.6
+    ({{ project_name }})$ django-admin.py startproject \
+      --template=https://github.com/caktus/django-project-template/zipball/wagtail \
+      --extension=py,rst,yml,sh,js \
+      --name=Makefile,gulpfile.js,package.json,Procfile \
+      <project_name>
+    ({{ project_name }})$ cd {{ project_name }}
     ({{ project_name }})$ pip install -r requirements/dev.txt
     ({{ project_name }})$ npm install
 
